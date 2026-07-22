@@ -27,11 +27,11 @@
 ## 명령어
 
 ```bash
-# core: 빌드·테스트 (테스트 84개 = 72 + ignored 12(fastembed 모델 필요))
+# core: 빌드·테스트 (테스트 85개 = 73 + ignored 12(fastembed 모델 필요))
 cd core && cargo test 2>&1 | tail -5; echo EXIT=${PIPESTATUS[0]}
 cargo test --lib -- --ignored 2>&1 | tail -5          # 네트워크/모델 의존분
 
-# mind: 빌드+테스트 179개
+# mind: 빌드+테스트 180개
 cd mind && npm test 2>&1 | tail -8
 
 # 로컬 웹 확인 (fixture 모드 — 실데이터 불요, window.__cosmosSceneApi 테스트 훅 활성)
@@ -61,6 +61,6 @@ curl -fsS <공개주소>/health   # COSMOS_BIND를 LAN IP로 제한한 배포는
 | 변경 | 게이트 |
 |---|---|
 | core | `cargo test` 전량 + ignored, 스코프/브랜치 격리 테스트 무회귀 |
-| mind | `npm test` 179 전량 |
+| mind | `npm test` 180 전량 |
 | web | fixture 헤드리스(문법+DOM+`__cosmosSceneApi` 어서션)+스크린샷 육안 1장 |
 | 배포 | /health 카운트 확인(문서 318·클러스터 19 기준선, 2026-07-22) + 무인증/admin 스코프 각 1프로브 |
