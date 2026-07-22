@@ -28,7 +28,7 @@
 
 ## 지식 유입 (3경로) · 지식 PR · 승격
 - **수집(collect)**: arXiv+RSS 결정론 점수 상위분 → 자동 브랜치 `collect/YYYY-MM-DD`(완전 격리) → 웹 검토 화면에서 admin 체리픽 병합/거부. 인박스는 폐지(/inbox=410).
-- **워처(scan)**: PC 일일 동기화(스케줄러 CosmosHubSync 09:23) — session 소스(메모리·위키)→`owner=admin` 개인, repo 소스(정본 문서)→공통. main 직행(자기 지식은 검토 불요).
+- **워처(scan)**: PC 일일 동기화(배포처별 스케줄러, 온오퍼는 일 1회) — session 소스(메모리·위키)→`owner=admin` 개인, repo 소스(정본 문서)→공통. main 직행(자기 지식은 검토 불요).
 - **manual**: 직행. member 업로드는 branch_id 또는 owner=본인 중 하나 필수(403).
 - **ingest 배정**: argmax centroid(owner 문서는 owner 일치 클러스터만), fit<0.5→low_fit. owner+branch_id 동시 지정=400. 첫 개인 문서는 `personal-<name>` 클러스터 자동 탄생.
 - **승격(개인→공통)**: `POST /branches/{id}/docs {doc_ids}`(owner≠NULL만, all-or-nothing) → merge 시 branch_id=NULL+owner=NULL, inverse에 doc별 이전 owner → rollback이 소유권까지 복원. discard는 비가역(origins만 저널).
@@ -50,7 +50,7 @@
 - 주기: mind cron **1시간**(collect·lifecycle과 동일 메커니즘) + 웹 "지금 동기화".
 - API(mind): `GET /my/repo`(본인 연결 상태) · `PUT /my/repo {repo, branch?, token?}`(본인 등록/변경 — owner는 identity로 강제) · `POST /my/repo/sync`(본인 즉시 동기화) · admin 전용 `GET /repos`(전체 목록·상태).
 - 웹: 챗 바 [📝 내 지식 연결] = 레포 연결 패널(현재 상태·repo 입력·선택 토큰·지금 동기화).
-- 주의: 관리자 PC의 CosmosHubSync(파일경로 origin)와 같은 내용을 레포 커넥터로 이중 연결하면 origin이 달라 중복 문서가 된다 — 한 소스는 한 경로로만.
+- 주의: 관리자 PC의 파일 워처 동기화(파일경로 origin)와 같은 내용을 레포 커넥터로 이중 연결하면 origin이 달라 중복 문서가 된다 — 한 소스는 한 경로로만.
 
 ## 운영
 - 운영 서버 compose 2서비스(온오퍼 배포분은 LAN 전용 바인딩): core(cosmos-data:/data/out, cosmos-models:/models) + mind(cosmos-mind-data:/data, cosmos-claude:/root/.claude, LLM=컨테이너 claude CLI).
