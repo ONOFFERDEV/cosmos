@@ -611,9 +611,9 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   linkLines.frustumCulled = false; // 공전으로 절대좌표가 계속 변함 — 문서 점과 같은 이유
   linkLines.raycast = () => {}; // 피킹 무시(가는 선 오클릭 방지)
   linkLines.userData.kind = 'doc-links';
-  let linksEnabled = true; // 표시 옵션 토글
+  let linksEnabled = false; // 표시 옵션 토글 — 기본 꺼짐(사용자 결정 2026-07-22), app.js가 저장값을 적용
   let linkFocusIndex = null; // 선택된 문서 index(그 문서의 선만 강조), null=전체 기본
-  linkLines.visible = docLinks.length > 0;
+  linkLines.visible = false;
   scene.add(linkLines);
 
   function writeLinkEndColor(offset, docIdx, intensity) {

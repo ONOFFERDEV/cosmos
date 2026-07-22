@@ -59,7 +59,7 @@
 - API(core): `GET /graph/docs/{doc_id}?owner_scope=` → {outbound, inbound}(각 항목=rel_type·target_name·해석된 문서 요약). `POST /graph/neighbors {doc_ids, owner_scope?, limit?}` → 1-hop 이웃 문서+첫 청크 스니펫. `GET /graph/links?owner_scope=` → 스코프 안에서 **양 끝이 모두 해석·노출 가능한** 링크 쌍 전량 {links:[{src_doc_id, dst_doc_id, rel_type}]}(dangling·브랜치 문서 제외 — 관계선 시각화용).
 - **스코프 격리가 관계에도 적용**: 스코프 밖 개인 문서는 그래프 응답에서 항목째 제외(이름도 유출이다). dangling 이름은 코퍼스 밖이므로 노출 무해. /graph/links는 한쪽 끝이라도 스코프 밖이면 그 쌍 자체를 내지 않는다.
 - 활용(mind fast): 검색 top-k 후 이웃 상위 N(기본 4)을 검색 결과 뒤에 합류(rerank 0점, source="graph") → LLM 인용 후보로 편입, trace.graph에 확장 기록. deep 적용·LLM 개념 관계 추출(concepts/relations 테이블)은 v2.
-- 웹: 문서 패널에 "연결된 지식"(들어옴/나감, 코퍼스 내 링크는 점프, dangling은 이름만). **관계선 시각화**: /universe 페이로드에 `links`(mind가 core /graph/links를 합류, 미가용 시 빈 배열) — 3D 뷰가 문서 점 사이에 상시 은은한 선(가산 블렌딩)으로 그리고, 문서 선택 시 그 문서의 선만 밝게·나머지는 더 어둡게. 표시 옵션에서 켜고 끔(기본 켬). 잠금 소등 클러스터에 걸친 선은 함께 회색.
+- 웹: 문서 패널에 "연결된 지식"(들어옴/나감, 코퍼스 내 링크는 점프, dangling은 이름만). **관계선 시각화**: /universe 페이로드에 `links`(mind가 core /graph/links를 합류, 미가용 시 빈 배열) — 3D 뷰가 문서 점 사이에 상시 은은한 선(가산 블렌딩)으로 그리고, 문서 선택 시 그 문서의 선만 밝게·나머지는 더 어둡게. 표시 옵션에서 켜고 끔(**기본 꺼짐** — 사용자 결정 2026-07-22, 켜면 localStorage 기억). 잠금 소등 클러스터에 걸친 선은 함께 회색.
 - 게이트: ①추출(별칭·중복 dedup·자기링크 제외) ②dangling→역해석 왕복 ③무인증/타인 그래프에 개인 문서 0 ④fast에서 이웃 인용 합류 실측 ⑤전 회귀.
 
 ## 운영

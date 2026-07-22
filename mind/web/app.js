@@ -233,10 +233,10 @@ function setupDisplayOptions(sceneApi) {
       if (row) row.style.display = 'none';
     } else {
       if (linksCount) linksCount.textContent = `${sceneApi.linkCount}개`;
-      let on = true;
+      let on = false; // 기본 꺼짐 — 명시적으로 켠 사용자만 기억값으로 복원
       try {
-        on = localStorage.getItem(LINKS_KEY) !== 'off';
-      } catch { /* 접근 불가 시 기본 켬 */ }
+        on = localStorage.getItem(LINKS_KEY) === 'on';
+      } catch { /* 접근 불가 시 기본 꺼짐 */ }
       linksToggle.checked = on;
       sceneApi.setLinksVisible(on);
       linksToggle.addEventListener('change', () => {
