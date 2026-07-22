@@ -1,0 +1,61 @@
+services:
+  core:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.core
+    image: cosmos-core:latest
+    # 외부에 노출하지 않음 — mind만 내부망(core:8801)으로 접근한다.
+    expose:
+      - "8801"
+    volumes:
+      - cosmos-data:/data/out
+      - cosmos-models:/models
+    command: ["serve", "--port", "8801", "--out", "/data/out", "--models", "/models"]
+    restart: unless-stopped
+
+  mind:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.mind
+    image: cosmos-mind:latest
+    ports:
+      # 바인딩 주소는 .env의 COSMOS_BIND로 지정(기본 0.0.0.0 — 전체 인터페이스).
+      # 공인 회선이 물린 서버라면 반드시 LAN IP로 제한할 것: Docker는 firewalld를
+      # 우회(DNAT)해 노출시킨다([[docker-bypasses-firewalld-dnat]] — 온오퍼는 192.168.0.34).
+      - "${COSMOS_BIND:-0.0.0.0}:8800:8800"
+    volumes:
+      # LLM 백엔드 상태 영속(비-api 백엔드용 내부 옵션 — api 모드에선 미사용).
+      - cosmos-claude:/root/.claude
+      # cron·수집 설정 — mind가 /cosmos.config.json에서 로드(M5 게이트 실측).
+      # watcher.dirs의 Windows 경로는 컨테이너에 없어 자동 스킵된다.
+      - ../cosmos.config.json:/cosmos.config.json:ro
+      # mind 상태 영속(유저·초대·질의로그·digest/collect 상태). 실경로는 /data —
+      # defaultDataDir()가 dist/../../data로 계산돼 컨테이너에선 /data가 된다
+      # (M8.5 실측: /app/data 마운트 시절엔 볼륨이 비어 있었고 데이터가 임시 레이어에 있었음).
+      - cosmos-mind-data:/data
+    environment:
+      # LLM 백엔드: 기본 api(ANTHROPIC_API_KEY 필요). 내부 대안 백엔드는 .env로 지정.
+      COSMOS_LLM: ${COSMOS_LLM:-api}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      COSMOS_CORE_URL: http://core:8801
+      COSMOS_TOKEN: ${COSMOS_TOKEN:-}
+      # M8.5 자기소멸 초대 봇 — 미설정 시 기능 비활성(무해)
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      # M9.6 개인 지식 레포 커넥터 — org private 레포 공용 read 토큰(미설정 시 공개 레포만)
+      GITHUB_KNOWLEDGE_TOKEN: ${GITHUB_KNOWLEDGE_TOKEN:-}
+      COSMOS_PUBLIC_URL: ${COSMOS_PUBLIC_URL:-http://localhost:8800}
+      # 지식 레포 템플릿(가이드·AI 런북에 치환되어 나감)
+      COSMOS_TEMPLATE_REPO: ${COSMOS_TEMPLATE_REPO:-}
+    depends_on:
+      - core
+    restart: unless-stopped
+
+volumes:
+  cosmos-data:
+    name: cosmos-data
+  cosmos-models:
+    name: cosmos-models
+  cosmos-claude:
+    name: cosmos-claude
+  cosmos-mind-data:
+    name: cosmos-mind-data

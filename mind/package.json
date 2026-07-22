@@ -1,0 +1,19 @@
+{
+  "name": "cosmos-mind",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cosmos M1 mind — TypeScript 오케스트레이션 계층 (fast Q&A). 런타임 npm 의존성 0.",
+  "bin": {
+    "cosmos-mind": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"dist/**/*.test.js\"",
+    "start": "node dist/cli.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.9.0"
+  }
+}

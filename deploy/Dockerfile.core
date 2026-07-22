@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+#
+# cosmos-core (Rust) 배포용 Dockerfile.
+# 빌드 컨텍스트는 레포 루트여야 한다(이 파일은 deploy/ 안에 있지만 core/ 소스를 참조하기 위함).
+#   docker build -f deploy/Dockerfile.core -t cosmos-core:latest ..
+#
+# 베이스 이미지 고정 사유: core는 ort/onnxruntime(fastembed 경유)을 사용하며
+# glibc 2.38+ 심볼(__isoc23_*)을 요구한다. debian:bookworm(glibc 2.36)에서는
+# 링크에 실패한 전례가 있으므로 반드시 trixie 계열을 사용한다.
+
+FROM rust:1-trixie AS builder
+WORKDIR /src
+COPY core/ ./core/
+WORKDIR /src/core
+RUN cargo build --release --locked \
+ && mkdir -p /out \
+ && cp target/release/cosmos-core /out/cosmos-core \
+ && find target/release -maxdepth 6 -name '*.so*' -exec cp -L {} /out/ \; \
+ && ls -la /out
+
+FROM debian:trixie-slim AS runtime
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+# ort/onnxruntime 동적 라이브러리는 실행파일과 같은 디렉토리에 있어야 로드된다.
+# builder 단계에서 target/release 아래를 뒤져 바이너리 옆으로 모아둔 것을 그대로 복사한다.
+COPY --from=builder /out/ /app/
+ENV LD_LIBRARY_PATH=/app
+
+ENTRYPOINT ["/app/cosmos-core"]

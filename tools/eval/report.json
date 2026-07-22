@@ -1,0 +1,415 @@
+{
+  "generated_at": "2026-07-13T03:29:35.307Z",
+  "hit_at_6": 12,
+  "total": 12,
+  "rows": [
+    {
+      "id": "q01",
+      "hit": true,
+      "top1": "windows-spawn-cmd-quoting-mines.md",
+      "gold": [
+        "windows-spawn-cmd-quoting-mines.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\windows-spawn-cmd-quoting-mines.md",
+          "score": 5.3460565
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\windows-spawn-cmd-quoting-mines.md",
+          "score": 0.7963073
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\claude-fleet-control.md",
+          "score": -4.6352925
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\claude-fleet-monitoring-canon.md",
+          "score": -4.8625336
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\claude-fleet-control.md",
+          "score": -4.9542284
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\claude-fleet-control.md",
+          "score": -5.2267704
+        }
+      ]
+    },
+    {
+      "id": "q02",
+      "hit": true,
+      "top1": "ort-onnxruntime-rust-windows-airgap.md",
+      "gold": [
+        "ort-onnxruntime-rust-windows-airgap.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\ort-onnxruntime-rust-windows-airgap.md",
+          "score": 4.23781
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\ort-onnxruntime-rust-windows-airgap.md",
+          "score": 1.0735421
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": -0.5939749
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": -0.7689863
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\ort-onnxruntime-glibc-238-docker-base.md",
+          "score": -1.1393019
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\ollama-sidecar-airgap-extraction.md",
+          "score": -1.2582554
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "hit": true,
+      "top1": "tauri-mutex-engine-pdfium-thread-safe-send.md",
+      "gold": [
+        "tauri-mutex-engine-pdfium-thread-safe-send.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tauri-mutex-engine-pdfium-thread-safe-send.md",
+          "score": 6.4844513
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tauri-mutex-engine-pdfium-thread-safe-send.md",
+          "score": 3.0505576
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tauri-mutex-engine-pdfium-thread-safe-send.md",
+          "score": 2.8475642
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": 2.674975
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tauri-mutex-engine-pdfium-thread-safe-send.md",
+          "score": 2.478765
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\headless-rust-binary-tiny-http-serve.md",
+          "score": 1.9143279
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "hit": true,
+      "top1": "cloudflare-do-cost-model.md",
+      "gold": [
+        "cloudflare-do-cost-model.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\cloudflare-do-cost-model.md",
+          "score": 0.0881641
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cloudflare-account-onoffer.md",
+          "score": -1.9123845
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+          "score": -3.1026235
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+          "score": -4.3737535
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\cloudflare-udp-webtransport-limits.md",
+          "score": -5.6070986
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\webrtc-mediapipe-mobile-stack.md",
+          "score": -6.880081
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "hit": true,
+      "top1": "tikron-session-key-is-broadcast.md",
+      "gold": [
+        "tikron-session-key-is-broadcast.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+          "score": 4.1683836
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+          "score": 0.8577662
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+          "score": 0.06965537
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\emberfall-3d-mmo.md",
+          "score": -2.7930155
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\nyam-duel-face-game.md",
+          "score": -4.0798893
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+          "score": -4.2785993
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "hit": true,
+      "top1": "ollama-sidecar-airgap-extraction.md",
+      "gold": [
+        "ollama-sidecar-airgap-extraction.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\ollama-sidecar-airgap-extraction.md",
+          "score": 2.606087
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": 1.7041202
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\claude-cli-headless-structured-extraction.md",
+          "score": 1.0951244
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": 0.35033557
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\claude-cli-headless-structured-extraction.md",
+          "score": 0.25881428
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\rocky-server-onofferserver.md",
+          "score": -0.22161445
+        }
+      ]
+    },
+    {
+      "id": "q07",
+      "hit": true,
+      "top1": "hwp-distdoc-viewtext-decrypt.md",
+      "gold": [
+        "hwp-distdoc-viewtext-decrypt.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\hwp-distdoc-viewtext-decrypt.md",
+          "score": 3.258919
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": 0.13204414
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\hwp-distdoc-viewtext-decrypt.md",
+          "score": -1.6715631
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\hwp-distdoc-viewtext-decrypt.md",
+          "score": -2.3093565
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\hwp-distdoc-viewtext-decrypt.md",
+          "score": -3.0780132
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": -3.1021943
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "hit": true,
+      "top1": "korea-secondary-pg-unregistered-boundary.md",
+      "gold": [
+        "korea-secondary-pg-unregistered-boundary.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md",
+          "score": 6.982713
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md",
+          "score": 1.6679987
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md",
+          "score": 1.2098207
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md",
+          "score": -1.3491373
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md",
+          "score": -1.5671296
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md",
+          "score": -2.5295777
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "hit": true,
+      "top1": "tantivy-queryparser-natural-language-syntax-error.md",
+      "gold": [
+        "tantivy-queryparser-natural-language-syntax-error.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tantivy-queryparser-natural-language-syntax-error.md",
+          "score": 4.386836
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tantivy-queryparser-natural-language-syntax-error.md",
+          "score": 1.0150206
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": 0.38901493
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tantivy-queryparser-natural-language-syntax-error.md",
+          "score": -0.79414684
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": -2.7954013
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cosmos-knowledge-universe.md",
+          "score": -3.4956093
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "hit": true,
+      "top1": "law-go-kr-openapi-korean-query-encoding.md",
+      "gold": [
+        "law-go-kr-openapi-korean-query-encoding.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+          "score": 0.8221249
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+          "score": -0.23836407
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+          "score": -0.27746356
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+          "score": -2.1541367
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-prelaunch-landing.md",
+          "score": -6.239975
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+          "score": -6.5056167
+        }
+      ]
+    },
+    {
+      "id": "q11",
+      "hit": true,
+      "top1": "webgpu-tsl-softbody-headless-verify-dispatch-opt.md",
+      "gold": [
+        "webgpu-tsl-softbody-headless-verify-dispatch-opt.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\webgpu-tsl-softbody-headless-verify-dispatch-opt.md",
+          "score": 4.7719193
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\webgpu-tsl-softbody-headless-verify-dispatch-opt.md",
+          "score": 3.517012
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\headless-chrome-spa-screenshot.md",
+          "score": 0.051699303
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\tauri-webview2-headless-boot-smoke.md",
+          "score": -1.013854
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\webgpu-tsl-softbody-headless-verify-dispatch-opt.md",
+          "score": -1.1631525
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\headless-game-playtest-puppeteer.md",
+          "score": -2.1197972
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "hit": true,
+      "top1": "korail2-reservation-not-in-app-cart.md",
+      "gold": [
+        "korail2-reservation-not-in-app-cart.md"
+      ],
+      "results": [
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korail2-reservation-not-in-app-cart.md",
+          "score": 6.283178
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korail2-reservation-not-in-app-cart.md",
+          "score": 5.98449
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\wiki\\korail2-reservation-not-in-app-cart.md",
+          "score": 5.087245
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\snipe-hub.md",
+          "score": 4.1508827
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\snipe-hub.md",
+          "score": 3.9130952
+        },
+        {
+          "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\snipe-hub.md",
+          "score": 2.746266
+        }
+      ]
+    }
+  ]
+}

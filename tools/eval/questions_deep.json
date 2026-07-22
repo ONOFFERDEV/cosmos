@@ -1,0 +1,78 @@
+[
+  {
+    "id": "qd01",
+    "question": "최근 arXiv에 올라온 멀티에이전트 오케스트레이션/조정 논문들(WebSwarm, Fictional Worldbuilding, Agora 등)의 접근 방식과, 우리가 실제 프로젝트 운영에서 겪은 멀티에이전트 워크플로우 교훈(fleet 모니터링, 봇 채움 거점 모드 결함, 계약 드리프트)을 비교해서 논문들의 조정 메커니즘이 우리가 겪은 문제와 어떻게 연결되는지 설명해줘.",
+    "expect": "answer",
+    "expected_clusters": ["personal-project-portfolio-dev-infra", "multi-agent-workflow-lessons"],
+    "gold_files_any": [
+      "http://arxiv.org/abs/2607.08662v1",
+      "http://arxiv.org/abs/2607.09403v1",
+      "http://arxiv.org/abs/2607.09600v1",
+      "http://arxiv.org/abs/2607.09330v1",
+      "C:\\Users\\User\\.claude\\wiki\\claude-fleet-monitoring-canon.md",
+      "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+      "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+      "C:\\Users\\User\\.claude\\wiki\\llm-codegen-transactional-kb-pipeline.md"
+    ]
+  },
+  {
+    "id": "qd02",
+    "question": "Cloudflare가 최근 발표한 AI 에이전트 플랫폼 트렌드(Flue SDK, Cloudflare One, 임시 에이전트 계정)가 우리 Tikron 멀티플레이 Durable Objects 운영의 원가 모델·세션 보안 이슈와 어떻게 연결되는지 설명해줘.",
+    "expect": "answer",
+    "expected_clusters": ["indie-saas-licensing-paywall-infra", "personal-project-portfolio-dev-infra"],
+    "gold_files_any": [
+      "https://blog.cloudflare.com/temporary-accounts/",
+      "https://blog.cloudflare.com/agents-platform-flue-sdk/",
+      "https://blog.cloudflare.com/cloudflare-one-stack/",
+      "C:\\Users\\User\\.claude\\wiki\\cloudflare-do-cost-model.md",
+      "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+      "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+      "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cloudflare-account-onoffer.md"
+    ]
+  },
+  {
+    "id": "qd03",
+    "question": "우리 메모리에 기록된 PowerShell UTF-8 텍스트 손상 교훈과, 위키에 있는 PowerShell 5.1 UTF-8 BOM 지뢰 기술 노트가 서로 어떻게 일치하거나 확장되는지 비교하고, 두 기록을 종합해서 핵심 회피 규칙을 정리해줘.",
+    "expect": "answer",
+    "expected_clusters": ["memory-ontology-moc", "cross-project-tech-notes-and-directives"],
+    "gold_files_any": [
+      "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md",
+      "C:\\Users\\User\\.claude\\wiki\\powershell51-utf8-bom-hazards.md",
+      "C:\\Users\\User\\.claude\\wiki\\claude-edit-unicode-escape-mine.md",
+      "C:\\Users\\User\\.claude\\wiki\\obsidian-frontmatter-unquoted-colon-wipe.md"
+    ]
+  },
+  {
+    "id": "qd04",
+    "question": "Figma 플러그인들(psyfi 등)의 원격 페이월 config 무료→유료 전환 결정과, 위키에 기록된 원격 페이월 config 패턴·라이선스 서버 디바이스 인증 아키텍처 기술 세부사항이 어떻게 맞물리는지 설명해줘. 전환 시 어떤 기술적 전제조건이 필요해?",
+    "expect": "answer",
+    "expected_clusters": ["personal-project-portfolio-dev-infra", "indie-saas-licensing-paywall-infra"],
+    "gold_files_any": [
+      "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+      "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-plugin-launch.md",
+      "C:\\Users\\User\\.claude\\projects\\D--\\memory\\figma-plugins-inapp-payment.md",
+      "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md",
+      "C:\\Users\\User\\.claude\\wiki\\license-server-device-auth-architecture.md",
+      "C:\\Users\\User\\.claude\\wiki\\traxel-license-server-integration.md"
+    ]
+  },
+  {
+    "id": "qd05",
+    "question": "병렬 에이전트 운영에서 겪은 API 계약 드리프트 문제와, 재현성 확보를 위한 시드 결정성·봉인 평가셋 운용 원칙을 종합해서, 멀티에이전트 시스템 테스트를 안정적으로 만들려면 어떤 원칙들을 지켜야 하는지 정리해줘.",
+    "expect": "answer",
+    "expected_clusters": ["multi-agent-workflow-lessons", "cross-project-tech-notes-and-directives"],
+    "gold_files_any": [
+      "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+      "C:\\Users\\User\\.claude\\wiki\\llm-codegen-transactional-kb-pipeline.md",
+      "C:\\Users\\User\\.claude\\wiki\\sealed-eval-hidden-state-blindspot.md",
+      "C:\\Users\\User\\.claude\\wiki\\seed-aware-test-determinism.md"
+    ]
+  },
+  {
+    "id": "qd06",
+    "question": "극자외선(EUV) 리소그래피 공정에서 펠리클 투과율과 레지스트 확률적 결함률 사이의 트레이드오프는 노광 선량을 어떻게 조정해야 개선돼?",
+    "expect": "insufficient",
+    "expected_clusters": [],
+    "gold_files_any": []
+  }
+]

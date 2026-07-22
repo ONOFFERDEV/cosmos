@@ -1,0 +1,41 @@
+{
+  "collect": {
+    "arxiv": {
+      "categories": ["cs.CL", "cs.AI", "cs.LG"],
+      "max_per_category": 50
+    },
+    "rss": {
+      "feeds": [
+        { "url": "https://hnrss.org/newest?q=LLM+OR+agent&count=5", "enabled": true }
+      ]
+    },
+    "score_top_n": 20
+  },
+  "approval": {
+    "arxiv": "approval",
+    "rss": "approval",
+    "manual": "direct",
+    "session": "auto"
+  },
+  "watcher": {
+    "interval_secs": 60,
+    "sources": [
+      {
+        "path": "/absolute/path/to/your/notes",
+        "source_type": "session",
+        "_주석": "관리자 개인 지식 폴더(컨테이너에서 접근 가능한 경로만 — 보통은 개인 지식 레포 커넥터를 쓰는 편이 낫다)"
+      },
+      {
+        "path": "/absolute/path/to/your/repo",
+        "source_type": "repo",
+        "docs_only": true,
+        "_주석": "회사 공용 정본 문서 레포 — 루트 PLAN/README와 docs/ 하위 .md만 수집"
+      }
+    ]
+  },
+  "cron": {
+    "collect_interval_hours": 24,
+    "lifecycle_interval_hours": 24,
+    "repo_sync_interval_hours": 1
+  }
+}

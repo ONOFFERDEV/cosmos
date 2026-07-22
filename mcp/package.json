@@ -1,0 +1,22 @@
+{
+  "name": "cosmos-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cosmos M5 — mind HTTP API를 감싸는 MCP stdio 브리지.",
+  "bin": {
+    "cosmos-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.9.0"
+  }
+}

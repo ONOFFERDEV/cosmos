@@ -1,0 +1,12 @@
+/data/
+/models/
+.omc/
+core/target/
+node_modules/
+*.log
+.DS_Store
+.mcp.json
+deploy/.env
+
+# 배포처별 실설정(개인 경로 포함) — 예시는 cosmos.config.example.json
+cosmos.config.json

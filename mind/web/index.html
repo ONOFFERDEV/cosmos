@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cosmos — 지식 코스모스</title>
+  <link rel="stylesheet" href="/web/style.css" />
+  <!-- three.js는 npm에서 그대로 벤더링한 로컬 파일만 사용한다. CDN/외부 요청 없음. -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/web/vendor/three.module.min.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="universe-canvas-mount"></div>
+  <div id="label-layer"></div>
+
+  <div id="legend">
+    <h1>Cosmos</h1>
+    <div class="legend-row"><span class="swatch" style="color:#2dd4bf;background:#2dd4bf"></span>session</div>
+    <div class="legend-row"><span class="swatch" style="color:#a78bfa;background:#a78bfa"></span>arxiv</div>
+    <div class="legend-row"><span class="swatch" style="color:#fb923c;background:#fb923c"></span>rss</div>
+    <div class="legend-row"><span class="swatch" style="color:#e5e7eb;background:#e5e7eb"></span>manual</div>
+    <div class="stats" id="legend-stats">클러스터 — · 문서 —</div>
+    <div id="display-section">
+      <div class="motion-title">표시 옵션 <span class="motion-hint" id="brightness-value">밝기 100%</span></div>
+      <input type="range" id="brightness-slider" min="30" max="150" step="5" value="100" aria-label="밝기 조절">
+    </div>
+    <div id="motion-section">
+      <div class="motion-title">클러스터 동작 <span class="motion-hint">체크 해제 = 잠금·소등</span></div>
+      <label class="motion-row motion-all"><input type="checkbox" id="motion-all" checked><span>전체</span></label>
+      <div id="motion-list"></div>
+    </div>
+  </div>
+
+  <div id="view-controls">
+    <button class="icon-btn" id="reset-view-btn" type="button">뷰 초기화</button>
+  </div>
+
+  <aside id="detail-panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kind" id="panel-kind">—</div>
+        <div class="panel-title" id="panel-title">—</div>
+      </div>
+      <button class="panel-close" id="panel-close-btn" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+  </aside>
+
+  <aside id="review-panel" hidden>
+    <div class="panel-head">
+      <div>
+        <div class="panel-kind">지식 PR 검토</div>
+        <div class="panel-title" id="review-panel-title">브랜치 선택</div>
+      </div>
+      <button class="panel-close" id="review-panel-close-btn" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="panel-body" id="review-panel-body"></div>
+  </aside>
+
+  <div id="tooltip"></div>
+
+  <div id="chat-panel">
+    <div id="chat-header">
+      <span id="chat-header-title">Cosmos</span>
+      <button class="review-badge-btn" id="my-knowledge-btn" type="button" hidden title="내 노트 폴더를 코스모스에 연결하는 설치 파일 받기">📝 내 지식 연결</button>
+      <button class="review-badge-btn" id="review-badge-btn" type="button" hidden>검토 0</button>
+      <button class="chat-collapse-btn" id="chat-collapse-btn" type="button" aria-expanded="true" aria-label="대화 스레드 접기/펴기">
+        <span>⌄</span>
+      </button>
+    </div>
+    <div id="chat-thread" role="log" aria-live="polite"></div>
+    <div id="chat-input-row">
+      <div id="mode-toggle" role="group" aria-label="질의 모드">
+        <button type="button" data-mode="auto" class="active">AUTO</button>
+        <button type="button" data-mode="fast">FAST</button>
+        <button type="button" data-mode="deep">DEEP</button>
+      </div>
+      <textarea id="question-input" placeholder="질문하기 · Shift+Enter로 줄바꿈" rows="1"></textarea>
+      <button id="ask-submit" type="button">전송</button>
+    </div>
+  </div>
+
+  <div id="loading-overlay">
+    <div class="load-ring"></div>
+    <p id="loading-text">코스모스를 불러오는 중…</p>
+  </div>
+
+  <div id="error-overlay" hidden>
+    <h2>코스모스에 접속할 수 없습니다</h2>
+    <p id="error-text"></p>
+  </div>
+
+  <script type="module" src="/web/app.js"></script>
+  <script type="module" src="/web/review.js"></script>
+</body>
+</html>

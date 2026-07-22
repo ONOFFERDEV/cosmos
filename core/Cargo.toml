@@ -1,0 +1,38 @@
+[workspace]
+
+[package]
+name = "cosmos-core"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "cosmos-core"
+path = "src/main.rs"
+
+[lib]
+name = "cosmos_core"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+sha2 = "0.10"
+uuid = { version = "1", features = ["v4"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
+tantivy = "0.25"
+lindera = "4"
+lindera-tantivy = { version = "4.0", features = ["embed-ko-dic"] }
+fastembed = "5"
+anyhow = "1"
+thiserror = "2"
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+base64 = "0.22"
+serde_yaml = "0.9"
+
+[profile.release]
+opt-level = 3

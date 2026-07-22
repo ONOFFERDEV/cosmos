@@ -1,0 +1,567 @@
+{
+  "generated_at": "2026-07-13T12:00:00Z",
+  "clusters": [
+    {
+      "id": "cl-1",
+      "slug": "llm-agent-pipeline",
+      "name": "LLM 에이전트 파이프라인",
+      "description": "라우팅·플래너·클러스터 에이전트·안티환각 가드 등 mind 오케스트레이션 지식",
+      "status": "active",
+      "n_docs": 8,
+      "n_chunks": 145,
+      "pos": [
+        -60,
+        20,
+        10
+      ],
+      "radius": 12.04
+    },
+    {
+      "id": "cl-2",
+      "slug": "game-engine-tikron",
+      "name": "게임 엔진 & Tikron",
+      "description": "웹게임 BaaS·Emberfall MMO·ironsight FPS 등 게임 인프라 지식",
+      "status": "active",
+      "n_docs": 7,
+      "n_chunks": 98,
+      "pos": [
+        55,
+        35,
+        -25
+      ],
+      "radius": 9.9
+    },
+    {
+      "id": "cl-3",
+      "slug": "figma-plugin-ecosystem",
+      "name": "Figma 플러그인 생태계",
+      "description": "psyfi·pvec·snap3d 등 플러그인 라이선스·페이월·배포 지식",
+      "status": "active",
+      "n_docs": 6,
+      "n_chunks": 205,
+      "pos": [
+        -20,
+        -50,
+        40
+      ],
+      "radius": 14.32
+    },
+    {
+      "id": "cl-4",
+      "slug": "infra-cloudflare",
+      "name": "인프라 & Cloudflare",
+      "description": "Workers·D1·Durable Objects 등 배포 인프라 운영 지식",
+      "status": "active",
+      "n_docs": 5,
+      "n_chunks": 58,
+      "pos": [
+        40,
+        -30,
+        -45
+      ],
+      "radius": 7.62
+    },
+    {
+      "id": "cl-5",
+      "slug": "biz-dev-ops",
+      "name": "사업개발 & 운영",
+      "description": "지원사업 레이더·라이선스 서버·B2B 허브 등 사업 운영 지식",
+      "status": "active",
+      "n_docs": 4,
+      "n_chunks": 27,
+      "pos": [
+        0,
+        60,
+        -60
+      ],
+      "radius": 6
+    },
+    {
+      "id": "cl-6",
+      "slug": "personal-admin",
+      "name": "로컬 개발 환경",
+      "description": "개인 폴더 경로·환경 설정 등 admin 개인 지식 공간 (M9 시각 구분 확인용)",
+      "status": "active",
+      "owner": "admin",
+      "n_docs": 3,
+      "n_chunks": 18,
+      "pos": [
+        70,
+        -30,
+        -40
+      ],
+      "radius": 5.2
+    }
+  ],
+  "docs": [
+    {
+      "doc_id": "personal-admin-doc-01",
+      "title": "로컬 폴더 경로·빌드 환경 메모",
+      "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\local-env-note.md",
+      "source_type": "session",
+      "cluster_slug": "personal-admin",
+      "fit": 0.87,
+      "pos": [
+        72.4,
+        -28.6,
+        -37.8
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-01",
+      "title": "fast Q&A 파이프라인 오케스트레이션 설계",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\llm-agent-pipeline-1.md",
+      "source_type": "session",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.924,
+      "pos": [
+        -60.79,
+        19.98,
+        9.78
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-02",
+      "title": "안티환각 3중 가드 구현 노트",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\llm-agent-pipeline-2.md",
+      "source_type": "session",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.883,
+      "pos": [
+        -59.61,
+        20.02,
+        8.79
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-03",
+      "title": "deep 협의 모드 플래너/에이전트 계약",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\llm-agent-pipeline-3.md",
+      "source_type": "session",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.716,
+      "pos": [
+        -59.69,
+        17.43,
+        11.67
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-04",
+      "title": "클러스터 라우팅 점수식 실측",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\llm-agent-pipeline-4.md",
+      "source_type": "session",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.444,
+      "pos": [
+        -60.66,
+        20.57,
+        15.96
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-05",
+      "title": "Retrieval-Augmented Generation for Multi-Agent Systems",
+      "origin": "https://arxiv.org/abs/2601.10005",
+      "source_type": "arxiv",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.852,
+      "pos": [
+        -58.58,
+        19.29,
+        10.23
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-06",
+      "title": "Constrained Decoding for Structured LLM Output",
+      "origin": "https://arxiv.org/abs/2601.10006",
+      "source_type": "arxiv",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.757,
+      "pos": [
+        -59.01,
+        21.43,
+        11.97
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-07",
+      "title": "LlmClient 추상화 claude-cli vs api 백엔드",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\llm-agent-pipeline-7.md",
+      "source_type": "session",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.674,
+      "pos": [
+        -60.85,
+        23.14,
+        8.63
+      ]
+    },
+    {
+      "doc_id": "llm-agent-pipeline-doc-08",
+      "title": "LLM 타임아웃 3차 실측 개정 기록",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\llm-agent-pipeline-8.md",
+      "source_type": "session",
+      "cluster_slug": "llm-agent-pipeline",
+      "fit": 0.519,
+      "pos": [
+        -56.26,
+        22.19,
+        7.1
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-01",
+      "title": "Tikron BaaS Durable Objects 아키텍처",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\game-engine-tikron-1.md",
+      "source_type": "session",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.708,
+      "pos": [
+        55.58,
+        33.72,
+        -22.81
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-02",
+      "title": "Emberfall 3D MMO 수직슬라이스 M3 회고",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\game-engine-tikron-2.md",
+      "source_type": "session",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.85,
+      "pos": [
+        55.58,
+        35.19,
+        -23.81
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-03",
+      "title": "ironsight rewind 히트레지 설계",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\game-engine-tikron-3.md",
+      "source_type": "session",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.908,
+      "pos": [
+        54.26,
+        34.94,
+        -24.66
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-04",
+      "title": "냠냠대전 얼굴인식 받아먹기 게임 기획",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\game-engine-tikron-4.md",
+      "source_type": "session",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.47,
+      "pos": [
+        52.76,
+        36.42,
+        -28.91
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-05",
+      "title": "gg 자연어 게임 제작 플랫폼 PLAN",
+      "origin": "D:\\cosmos\\data\\manual\\game-engine-tikron-5.md",
+      "source_type": "manual",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.95,
+      "pos": [
+        54.89,
+        35.38,
+        -24.79
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-06",
+      "title": "Tikron 랜딩 리디자인 롤백 결정",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\game-engine-tikron-6.md",
+      "source_type": "session",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.95,
+      "pos": [
+        54.85,
+        35.35,
+        -25.24
+      ]
+    },
+    {
+      "doc_id": "game-engine-tikron-doc-07",
+      "title": "@tikron/client 게이트웨이 의존성 수정",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\game-engine-tikron-7.md",
+      "source_type": "session",
+      "cluster_slug": "game-engine-tikron",
+      "fit": 0.634,
+      "pos": [
+        57.96,
+        34.08,
+        -23.98
+      ]
+    },
+    {
+      "doc_id": "figma-plugin-ecosystem-doc-01",
+      "title": "psyfi 플러그인 출시 결정 기록",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\figma-plugin-ecosystem-1.md",
+      "source_type": "session",
+      "cluster_slug": "figma-plugin-ecosystem",
+      "fit": 0.699,
+      "pos": [
+        -21.34,
+        -46.37,
+        39.7
+      ]
+    },
+    {
+      "doc_id": "figma-plugin-ecosystem-doc-02",
+      "title": "Figma 플러그인 인앱결제 승인 중단 교훈",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\figma-plugin-ecosystem-2.md",
+      "source_type": "session",
+      "cluster_slug": "figma-plugin-ecosystem",
+      "fit": 0.599,
+      "pos": [
+        -21.62,
+        -45.21,
+        38.93
+      ]
+    },
+    {
+      "doc_id": "figma-plugin-ecosystem-doc-03",
+      "title": "pvec 벡터라이저 라이선스 완료 노트",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\figma-plugin-ecosystem-3.md",
+      "source_type": "session",
+      "cluster_slug": "figma-plugin-ecosystem",
+      "fit": 0.641,
+      "pos": [
+        -19.29,
+        -50.26,
+        44.56
+      ]
+    },
+    {
+      "doc_id": "figma-plugin-ecosystem-doc-04",
+      "title": "원격 페이월 config 설계(무료→유료 전환)",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\figma-plugin-ecosystem-4.md",
+      "source_type": "session",
+      "cluster_slug": "figma-plugin-ecosystem",
+      "fit": 0.439,
+      "pos": [
+        -13.57,
+        -49.69,
+        36.72
+      ]
+    },
+    {
+      "doc_id": "figma-plugin-ecosystem-doc-05",
+      "title": "Figma iframe 보안 컨텍스트와 SubtleCrypto 부재",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\figma-plugin-ecosystem-5.md",
+      "source_type": "session",
+      "cluster_slug": "figma-plugin-ecosystem",
+      "fit": 0.524,
+      "pos": [
+        -22.67,
+        -49.13,
+        34.55
+      ]
+    },
+    {
+      "doc_id": "figma-plugin-ecosystem-doc-06",
+      "title": "플러그인 구매 포털 ontooler.com 스펙",
+      "origin": "D:\\cosmos\\data\\manual\\figma-plugin-ecosystem-6.md",
+      "source_type": "manual",
+      "cluster_slug": "figma-plugin-ecosystem",
+      "fit": 0.584,
+      "pos": [
+        -24.01,
+        -46.5,
+        39.32
+      ]
+    },
+    {
+      "doc_id": "infra-cloudflare-doc-01",
+      "title": "Cloudflare 계정·Workers Paid 구독 현황",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\infra-cloudflare-1.md",
+      "source_type": "session",
+      "cluster_slug": "infra-cloudflare",
+      "fit": 0.647,
+      "pos": [
+        41.43,
+        -28.09,
+        -45.43
+      ]
+    },
+    {
+      "doc_id": "infra-cloudflare-doc-02",
+      "title": "Cloudflare Workers 블로그 업데이트",
+      "origin": "https://blog.cloudflare.com/post-2",
+      "source_type": "rss",
+      "cluster_slug": "infra-cloudflare",
+      "fit": 0.604,
+      "pos": [
+        42.17,
+        -31.36,
+        -44.09
+      ]
+    },
+    {
+      "doc_id": "infra-cloudflare-doc-03",
+      "title": "D1/Durable Objects 원가 어림 계산",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\infra-cloudflare-3.md",
+      "source_type": "session",
+      "cluster_slug": "infra-cloudflare",
+      "fit": 0.721,
+      "pos": [
+        40.03,
+        -28.62,
+        -43.68
+      ]
+    },
+    {
+      "doc_id": "infra-cloudflare-doc-04",
+      "title": "봇 차단 정책(allow-all, Bot Fight OFF)",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\infra-cloudflare-4.md",
+      "source_type": "session",
+      "cluster_slug": "infra-cloudflare",
+      "fit": 0.617,
+      "pos": [
+        40.16,
+        -32.62,
+        -44.89
+      ]
+    },
+    {
+      "doc_id": "infra-cloudflare-doc-05",
+      "title": "Cloudflare Pages 배포 체크리스트",
+      "origin": "D:\\cosmos\\data\\manual\\infra-cloudflare-5.md",
+      "source_type": "manual",
+      "cluster_slug": "infra-cloudflare",
+      "fit": 0.702,
+      "pos": [
+        39.13,
+        -28.15,
+        -44.92
+      ]
+    },
+    {
+      "doc_id": "biz-dev-ops-doc-01",
+      "title": "지원사업 자동 탐지 레이더 프로토타입",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\biz-dev-ops-1.md",
+      "source_type": "session",
+      "cluster_slug": "biz-dev-ops",
+      "fit": 0.72,
+      "pos": [
+        0.27,
+        59.4,
+        -61.36
+      ]
+    },
+    {
+      "doc_id": "biz-dev-ops-doc-02",
+      "title": "라이선스 서버 하이브리드 캐시 설계",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\biz-dev-ops-2.md",
+      "source_type": "session",
+      "cluster_slug": "biz-dev-ops",
+      "fit": 0.633,
+      "pos": [
+        1.78,
+        59.45,
+        -60.68
+      ]
+    },
+    {
+      "doc_id": "biz-dev-ops-doc-03",
+      "title": "B2B 수발주 허브 결제 법무 게이트",
+      "origin": "C:\\Users\\User\\.claude\\wiki\\biz-dev-ops-3.md",
+      "source_type": "session",
+      "cluster_slug": "biz-dev-ops",
+      "fit": 0.586,
+      "pos": [
+        2.13,
+        59.45,
+        -59.62
+      ]
+    },
+    {
+      "doc_id": "biz-dev-ops-doc-04",
+      "title": "gg 창작자 우선순위 정책 노트",
+      "origin": "D:\\cosmos\\data\\manual\\biz-dev-ops-4.md",
+      "source_type": "manual",
+      "cluster_slug": "biz-dev-ops",
+      "fit": 0.723,
+      "pos": [
+        -1.49,
+        59.84,
+        -59.97
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "a": "llm-agent-pipeline",
+      "b": "infra-cloudflare",
+      "weight": 0.41
+    },
+    {
+      "a": "llm-agent-pipeline",
+      "b": "game-engine-tikron",
+      "weight": 0.34
+    },
+    {
+      "a": "figma-plugin-ecosystem",
+      "b": "biz-dev-ops",
+      "weight": 0.37
+    },
+    {
+      "a": "game-engine-tikron",
+      "b": "infra-cloudflare",
+      "weight": 0.31
+    }
+  ],
+  "recent_queries": [
+    {
+      "ts": "2026-07-13T09:12:00Z",
+      "question": "deep 모드에서 클러스터 에이전트 동시성 제한은 왜 2로 낮췄나?",
+      "mode": "deep",
+      "consulted": [
+        "llm-agent-pipeline"
+      ],
+      "skipped": [
+        "game-engine-tikron",
+        "figma-plugin-ecosystem",
+        "infra-cloudflare",
+        "biz-dev-ops"
+      ]
+    },
+    {
+      "ts": "2026-07-13T10:30:00Z",
+      "question": "Tikron 랜딩페이지 리디자인은 왜 롤백됐나?",
+      "mode": "fast",
+      "consulted": [
+        "game-engine-tikron"
+      ],
+      "skipped": [
+        "llm-agent-pipeline",
+        "figma-plugin-ecosystem",
+        "infra-cloudflare",
+        "biz-dev-ops"
+      ]
+    },
+    {
+      "ts": "2026-07-13T11:05:00Z",
+      "question": "psyfi 플러그인 결제 방식과 사업 운영 연계는?",
+      "mode": "fast",
+      "consulted": [
+        "figma-plugin-ecosystem",
+        "biz-dev-ops"
+      ],
+      "skipped": [
+        "llm-agent-pipeline",
+        "game-engine-tikron",
+        "infra-cloudflare"
+      ]
+    }
+  ]
+}

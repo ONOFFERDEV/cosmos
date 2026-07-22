@@ -1,0 +1,28 @@
+# syntax=docker/dockerfile:1
+#
+# cosmos-mind (Node 22 TypeScript) 배포용 Dockerfile.
+# 빌드 컨텍스트는 레포 루트여야 한다(mind/ 소스를 참조하기 위함).
+#   docker build -f deploy/Dockerfile.mind -t cosmos-mind:latest ..
+#
+# mind 런타임 자체는 npm 의존성이 0이지만(package.json 참고), LLM 백엔드로
+# 내부 대안 LLM 백엔드용 CLI 포함(기본 api 모드에서는 사용되지 않음).
+
+FROM node:22-slim AS builder
+WORKDIR /src/mind
+COPY mind/package.json mind/package-lock.json* ./
+RUN npm ci
+COPY mind/ ./
+RUN npm run build
+
+FROM node:22-slim AS runtime
+RUN npm i -g @anthropic-ai/claude-code
+
+WORKDIR /app
+# server.ts는 WEB_ROOT를 자신의 컴파일된 위치 기준 "../web"(dist의 형제 디렉토리)으로
+# 해석하므로 dist/와 web/는 반드시 같은 부모 아래 나란히 있어야 한다.
+COPY --from=builder /src/mind/dist ./dist
+COPY mind/web ./web
+COPY mind/package.json ./package.json
+
+ENTRYPOINT ["node", "dist/cli.js"]
+CMD ["serve", "--port", "8800"]

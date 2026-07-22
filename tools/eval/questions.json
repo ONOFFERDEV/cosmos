@@ -1,0 +1,62 @@
+[
+  {
+    "id": "q01",
+    "question": "Node에서 spawn으로 리다이렉트가 있는 detached 백그라운드 프로세스를 띄웠는데 로그 파일조차 안 생기면서 조용히 실패해. 원인이 뭐고 어떻게 고쳐야 해?",
+    "gold_files": ["windows-spawn-cmd-quoting-mines.md"]
+  },
+  {
+    "id": "q02",
+    "question": "러스트 ort 크레이트로 빌드한 exe를 폐쇄망에 배포할 때 onnxruntime.dll을 따로 안 챙겨도 되는 이유가 뭐야? CPU 추론만 쓸 거면 같이 복사되는 DirectML.dll은 지워도 돼?",
+    "gold_files": ["ort-onnxruntime-rust-windows-airgap.md"]
+  },
+  {
+    "id": "q03",
+    "question": "Tauri managed state에 FFI 엔진을 Mutex로 감싸서 넣었는데 Send 관련 컴파일 에러가 수십 개 쏟아져. unsafe impl Send를 직접 쓰지 않고 더 안전하게 해결하는 방법이 있어?",
+    "gold_files": ["tauri-mutex-engine-pdfium-thread-safe-send.md"]
+  },
+  {
+    "id": "q04",
+    "question": "Cloudflare Durable Objects로 실시간 게임 방을 운영할 때 한 명이 계속 접속해 있으면 한 달에 대략 얼마 정도 나와?",
+    "gold_files": ["cloudflare-do-cost-model.md"]
+  },
+  {
+    "id": "q05",
+    "question": "Tikron 멀티플레이 방 접속에 쓰는 세션 쿼리 파라미터에 인증 토큰을 그대로 넣으면 왜 위험해? 같은 방에 있는 다른 플레이어가 그걸 볼 수 있어?",
+    "gold_files": ["tikron-session-key-is-broadcast.md"]
+  },
+  {
+    "id": "q06",
+    "question": "폐쇄망 환경에서 로컬 LLM으로 문서를 구조화 JSON으로 뽑아낼 때 모델이 형식을 어기고 딴소리하는 걸 막으려면 Ollama API를 어떻게 호출해야 해?",
+    "gold_files": ["ollama-sidecar-airgap-extraction.md"]
+  },
+  {
+    "id": "q07",
+    "question": "정부기관이 배포한 암호화된 한글 HWP 문서의 본문 텍스트를 서드파티 HWP 라이브러리 없이 직접 복호화하려면 어떤 절차를 거쳐야 해?",
+    "gold_files": ["hwp-distdoc-viewtext-decrypt.md"]
+  },
+  {
+    "id": "q08",
+    "question": "크리에이터 마켓 플랫폼을 만들 때 셀러 정산금이 우리 회사 계좌를 안 거치게만 하면 전자지급결제대행업 등록 없이도 합법적으로 운영할 수 있어?",
+    "gold_files": ["korea-secondary-pg-unregistered-boundary.md"]
+  },
+  {
+    "id": "q09",
+    "question": "Rust tantivy로 검색 기능을 만들었는데 사용자가 물음표나 콜론이 섞인 자연어 질문을 입력하면 검색이 크래시나. 왜 이런 일이 생기고 어떻게 막아야 해?",
+    "gold_files": ["tantivy-queryparser-natural-language-syntax-error.md"]
+  },
+  {
+    "id": "q10",
+    "question": "국가법령정보센터 Open API로 한글 검색어를 넣었는데 에러도 안 나고 그냥 결과가 0건으로 돌아와. 뭐가 문제일 가능성이 커?",
+    "gold_files": ["law-go-kr-openapi-korean-query-encoding.md"]
+  },
+  {
+    "id": "q11",
+    "question": "헤드리스 브라우저로 WebGPU 렌더링 스크린샷을 찍었더니 메시가 하나도 안 보이고 빈 화면이야. 이게 진짜 코드 회귀인지 다른 이유인지 어떻게 판별해?",
+    "gold_files": ["webgpu-tsl-softbody-headless-verify-dispatch-opt.md"]
+  },
+  {
+    "id": "q12",
+    "question": "korail2 라이브러리로 KTX 좌석을 예약했는데 코레일톡 앱 장바구니에는 안 보여. 예약이 실패한 거야?",
+    "gold_files": ["korail2-reservation-not-in-app-cart.md"]
+  }
+]

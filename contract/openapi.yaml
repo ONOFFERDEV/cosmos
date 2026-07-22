@@ -1,0 +1,558 @@
+openapi: 3.0.3
+info:
+  title: cosmos-core API
+  version: 0.1.0-m0
+  description: >
+    Cosmos 지식 우주 코어 엔진(Rust) HTTP 계약. 이 파일이 core↔mind↔tools 계약의 단일 정본.
+    포트·상수·DDL·게이트는 CONTRACT.md 참조.
+servers:
+  - url: http://127.0.0.1:8801
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: 엔진 상태·카운트
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+  /ingest:
+    post:
+      operationId: ingest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IngestRequest" }
+      responses:
+        "200":
+          description: 문서별 색인 결과
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IngestResponse" }
+  /search:
+    post:
+      operationId: search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SearchRequest" }
+      responses:
+        "200":
+          description: 하이브리드 검색 결과 (BM25+벡터 RRF → 리랭크)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SearchResponse" }
+  /docs:
+    get:
+      operationId: listDocs
+      responses:
+        "200":
+          description: 색인된 문서 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DocSummary" }
+  /journal:
+    get:
+      operationId: journal
+      parameters:
+        - name: after_seq
+          in: query
+          required: false
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: 저널 이벤트 (seq 오름차순)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [events]
+                properties:
+                  events:
+                    type: array
+                    items: { $ref: "#/components/schemas/Event" }
+  /clusters:
+    get:
+      operationId: listClusters
+      responses:
+        "200":
+          description: 클러스터 목록 (M1)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ClusterSummary" }
+  /clusters/bootstrap:
+    post:
+      operationId: bootstrapClusters
+      description: >
+        문서 벡터(청크 임베딩 평균) k-means 군집화로 초기 클러스터 생성.
+        해당 스코프에 클러스터가 이미 존재하면 409 (force=true로 그 스코프만 재생성).
+        M9: owner 지정 시 그 소유자의 개인 문서만 군집화(미지정=공통 문서만),
+        생성 클러스터에 owner 각인 + 슬러그 p-<owner>-cNN.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                k_min: { type: integer, default: 5 }
+                k_max: { type: integer, default: 14 }
+                seed: { type: integer, default: 42 }
+                force: { type: boolean, default: false }
+                owner: { type: string, nullable: true, description: "M9: 부트스트랩할 개인 스코프(생략=공통)" }
+      responses:
+        "200":
+          description: 생성된 클러스터 + 라벨링용 샘플
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [clusters, stats]
+                properties:
+                  clusters:
+                    type: array
+                    items: { $ref: "#/components/schemas/ClusterBootstrapResult" }
+                  stats:
+                    type: object
+                    properties:
+                      k: { type: integer }
+                      silhouette: { type: number }
+                      docs_assigned: { type: integer }
+        "409": { description: 클러스터가 이미 존재 (force 필요) }
+  /clusters/{cluster_id}:
+    patch:
+      operationId: updateCluster
+      parameters:
+        - name: cluster_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slug: { type: string }
+                name: { type: string }
+                description: { type: string }
+      responses:
+        "200":
+          description: 갱신된 클러스터 (저널 cluster_rename 기록)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ClusterSummary" }
+        "404": { description: 없는 클러스터 }
+  /entities:
+    get:
+      operationId: listEntities
+      description: >
+        M7: frontmatter 파생 엔티티 레지스트리(전수 보장 층). kind 생략 시 전체.
+      parameters:
+        - name: kind
+          in: query
+          required: false
+          schema: { type: string, example: project }
+      responses:
+        "200":
+          description: 엔티티 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Entity" }
+  /clusters/digests:
+    get:
+      operationId: listClusterDigests
+      description: "M7: active 클러스터의 다이제스트 전수 반환 (merged/롤백 잔재는 조인으로 차폐)"
+      responses:
+        "200":
+          description: 다이제스트 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ClusterDigest" }
+  /clusters/{cluster_id}/digest:
+    put:
+      operationId: putClusterDigest
+      description: "M7: mind가 생성한 다이제스트 기록 (파생 데이터, 저널 무기록)"
+      parameters:
+        - name: cluster_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string }
+                model: { type: string }
+      responses:
+        "200":
+          description: 기록된 다이제스트
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ClusterDigest" }
+        "404": { description: 없는 클러스터 }
+  /branches:
+    get:
+      operationId: listBranches
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [open, merged, discarded] }
+      responses:
+        "200":
+          description: 브랜치 목록 (M8)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Branch" }
+    post:
+      operationId: createBranch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                created_by: { type: string }
+      responses:
+        "201":
+          description: 생성된 브랜치
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Branch" }
+        "409": { description: 이름 중복 }
+  /branches/{branch_id}/docs:
+    get:
+      operationId: listBranchDocs
+      parameters:
+        - name: branch_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 브랜치 소속 문서
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DocSummary" }
+        "404": { description: 없는 브랜치 }
+    post:
+      operationId: tagBranchDocs
+      description: >
+        M9 승격(개인→공통): 기존 개인 문서(owner≠NULL)를 open 브랜치에 태깅해
+        검토 대기에 올린다. 공통 문서·이미 태깅된 문서는 400, 없는 문서는 404,
+        open 아닌 브랜치는 409. 검증은 all-or-nothing. merge 시 owner=NULL로
+        공통 편입되며 inverse에 이전 owner가 기록돼 롤백이 소유권을 복원한다.
+      parameters:
+        - name: branch_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [doc_ids]
+              properties:
+                doc_ids:
+                  type: array
+                  items: { type: string }
+      responses:
+        "200":
+          description: 태깅 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tagged, branch_id]
+                properties:
+                  tagged: { type: integer }
+                  branch_id: { type: string }
+        "400": { description: 공통 문서 승격 시도 / 이미 브랜치에 태깅됨 }
+        "404": { description: 없는 브랜치 또는 문서 }
+        "409": { description: open 아닌 브랜치 }
+  /branches/{branch_id}/merge:
+    post:
+      operationId: mergeBranch
+      description: "M8: 선택 병합(체리픽). doc_ids 생략=전체. 저널 branch_merge(inverse=재태깅, 롤백 가능)."
+      parameters:
+        - name: branch_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doc_ids:
+                  type: array
+                  items: { type: string }
+      responses:
+        "200":
+          description: 병합 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [merged, remaining]
+                properties:
+                  merged: { type: integer }
+                  remaining: { type: integer }
+        "404": { description: 없는 브랜치 }
+        "409": { description: open 상태가 아님 }
+  /branches/{branch_id}/discard:
+    post:
+      operationId: discardBranch
+      description: "M8: 거부 — 문서·색인 삭제. 비가역(원문 미보관, origin 목록만 저널 기록)."
+      parameters:
+        - name: branch_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: 폐기 완료 }
+        "404": { description: 없는 브랜치 }
+        "409": { description: open 상태가 아님 }
+  /route:
+    post:
+      operationId: route
+      description: 질문에 대한 클러스터별 관련도 점수(결정론) — 라우팅 결정은 mind가 한다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+      responses:
+        "200":
+          description: 클러스터별 점수
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [scores]
+                properties:
+                  scores:
+                    type: array
+                    items: { $ref: "#/components/schemas/RouteScore" }
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status, version, docs, chunks, clusters]
+      properties:
+        status: { type: string, enum: [ok] }
+        version: { type: string }
+        docs: { type: integer }
+        chunks: { type: integer }
+        clusters: { type: integer }
+    SourceType:
+      type: string
+      enum: [arxiv, rss, manual, session, repo, biz]
+    IngestRequest:
+      type: object
+      required: [docs]
+      properties:
+        docs:
+          type: array
+          items: { $ref: "#/components/schemas/IngestDoc" }
+        branch_id: { type: string, description: "M8: 지정 시 전 문서를 해당 브랜치로 태깅(main 미노출). 없는 브랜치=404" }
+        owner: { type: string, description: "M9: 개인 지식 소유자(요청자 본인만). branch_id와 동시 지정 400" }
+    IngestDoc:
+      type: object
+      required: [origin, source_type, text]
+      properties:
+        origin: { type: string, description: "원본 절대경로 또는 URL (UNIQUE)" }
+        source_type: { $ref: "#/components/schemas/SourceType" }
+        title: { type: string }
+        text: { type: string, description: "정규화 전문. 앵커 오프셋의 기준" }
+    IngestResponse:
+      type: object
+      required: [ingested]
+      properties:
+        ingested:
+          type: array
+          items:
+            type: object
+            required: [doc_id, origin, chunks, duplicate, replaced]
+            properties:
+              doc_id: { type: string }
+              origin: { type: string }
+              chunks: { type: integer }
+              duplicate: { type: boolean, description: "동일 origin+hash로 스킵됨" }
+              replaced: { type: boolean, description: "동일 origin 구버전을 교체함" }
+              cluster_slug: { type: string, nullable: true, description: "M2: ingest 시 자동 배정된 클러스터(클러스터 부재 시 null)" }
+              fit: { type: number, nullable: true, description: "M2: 배정 centroid 코사인 유사도" }
+    SearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query: { type: string }
+        k: { type: integer, default: 6, description: "최종 반환 수 (FINAL_TOP_K)" }
+        cluster_ids:
+          type: array
+          items: { type: string }
+          description: "지정 시 해당 클러스터 스코프 검색 (M0에선 빈 배열=전체만 사용)"
+        include_branch_id: { type: string, description: "M8: 지정 브랜치 문서를 후보에 포함(관리자 미리보기 오버레이). 기본=main만" }
+        owner_scope: { type: string, description: "M9: shared | shared+<name>. 기본 shared" }
+    SearchResponse:
+      type: object
+      required: [results, stats]
+      properties:
+        results:
+          type: array
+          items: { $ref: "#/components/schemas/SearchResult" }
+        stats:
+          type: object
+          required: [num_bm25, num_vec, pool, reranked, secs]
+          properties:
+            num_bm25: { type: integer }
+            num_vec: { type: integer }
+            pool: { type: integer }
+            reranked: { type: integer }
+            secs: { type: number }
+    SearchResult:
+      type: object
+      required: [chunk_id, doc_id, origin, text, char_start, char_end, score, stages]
+      properties:
+        chunk_id: { type: string }
+        doc_id: { type: string }
+        origin: { type: string }
+        title: { type: string }
+        text: { type: string }
+        char_start: { type: integer, description: "UTF-8 바이트 오프셋(문자 경계 정렬)" }
+        char_end: { type: integer }
+        section: { type: string, nullable: true }
+        score: { type: number, description: "최종 점수 = 리랭커 점수" }
+        stages:
+          type: object
+          properties:
+            bm25_rank: { type: integer, nullable: true }
+            vec_rank: { type: integer, nullable: true }
+            rrf_score: { type: number }
+            rerank_score: { type: number }
+    DocSummary:
+      type: object
+      required: [doc_id, origin, source_type, n_chunks, ingested_at]
+      properties:
+        doc_id: { type: string }
+        origin: { type: string }
+        source_type: { $ref: "#/components/schemas/SourceType" }
+        title: { type: string }
+        n_chunks: { type: integer }
+        ingested_at: { type: string }
+        cluster_slug: { type: string, nullable: true, description: "M3: 소속 클러스터(청크 cluster_ids 기준, 미배정 시 null)" }
+        owner: { type: string, nullable: true, description: "M9: 개인 지식 소유자(NULL=공통)" }
+        fit: { type: number, nullable: true, description: "M3: 배정 당시 fit (meta_json, 부트스트랩 배정은 null 가능)" }
+    ClusterSummary:
+      type: object
+      required: [id, slug, status, n_docs, n_chunks]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        status: { type: string, enum: [active, dormant, merged] }
+        owner: { type: string, nullable: true, description: "M9: 개인 클러스터 소유자(NULL=공통)" }
+        n_docs: { type: integer }
+        n_chunks: { type: integer }
+        updated_at: { type: string }
+    ClusterBootstrapResult:
+      allOf:
+        - $ref: "#/components/schemas/ClusterSummary"
+        - type: object
+          properties:
+            sample:
+              type: array
+              description: LLM 라벨링용 대표 문서 샘플 (최대 8건)
+              items:
+                type: object
+                properties:
+                  origin: { type: string }
+                  title: { type: string }
+                  snippet: { type: string }
+    Branch:
+      type: object
+      required: [id, name, status, created_at, n_docs]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string, enum: [open, merged, discarded] }
+        created_by: { type: string, nullable: true }
+        created_at: { type: string }
+        merged_at: { type: string, nullable: true }
+        n_docs: { type: integer, description: "현재 브랜치 태깅 문서 수" }
+    Entity:
+      type: object
+      required: [doc_id, name, kind]
+      properties:
+        doc_id: { type: string }
+        name: { type: string, description: "frontmatter name(없으면 title)" }
+        kind: { type: string, description: "metadata.type ?? category ?? unknown" }
+        description: { type: string, nullable: true }
+        status: { type: string, nullable: true, description: "metadata.project_status" }
+        phase: { type: string, nullable: true }
+        next_action: { type: string, nullable: true, description: "metadata.next" }
+        blocked_on: { type: string, nullable: true }
+        updated: { type: string, nullable: true }
+        origin: { type: string, description: "출처 문서 절대경로 (docs 조인)" }
+    ClusterDigest:
+      type: object
+      required: [cluster_id, slug, text, updated_at]
+      properties:
+        cluster_id: { type: string }
+        slug: { type: string }
+        name: { type: string, nullable: true }
+        text: { type: string, description: "한국어 300~600자 다이제스트" }
+        model: { type: string, nullable: true }
+        updated_at: { type: string }
+    RouteScore:
+      type: object
+      required: [cluster_id, slug, centroid_sim, bm25_hits]
+      properties:
+        cluster_id: { type: string }
+        slug: { type: string }
+        name: { type: string, nullable: true }
+        centroid_sim: { type: number, description: "질문 임베딩과 클러스터 centroid 코사인 유사도" }
+        bm25_hits: { type: integer, description: "BM25 상위 20 중 이 클러스터 소속 청크 수" }
+    Event:
+      type: object
+      required: [seq, ts, kind, payload]
+      properties:
+        seq: { type: integer }
+        ts: { type: string }
+        kind:
+          type: string
+          enum: [ingest, cluster_birth, cluster_merge, cluster_rename, assign, unassign, rollback, branch_create, branch_merge, branch_discard]
+        payload: { type: object, additionalProperties: true }

@@ -1,0 +1,87 @@
+{
+  "generated_at": "2026-07-13T06:17:33.457Z",
+  "gates": [
+    {
+      "name": "게이트1 수집·미색인증명",
+      "status": "PASS",
+      "detail": {
+        "pass": true,
+        "reason": "",
+        "docsBefore": 131,
+        "docsAfter": 131,
+        "pendingCount": 19,
+        "topPendingId": "c56f3f1a4ea6",
+        "topPendingOrigin": "http://arxiv.org/abs/2607.09403v1"
+      },
+      "reason": ""
+    },
+    {
+      "name": "게이트2 승인종단",
+      "status": "FAIL",
+      "detail": {
+        "pass": false,
+        "reason": "IngestResponse.ingested[]에서 승인 origin 매칭 항목 없음",
+        "targetId": "c56f3f1a4ea6",
+        "targetOrigin": "http://arxiv.org/abs/2607.09403v1",
+        "docsBefore": 131,
+        "docsAfterApprove": 132,
+        "ingestEntry": null
+      },
+      "reason": "IngestResponse.ingested[]에서 승인 origin 매칭 항목 없음"
+    },
+    {
+      "name": "게이트3 거부",
+      "status": "PASS",
+      "detail": {
+        "pass": true,
+        "reason": "",
+        "targetId": "3aed6b55408e",
+        "docsBefore": 132,
+        "docsAfter": 132
+      },
+      "reason": ""
+    },
+    {
+      "name": "게이트4 워처3상태",
+      "status": "PASS",
+      "detail": {
+        "pass": true,
+        "reason": "cli_scan_dirs 경로: docs 델타 경량 확인만 수행",
+        "watcherMethod": "cli_scan_dirs",
+        "tripleDetail": null,
+        "docsBeforeRealScan": 132
+      },
+      "reason": "cli_scan_dirs 경로: docs 델타 경량 확인만 수행"
+    },
+    {
+      "name": "게이트5 manual2건",
+      "status": "PASS",
+      "detail": {
+        "pass": true,
+        "reason": "",
+        "localEntry": {
+          "doc_id": "6064fe76-8bdc-486f-9c37-07ca4e6413d4",
+          "origin": "D:\\cosmos\\tools\\.m2_manual_tmp\\m2_manual_test.md",
+          "chunks": 1,
+          "duplicate": false,
+          "replaced": false,
+          "cluster_slug": "personal-project-portfolio-dev-infra",
+          "fit": 0.62406695
+        },
+        "urlEntry": {
+          "doc_id": "f8d0d933-aa98-4af1-b8f5-1c654288b425",
+          "origin": "https://example.com",
+          "chunks": 1,
+          "duplicate": false,
+          "replaced": false,
+          "cluster_slug": "cross-project-tech-notes-and-directives",
+          "fit": 0.6893345
+        },
+        "note": "core에 색인된 두 manual 문서는 표시만 하고 정리하지 않음(정리는 관리자 몫)"
+      },
+      "reason": ""
+    }
+  ],
+  "watcher_method": "cli_scan_dirs",
+  "overall_pass": false
+}

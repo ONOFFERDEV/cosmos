@@ -1,0 +1,165 @@
+{
+  "generated_at": "2026-07-13T05:05:19.045Z",
+  "positive": {
+    "pass": 10,
+    "total": 10,
+    "gate_min": 8,
+    "gate_ok": true
+  },
+  "negative": {
+    "pass": 3,
+    "total": 3,
+    "gate_min": 3,
+    "gate_ok": true
+  },
+  "trace_ok": {
+    "pass": 13,
+    "total": 13,
+    "gate_ok": true
+  },
+  "rows": [
+    {
+      "id": "q01",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "windows-spawn-cmd-quoting-mines.md",
+      "trace_ok": true,
+      "secs": 36.575,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q02",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "ort-onnxruntime-rust-windows-airgap.md",
+      "trace_ok": true,
+      "secs": 36.633,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q03",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "tauri-mutex-engine-pdfium-thread-safe-send.md",
+      "trace_ok": true,
+      "secs": 57.815,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q04",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "cloudflare-do-cost-model.md",
+      "trace_ok": true,
+      "secs": 29.455,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q05",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "tikron-session-key-is-broadcast.md",
+      "trace_ok": true,
+      "secs": 41.471,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q06",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "ollama-sidecar-airgap-extraction.md",
+      "trace_ok": true,
+      "secs": 64.376,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q07",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "hwp-distdoc-viewtext-decrypt.md",
+      "trace_ok": true,
+      "secs": 61.62,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q08",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "korea-secondary-pg-unregistered-boundary.md",
+      "trace_ok": true,
+      "secs": 122.768,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q09",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "tantivy-queryparser-natural-language-syntax-error.md",
+      "trace_ok": true,
+      "secs": 48.023,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q10",
+      "expect": "answer",
+      "verdict": "✅",
+      "insufficient": false,
+      "top": "law-go-kr-openapi-korean-query-encoding.md",
+      "trace_ok": true,
+      "secs": 31.81,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q11",
+      "expect": "insufficient",
+      "verdict": "✅",
+      "insufficient": true,
+      "top": null,
+      "trace_ok": true,
+      "secs": 9.665,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q12",
+      "expect": "insufficient",
+      "verdict": "✅",
+      "insufficient": true,
+      "top": null,
+      "trace_ok": true,
+      "secs": 10.605,
+      "reason": "",
+      "trace_reason": ""
+    },
+    {
+      "id": "q13",
+      "expect": "insufficient",
+      "verdict": "✅",
+      "insufficient": true,
+      "top": null,
+      "trace_ok": true,
+      "secs": 10.125,
+      "reason": "",
+      "trace_reason": ""
+    }
+  ]
+}

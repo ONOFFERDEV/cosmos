@@ -1,0 +1,2776 @@
+{
+  "generated_at": "2026-07-13T12:39:21.471Z",
+  "base_urls": {
+    "mind": "http://127.0.0.1:8800",
+    "core": "http://127.0.0.1:8801"
+  },
+  "origin_cluster_map_method": "GET /docs cluster_slug 직독(근사 없음, cluster_slug가 null인 문서는 맵에서 제외).",
+  "origin_cluster_map_warnings": [],
+  "active_cluster_slugs": [
+    "cross-project-tech-notes-and-directives",
+    "indie-saas-licensing-paywall-infra",
+    "memory-ontology-moc",
+    "multi-agent-workflow-lessons",
+    "personal-project-portfolio-dev-infra"
+  ],
+  "origin_cluster_map": {
+    "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\claude-edit-unicode-escape-mine.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\claude-fleet-monitoring-canon.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\cloudflare-assets-307-og-png.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\cloudflare-do-cost-model.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\cloudflare-udp-webtransport-limits.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\cloudflared-tunnel-selfhost-headless.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\comfyui-wan-api-t2v-gotchas.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\csp-silently-blocks-google-fonts-import.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\detached-fetch-loop-hang-progress-not-liveness.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\docker-bypasses-firewalld-dnat.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\fastapi-stdlib-session-auth-approval.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\figma-folder-handle-lock-rename.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\figma-iframe-insecure-context-crypto.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\figma-payments-approval-halted.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\figma-plugin-publishing-gotchas.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\flux-kontext-single-anchor-style-unify.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\free-game-assets-download.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\fsl-license-rename-rule.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md": "multi-agent-workflow-lessons",
+    "C:\\Users\\User\\.claude\\wiki\\graph-rag-anchor-reduction-citation-reuse.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\graph-rag-topic-dense-corpus-cross-doc-edges.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\headless-chrome-spa-screenshot.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\headless-edge-min-window-width-artifact.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\headless-game-playtest-puppeteer.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\headless-rust-binary-tiny-http-serve.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\hwp-distdoc-viewtext-decrypt.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\kakao-channel-addchannel-blocked.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\knowledge-to-code-compilation-landscape.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\korail2-reservation-not-in-app-cart.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\korea-secondary-pg-unregistered-boundary.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\korean-signup-consent-pipa.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\license-server-device-auth-architecture.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\llm-codegen-transactional-kb-pipeline.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\llm-config-pipeline-convergence.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\modly-hunyuan3d-rocky-pipeline.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\motion-ssr-reveal-invisible-without-js.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\netcode-queueinputs-write-coalescing.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\nextjs-rewrites-baked-at-build.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\nextjs15-region-i18n-no-url-cookie.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\npm-2fa-bypass-granular-token.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\obsidian-frontmatter-unquoted-colon-wipe.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\ollama-sidecar-airgap-extraction.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\omc-update-safe-on-custom-config.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\wiki\\opennext-cloudflare-windows.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\ort-onnxruntime-glibc-238-docker-base.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\ort-onnxruntime-rust-windows-airgap.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md": "multi-agent-workflow-lessons",
+    "C:\\Users\\User\\.claude\\wiki\\per-user-credential-migration-fail-closed.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\plugin-me-product-slug-scoping.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\pnpm-publish-worktree-gotchas.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\pnpm-undeclared-dep-stale-artifacts-clean-checkout.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\powershell51-utf8-bom-hazards.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\prod-ahead-of-git-deploy-forensics.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\rebuild-release-binary-before-demo-stale-cli.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\resend-transactional-email-stdlib-urllib.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\sealed-eval-hidden-state-blindspot.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\seed-aware-test-determinism.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\show-hn-launch-playbook.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\spa-fallback-masks-path-traversal-probes.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\supabase-e2e-admin-user-pattern.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\supabase-live-only-bugs.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\supabase-selfhosted-migration-signals.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\tantivy-queryparser-natural-language-syntax-error.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\wiki\\tauri-mutex-engine-pdfium-thread-safe-send.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\tauri-webview2-headless-boot-smoke.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\teamless-mode-team-checks-audit.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md": "multi-agent-workflow-lessons",
+    "C:\\Users\\User\\.claude\\wiki\\tmoney-issue-endpoint-server-block.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\toss-payments-idempotency.md": "multi-agent-workflow-lessons",
+    "C:\\Users\\User\\.claude\\wiki\\traxel-license-server-integration.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\tribe-v2-brain-engagement-critic.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\webgpu-tsl-softbody-headless-verify-dispatch-opt.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\webrtc-mediapipe-mobile-stack.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\wiki\\windows-spawn-cmd-quoting-mines.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\windows-subprocess-cp949-utf8-paid-cli.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\wire-codec-example-sized-landmine.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\workerd-benchmark-artifacts.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md": "multi-agent-workflow-lessons",
+    "C:\\Users\\User\\.claude\\wiki\\wrangler-deploy-env-gotchas.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\_ontology.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\b2b-order-procurement-hub.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\claude-fleet-control.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cloudflare-account-onoffer.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\comfyui-server-imagegen.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-allow-crawlers-no-botblock.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-code-sonnet-manage-fable.md": "multi-agent-workflow-lessons",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-default-details-then-correct.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-higgsfield-spend-approval.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-knowledge-loop.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-natural-korean-no-translationese.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-node-selective-kill.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-ontologize-commands.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-user-reviews-generated-images.md": "cross-project-tech-notes-and-directives",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\emberfall-3d-mmo.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\figma-iframe-no-subtlecrypto.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\figma-plugins-inapp-payment.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\ga4-tikron-analytics-access.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\gg-good-game.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\grant-radar.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\hub-dashboard.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\influencer-dashboard.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\license-server.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-coding-style.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-communication.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-safety.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-tooling.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-workflow.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\nyam-duel-face-game.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\obsidian-vault-integration.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\pervue.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-plugin-launch.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-prelaunch-landing.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\pvec-vectorizer.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\rocky-server-onofferserver.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\snipe-hub.md": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\user-language-korean.md": "memory-ontology-moc",
+    "C:\\Users\\User\\.claude\\wiki\\skinned-mesh-explosion-forensics-ladder.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\subagent-selfverify-build-green-not-test-green.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cosmos-knowledge-universe.md": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09403v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09092v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09422v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09330v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.08662v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09493v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09474v1": "personal-project-portfolio-dev-infra",
+    "http://arxiv.org/abs/2607.09600v1": "multi-agent-workflow-lessons",
+    "https://blog.cloudflare.com/temporary-accounts/": "indie-saas-licensing-paywall-infra",
+    "https://blog.cloudflare.com/agents-platform-flue-sdk/": "indie-saas-licensing-paywall-infra",
+    "https://blog.cloudflare.com/cloudflare-one-stack/": "indie-saas-licensing-paywall-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\ironsight-web-fps.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\nvidia-trellis-hosted-3d-api.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\unirig-rocky-auto-rig-pipeline.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\kcode-knowledge-compiler.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\claude-cli-headless-structured-extraction.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\projects\\D--\\memory\\video-automation.md": "personal-project-portfolio-dev-infra",
+    "C:\\Users\\User\\.claude\\wiki\\playwright-web-form-automation-mines.md": "personal-project-portfolio-dev-infra"
+  },
+  "criterion1": {
+    "pass": 5,
+    "total": 5,
+    "gate_min": 4,
+    "gate_ok": true
+  },
+  "criterion2": {
+    "pass": 5,
+    "total": 5,
+    "gate_min": 3,
+    "gate_ok": true
+  },
+  "criterion3": {
+    "pass": 5,
+    "total": 5,
+    "gate_min": 5,
+    "gate_ok": true
+  },
+  "negative": {
+    "pass": 1,
+    "total": 1,
+    "gate_min": 1,
+    "gate_ok": true
+  },
+  "latency_reference": {
+    "fast_avg_secs": 52.16833333333333,
+    "deep_avg_secs": 287.458,
+    "deep_llm_calls_sum": 26
+  },
+  "questions": [
+    {
+      "id": "qd01",
+      "question": "최근 arXiv에 올라온 멀티에이전트 오케스트레이션/조정 논문들(WebSwarm, Fictional Worldbuilding, Agora 등)의 접근 방식과, 우리가 실제 프로젝트 운영에서 겪은 멀티에이전트 워크플로우 교훈(fleet 모니터링, 봇 채움 거점 모드 결함, 계약 드리프트)을 비교해서 논문들의 조정 메커니즘이 우리가 겪은 문제와 어떻게 연결되는지 설명해줘.",
+      "expect": "answer",
+      "expected_clusters": [
+        "personal-project-portfolio-dev-infra",
+        "multi-agent-workflow-lessons"
+      ],
+      "gold_files_any": [
+        "http://arxiv.org/abs/2607.08662v1",
+        "http://arxiv.org/abs/2607.09403v1",
+        "http://arxiv.org/abs/2607.09600v1",
+        "http://arxiv.org/abs/2607.09330v1",
+        "C:\\Users\\User\\.claude\\wiki\\claude-fleet-monitoring-canon.md",
+        "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+        "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+        "C:\\Users\\User\\.claude\\wiki\\llm-codegen-transactional-kb-pipeline.md"
+      ],
+      "fast": {
+        "envelope": {
+          "answer": "제공된 자료만으로는 이 질문에 답할 근거가 충분하지 않습니다.",
+          "sentences": [],
+          "sources": [],
+          "trace": [
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "score 0.84 (rank 1)"
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "score 0.71 (rank 2)"
+            },
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "score 0.61 (rank 3)"
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "score 0.61 (rank 4) — top 3 밖"
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "score 0.60 (rank 5) — top 3 밖"
+            }
+          ],
+          "insufficient": true,
+          "mode": "fast",
+          "cost": {
+            "llm_calls": 0,
+            "secs": 14.2,
+            "model": "sonnet"
+          }
+        },
+        "secs": 14.208,
+        "error": null
+      },
+      "deep": {
+        "envelope": {
+          "answer": "질문이 지목한 세 논문(WebSwarm, Fictional Worldbuilding, Agora) 중 근거 자료에 원문이 포함된 것은 Agora뿐이므로, 아래 비교는 Agora의 조정 메커니즘과 우리 운영 교훈 사이의 대조로 한정된다. [8] Agora는 추론 단계를 거래 가능한 항목으로 취급하는 인센티브 정합적 경매를 도입해, 에이전트가 '보정된 역량(rectified competence)'에 근거해 입찰하고 핵심 로직이 가장 과신하는 solver가 아니라 가장 유능한 solver로 라우팅되도록 하는 프레임워크다. [8] Agora가 겨냥하는 약점은 기능적으로 유사한 대안들 사이의 성능 편차와 비용 효율을 무시한 채 태스크와 기능을 거친(coarse-grained) 매칭으로 호출하는 방식이며, 단일 경매 파라미터로 비용-품질 트레이드오프를 제어 가능하게 노출한다. [8] 우리 운영의 라우팅은 정확히 Agora가 비판하는 정적·거친 유형이다 — 상시 지침은 코드 작성을 기본 Sonnet, 검토·플랜을 (가용 시) Fable, 오케스트레이션·검증을 본체로 고정 배정하는 '태스크 유형 → 모델' 매핑일 뿐 역량·비용 기반 경매가 아니다. [5] 그 정적 분배의 근거(Opus 서브에이전트는 비용·rate limit 소모가 크고, 계약·스펙·경계·게이트가 명확하면 구현은 Sonnet으로 충분하다는 판단)는 Agora가 자동화하는 비용-품질 차원을 사람이 수동으로 설정한 버전에 해당한다. [5][8] 역량을 무시한 할당이 실무에서 왜 깨지는지는 워크플로 재실행 교훈이 보여준다 — 단일 에이전트에 ~140개 항목의 거대한 구조화 출력을 한 번에 맡기면 생성 도중 중단되고 동일한 실패 호출이 무한 재시도되어(6회×10~40분) 시간이 낭비되는데, 이는 태스크 규모와 solver 용량의 불일치로 Agora의 역량 기반 라우팅이 막으려는 실패 유형과 동형이다. [3][6] 우리가 찾은 해법(카테고리별 팬아웃으로 각 에이전트 출력을 약 20개 이하로 유지)은 태스크를 세분화하는 규율인데, 이는 '추론 단계를 거래 가능한 항목으로 취급'하는 Agora의 전제(세밀한 단위가 역량 기반 할당의 선결조건)와도 맞닿는다. [3][6][8] 서버측 rate limit('not your usage limit, all accounts exhausted')이 동시 16개 verify 에이전트가 반복 전멸하는 식으로 폭주 팬아웃과 상관을 보였다는 관측은, 순수 역량 매칭이 간과하는 '다수 후보에 공격적으로 할당하는 실비용'이라는 Agora의 비용 차원을 실증한다. [3][6] 할당 계층을 넘어서면, 우리가 실제로 겪은 조정 실패의 대표는 계약 드리프트였다 — 클라이언트와 서버를 별도 서브에이전트에게 병렬로 맡기자 필드명 불일치와 ISO 타임스탬프 포맷 차이로 API 계약이 2회 어긋났고, 이는 와이어 계약(스키마·필드명·인코딩)을 단일 정본 레포의 테스트로 고정하고 에이전트가 그 테스트를 통과해야 완료로 간주하는 방식으로 예방했다. [2] 이는 Agora가 다루지 않는 조정 메커니즘이다 — 경매 기반 할당은 어떤 단계를 '누가' 수행할지는 정하지만 병렬 생산자·소비자의 인터페이스를 일관되게 유지하는 문제는 다루지 않으며, 우리는 이를 계약 테스트, 파일 비중첩 분할, 커밋 전 단계별 리뷰·테스트·E2E 게이트, 스키마 변경 시 미러/픽스처 동기화 체크리스트로 해결했다. [2][8] 같은 계열의 미묘한 계약 지뢰로, 와이어 코덱의 '치수'(예: 문자열 필드 폭)를 예시 콘텐츠의 최장 값에 하드코딩하면 새 콘텐츠가 이를 초과할 때 조용히 깨지므로, 코덱 파라미터는 config 유도 단일 함수에서 도출해 서버·클라 양쪽에 주입해 구조적 lockstep을 보장하고 테스트 하네스도 같은 코덱을 써야 한다. [10] 클린룸 포팅은 할당 관점이 빠뜨리는 또 다른 조정 구조를 더한다 — GPL 레퍼런스를 직접 본 리서치 에이전트는 명세만 작성하고, 별도 구현 에이전트가 그 명세만 보고 구현하는 '멀티에이전트 방화벽'으로, 이 분리 자체가 구현자가 원본을 본 적 없다는 조직적 증거로 프롬프트·로그에 남아 전통적 클린룸의 2팀 구조와 동형이 된다. [1][7] 명세가 디스크에 있으면 구현 에이전트를 여러 번 교체(컨텍스트 리셋)해도 방화벽이 유지되며, 검증은 역할을 분담해 verifier가 산출 코드에서 원본 식별자(예: AAEmu, SCUnit, CSStart)를 grep해 0건인지 확인하고 기능 동등성은 테스트로 검증하는 한편 리뷰어는 명세 대비 정합성만 본다. [4][7] 핸드오프의 취약성으로는, 서브에이전트의 최종 보고를 일반 텍스트로만 출력하면 teammate 모드에서는 SendMessage로 보낸 것만 도달하므로 보고가 유실될 수 있다는 통신 채널 실패가 있었고, 이는 [n/m] 분할 SendMessage나 파일 저장으로 완화된다. [1] 우리가 실제 출하한 멀티에이전트 시스템에서 조정 결함은 어떤 할당 메커니즘으로도 잡히지 않는 두 층위로 나타났다 — 봇 채움 거점(도미네이션) 모드는 기하(도달성)와 행동(목표지향)에서 따로 죽으며 한 층을 고치면 다음 층이 드러나는데, 유닛 테스트·typecheck가 전부 그린인 상태에서 8봇 풀매치 E2E가 두 층위 결함을 연쇄로 잡아냈다. [9][12] 기하 층은 '캡별 도달가능 앵커 ≥1 + 전 웨이포인트 박스 밖'이라는 불변식 테스트로 벗겨냈고, 이 불변식을 두 맵 전체에 강제하자 기존 맵에 잠복해 있던 같은 결함 3개가 즉시 드러났다. [12] 행동 층은 원인이 이중적이었다 — 봇 순찰이 적이 보이는 동안 동결(전투 우선)되어 개방형 맵에서는 순찰이 사실상 진행되지 않았고 전투 스트레이프가 캡과 무관한 고정 좌표에 앵커되어 봇이 킬존에 뭉쳤으며, 이는 서버가 팀 기준 미소유 캡의 도달 가능 앵커를 objective로 주입하고 적 가시 여부와 무관하게 objective 전진을 디폴트로 삼되 아주 근접한 위협(8m 미만)만 회피 전투로 처리해 수정했다. [12] '적이 멀면(예: 18m 초과) 목표로 이동' 같은 어중간한 거리 게이트는 교전 거리가 항상 게이트 안에 드는 개방형 맵에서 무력화되므로, 목표 우선을 디폴트로 두고 전투를 좁은 예외로 처리해야 한다. [12] 관련 조정 함정으로, 팀리스(FFA) 모드에서 전원이 team=0이면 모든 아군사격(friendly-fire) 체크가 오탐되며, tick-aligned dispatch 하네스에서는 메시지 전송 후 1틱을 진행시켜야 브로드캐스트가 관측되어 '보냈는데 브로드캐스트 0'이 반드시 버그는 아니다. [13] 다만 위 거점 모드 결함은 웹 FPS 멀티플레이어 템플릿인 ironsight의 사례이며, ironsight는 Tikron의 경쟁 장르 플래그십으로 연결된 별도 프로젝트라 Tikron 코어 자체의 기록이 아니라 연관 프로젝트 교훈으로 보아야 한다. [11][15] 멀티에이전트 개발 자체를 모니터링할 때 생존(라이브니스) 판정의 정본은 `claude agents --json`으로, 모든 살아있는 세션의 pid·busy/idle·kind·백그라운드 작업명을 제공하고 훅을 거치지 않은 세션도 발견하는데, ppid 기반 판정은 훅이 셸을 경유하는 Windows에서 무용하기 때문이다. [14] 파일 기반 훅은 last_prompt·activity·inbox를 주는 보강 수단이고, 세션 간 명령 전달은 inbox.jsonl에 append하면 대상의 UserPromptSubmit/Stop 훅이 system-reminder로 주입(다음 턴 경계·1회 소비)하며, 세션 CTX 점유는 transcript 마지막 usage의 input+cache_read+cache_creation 합, 계정 rate limit은 OAuth usage API로 확인하되 5시간·주간·소네트 한도만 오고 opus 주간은 오지 않는다. [14] 종합하면, Agora의 경매는 우리의 정적 모델-계층 지침이 지금 거칠게 답하고 있는 '할당' 질문에 대한 세밀한 해답이지만, 우리에게 실제로 비용을 물린 조정 실패들 — 계약 드리프트, doomed 대형 출력·rate limit 상관 팬아웃, 클린룸 방화벽 무결성, 보고 채널 유실, 2층 봇 결함, 라이브니스 관측 — 은 인터페이스 일관성·게이팅·검증·모니터링이라는 계층에 있어 할당 메커니즘만으로는 다뤄지지 않는다. [5][8][2][3][6][1][7][9][12][14]",
+          "sentences": [
+            {
+              "text": "질문이 지목한 세 논문(WebSwarm, Fictional Worldbuilding, Agora) 중 근거 자료에 원문이 포함된 것은 Agora뿐이므로, 아래 비교는 Agora의 조정 메커니즘과 우리 운영 교훈 사이의 대조로 한정된다.",
+              "cites": [
+                8
+              ]
+            },
+            {
+              "text": "Agora는 추론 단계를 거래 가능한 항목으로 취급하는 인센티브 정합적 경매를 도입해, 에이전트가 '보정된 역량(rectified competence)'에 근거해 입찰하고 핵심 로직이 가장 과신하는 solver가 아니라 가장 유능한 solver로 라우팅되도록 하는 프레임워크다.",
+              "cites": [
+                8
+              ]
+            },
+            {
+              "text": "Agora가 겨냥하는 약점은 기능적으로 유사한 대안들 사이의 성능 편차와 비용 효율을 무시한 채 태스크와 기능을 거친(coarse-grained) 매칭으로 호출하는 방식이며, 단일 경매 파라미터로 비용-품질 트레이드오프를 제어 가능하게 노출한다.",
+              "cites": [
+                8
+              ]
+            },
+            {
+              "text": "우리 운영의 라우팅은 정확히 Agora가 비판하는 정적·거친 유형이다 — 상시 지침은 코드 작성을 기본 Sonnet, 검토·플랜을 (가용 시) Fable, 오케스트레이션·검증을 본체로 고정 배정하는 '태스크 유형 → 모델' 매핑일 뿐 역량·비용 기반 경매가 아니다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "그 정적 분배의 근거(Opus 서브에이전트는 비용·rate limit 소모가 크고, 계약·스펙·경계·게이트가 명확하면 구현은 Sonnet으로 충분하다는 판단)는 Agora가 자동화하는 비용-품질 차원을 사람이 수동으로 설정한 버전에 해당한다.",
+              "cites": [
+                5,
+                8
+              ]
+            },
+            {
+              "text": "역량을 무시한 할당이 실무에서 왜 깨지는지는 워크플로 재실행 교훈이 보여준다 — 단일 에이전트에 ~140개 항목의 거대한 구조화 출력을 한 번에 맡기면 생성 도중 중단되고 동일한 실패 호출이 무한 재시도되어(6회×10~40분) 시간이 낭비되는데, 이는 태스크 규모와 solver 용량의 불일치로 Agora의 역량 기반 라우팅이 막으려는 실패 유형과 동형이다.",
+              "cites": [
+                3,
+                6
+              ]
+            },
+            {
+              "text": "우리가 찾은 해법(카테고리별 팬아웃으로 각 에이전트 출력을 약 20개 이하로 유지)은 태스크를 세분화하는 규율인데, 이는 '추론 단계를 거래 가능한 항목으로 취급'하는 Agora의 전제(세밀한 단위가 역량 기반 할당의 선결조건)와도 맞닿는다.",
+              "cites": [
+                3,
+                6,
+                8
+              ]
+            },
+            {
+              "text": "서버측 rate limit('not your usage limit, all accounts exhausted')이 동시 16개 verify 에이전트가 반복 전멸하는 식으로 폭주 팬아웃과 상관을 보였다는 관측은, 순수 역량 매칭이 간과하는 '다수 후보에 공격적으로 할당하는 실비용'이라는 Agora의 비용 차원을 실증한다.",
+              "cites": [
+                3,
+                6
+              ]
+            },
+            {
+              "text": "할당 계층을 넘어서면, 우리가 실제로 겪은 조정 실패의 대표는 계약 드리프트였다 — 클라이언트와 서버를 별도 서브에이전트에게 병렬로 맡기자 필드명 불일치와 ISO 타임스탬프 포맷 차이로 API 계약이 2회 어긋났고, 이는 와이어 계약(스키마·필드명·인코딩)을 단일 정본 레포의 테스트로 고정하고 에이전트가 그 테스트를 통과해야 완료로 간주하는 방식으로 예방했다.",
+              "cites": [
+                2
+              ]
+            },
+            {
+              "text": "이는 Agora가 다루지 않는 조정 메커니즘이다 — 경매 기반 할당은 어떤 단계를 '누가' 수행할지는 정하지만 병렬 생산자·소비자의 인터페이스를 일관되게 유지하는 문제는 다루지 않으며, 우리는 이를 계약 테스트, 파일 비중첩 분할, 커밋 전 단계별 리뷰·테스트·E2E 게이트, 스키마 변경 시 미러/픽스처 동기화 체크리스트로 해결했다.",
+              "cites": [
+                2,
+                8
+              ]
+            },
+            {
+              "text": "같은 계열의 미묘한 계약 지뢰로, 와이어 코덱의 '치수'(예: 문자열 필드 폭)를 예시 콘텐츠의 최장 값에 하드코딩하면 새 콘텐츠가 이를 초과할 때 조용히 깨지므로, 코덱 파라미터는 config 유도 단일 함수에서 도출해 서버·클라 양쪽에 주입해 구조적 lockstep을 보장하고 테스트 하네스도 같은 코덱을 써야 한다.",
+              "cites": [
+                10
+              ]
+            },
+            {
+              "text": "클린룸 포팅은 할당 관점이 빠뜨리는 또 다른 조정 구조를 더한다 — GPL 레퍼런스를 직접 본 리서치 에이전트는 명세만 작성하고, 별도 구현 에이전트가 그 명세만 보고 구현하는 '멀티에이전트 방화벽'으로, 이 분리 자체가 구현자가 원본을 본 적 없다는 조직적 증거로 프롬프트·로그에 남아 전통적 클린룸의 2팀 구조와 동형이 된다.",
+              "cites": [
+                1,
+                7
+              ]
+            },
+            {
+              "text": "명세가 디스크에 있으면 구현 에이전트를 여러 번 교체(컨텍스트 리셋)해도 방화벽이 유지되며, 검증은 역할을 분담해 verifier가 산출 코드에서 원본 식별자(예: AAEmu, SCUnit, CSStart)를 grep해 0건인지 확인하고 기능 동등성은 테스트로 검증하는 한편 리뷰어는 명세 대비 정합성만 본다.",
+              "cites": [
+                4,
+                7
+              ]
+            },
+            {
+              "text": "핸드오프의 취약성으로는, 서브에이전트의 최종 보고를 일반 텍스트로만 출력하면 teammate 모드에서는 SendMessage로 보낸 것만 도달하므로 보고가 유실될 수 있다는 통신 채널 실패가 있었고, 이는 [n/m] 분할 SendMessage나 파일 저장으로 완화된다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "우리가 실제 출하한 멀티에이전트 시스템에서 조정 결함은 어떤 할당 메커니즘으로도 잡히지 않는 두 층위로 나타났다 — 봇 채움 거점(도미네이션) 모드는 기하(도달성)와 행동(목표지향)에서 따로 죽으며 한 층을 고치면 다음 층이 드러나는데, 유닛 테스트·typecheck가 전부 그린인 상태에서 8봇 풀매치 E2E가 두 층위 결함을 연쇄로 잡아냈다.",
+              "cites": [
+                9,
+                12
+              ]
+            },
+            {
+              "text": "기하 층은 '캡별 도달가능 앵커 ≥1 + 전 웨이포인트 박스 밖'이라는 불변식 테스트로 벗겨냈고, 이 불변식을 두 맵 전체에 강제하자 기존 맵에 잠복해 있던 같은 결함 3개가 즉시 드러났다.",
+              "cites": [
+                12
+              ]
+            },
+            {
+              "text": "행동 층은 원인이 이중적이었다 — 봇 순찰이 적이 보이는 동안 동결(전투 우선)되어 개방형 맵에서는 순찰이 사실상 진행되지 않았고 전투 스트레이프가 캡과 무관한 고정 좌표에 앵커되어 봇이 킬존에 뭉쳤으며, 이는 서버가 팀 기준 미소유 캡의 도달 가능 앵커를 objective로 주입하고 적 가시 여부와 무관하게 objective 전진을 디폴트로 삼되 아주 근접한 위협(8m 미만)만 회피 전투로 처리해 수정했다.",
+              "cites": [
+                12
+              ]
+            },
+            {
+              "text": "'적이 멀면(예: 18m 초과) 목표로 이동' 같은 어중간한 거리 게이트는 교전 거리가 항상 게이트 안에 드는 개방형 맵에서 무력화되므로, 목표 우선을 디폴트로 두고 전투를 좁은 예외로 처리해야 한다.",
+              "cites": [
+                12
+              ]
+            },
+            {
+              "text": "관련 조정 함정으로, 팀리스(FFA) 모드에서 전원이 team=0이면 모든 아군사격(friendly-fire) 체크가 오탐되며, tick-aligned dispatch 하네스에서는 메시지 전송 후 1틱을 진행시켜야 브로드캐스트가 관측되어 '보냈는데 브로드캐스트 0'이 반드시 버그는 아니다.",
+              "cites": [
+                13
+              ]
+            },
+            {
+              "text": "다만 위 거점 모드 결함은 웹 FPS 멀티플레이어 템플릿인 ironsight의 사례이며, ironsight는 Tikron의 경쟁 장르 플래그십으로 연결된 별도 프로젝트라 Tikron 코어 자체의 기록이 아니라 연관 프로젝트 교훈으로 보아야 한다.",
+              "cites": [
+                11,
+                15
+              ]
+            },
+            {
+              "text": "멀티에이전트 개발 자체를 모니터링할 때 생존(라이브니스) 판정의 정본은 `claude agents --json`으로, 모든 살아있는 세션의 pid·busy/idle·kind·백그라운드 작업명을 제공하고 훅을 거치지 않은 세션도 발견하는데, ppid 기반 판정은 훅이 셸을 경유하는 Windows에서 무용하기 때문이다.",
+              "cites": [
+                14
+              ]
+            },
+            {
+              "text": "파일 기반 훅은 last_prompt·activity·inbox를 주는 보강 수단이고, 세션 간 명령 전달은 inbox.jsonl에 append하면 대상의 UserPromptSubmit/Stop 훅이 system-reminder로 주입(다음 턴 경계·1회 소비)하며, 세션 CTX 점유는 transcript 마지막 usage의 input+cache_read+cache_creation 합, 계정 rate limit은 OAuth usage API로 확인하되 5시간·주간·소네트 한도만 오고 opus 주간은 오지 않는다.",
+              "cites": [
+                14
+              ]
+            },
+            {
+              "text": "종합하면, Agora의 경매는 우리의 정적 모델-계층 지침이 지금 거칠게 답하고 있는 '할당' 질문에 대한 세밀한 해답이지만, 우리에게 실제로 비용을 물린 조정 실패들 — 계약 드리프트, doomed 대형 출력·rate limit 상관 팬아웃, 클린룸 방화벽 무결성, 보고 채널 유실, 2층 봇 결함, 라이브니스 관측 — 은 인터페이스 일관성·게이팅·검증·모니터링이라는 계층에 있어 할당 메커니즘만으로는 다뤄지지 않는다.",
+              "cites": [
+                5,
+                8,
+                2,
+                3,
+                6,
+                1,
+                7,
+                9,
+                12,
+                14
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md",
+              "chunk_id": "2f5fb63e-ee69-4ff5-a5fa-e544987c5ef8",
+              "char_start": 0,
+              "char_end": 559,
+              "title": "GPL 클린룸 포팅 워크플로 (멀티에이전트 방화벽)"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+              "chunk_id": "4b715ee3-f822-4f84-9cfc-f8ae83f561a2",
+              "char_start": 0,
+              "char_end": 1208,
+              "title": "병렬 에이전트는 API 계약이 드리프트한다 — 와이어 계약은 테스트로 고정"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+              "chunk_id": "641f4a73-3472-4411-87a8-8b72854cbfe3",
+              "char_start": 0,
+              "char_end": 1498,
+              "title": "Workflow 도구 resume은 prefix 캐시 — 실패 그룹 재실행 전략"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md",
+              "chunk_id": "d8f2e67f-5644-4a83-bd67-ae497d7214ae",
+              "char_start": 2155,
+              "char_end": 3467,
+              "title": "GPL 클린룸 포팅 워크플로 (멀티에이전트 방화벽)"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-code-sonnet-manage-fable.md",
+              "chunk_id": "8ac5194c-2b19-4bab-8cd4-e74f491c7b9b",
+              "char_start": 0,
+              "char_end": 1355,
+              "title": "directive-code-sonnet-manage-fable"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+              "chunk_id": "a98e2460-113a-489d-88fe-6cd92cb16473",
+              "char_start": 1296,
+              "char_end": 2344,
+              "title": "Workflow 도구 resume은 prefix 캐시 — 실패 그룹 재실행 전략"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md",
+              "chunk_id": "945a6937-8668-4be8-b843-a14e987bd63e",
+              "char_start": 1612,
+              "char_end": 2356,
+              "title": "GPL 클린룸 포팅 워크플로 (멀티에이전트 방화벽)"
+            },
+            {
+              "n": 8,
+              "origin": "http://arxiv.org/abs/2607.09600v1",
+              "chunk_id": "ed08e4e0-ac1c-421f-8d07-872f2105c3b1",
+              "char_start": 0,
+              "char_end": 1146,
+              "title": "Agora: Enhancing LLM Agent Reasoning Via Auction-Based Task Allocation"
+            },
+            {
+              "n": 9,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+              "chunk_id": "3849dca9-8fe0-4cf2-9275-07fc281ee855",
+              "char_start": 0,
+              "char_end": 784,
+              "title": "봇 채움 거점 모드는 두 층위에서 따로 죽는다 — 기하(도달성)와 행동(목표 지향), 계량 프로브 게이트로 벗겨내기"
+            },
+            {
+              "n": 10,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\wire-codec-example-sized-landmine.md",
+              "chunk_id": "927e49c9-857f-4527-858c-246da075c3b5",
+              "char_start": 1298,
+              "char_end": 2671,
+              "title": "와이어 코덱을 예시 데이터 치수로 하드코딩하는 지뢰 (config 구동 lockstep)"
+            },
+            {
+              "n": 11,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\ironsight-web-fps.md",
+              "chunk_id": "93ef4120-7e6d-4709-bb3a-89c1ecb4e222",
+              "char_start": 3019,
+              "char_end": 4456,
+              "title": "ironsight-web-fps"
+            },
+            {
+              "n": 12,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+              "chunk_id": "990fc334-ec2b-4bbd-aadf-f7f3c866f527",
+              "char_start": 1614,
+              "char_end": 3044,
+              "title": "봇 채움 거점 모드는 두 층위에서 따로 죽는다 — 기하(도달성)와 행동(목표 지향), 계량 프로브 게이트로 벗겨내기"
+            },
+            {
+              "n": 13,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\teamless-mode-team-checks-audit.md",
+              "chunk_id": "922b73e9-fbb1-4b5b-9c3f-2111f1610ceb",
+              "char_start": 2564,
+              "char_end": 3950,
+              "title": "팀리스(FFA) 모드 추가 시 팀 비교 전수 감사 — 전원 team=0이 모든 아군사격 체크를 오탐시킨다"
+            },
+            {
+              "n": 14,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\claude-fleet-monitoring-canon.md",
+              "chunk_id": "18ed1534-c99b-4ae1-8145-ed7966657aea",
+              "char_start": 0,
+              "char_end": 1459,
+              "title": "다중 Claude 인스턴스 모니터링 — claude agents --json이 생존 정본"
+            },
+            {
+              "n": 15,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "6a24260c-736d-4128-aec2-6499f30db97b",
+              "char_start": 0,
+              "char_end": 943,
+              "title": "playedge-webgame-baas"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "skipped",
+              "why": "웹/백엔드 통합 트러블슈팅과 협업 운영 지침 위주로, 비교 대상인 멀티에이전트 조정 메커니즘·운영 결함과 직접 연관이 약함(계약 드리프트 자체는 multi-agent-workflow-lessons에서 다룸)."
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "라이선스 서버·페이월·세션 인증 등 수익화 인프라 문서로, 멀티에이전트 오케스트레이션/조정 교훈과 무관."
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "디렉티브의 온톨로지·MOC 조직화 체계에 관한 것으로, 운영상의 멀티에이전트 조정 문제 비교에 필요한 실전 교훈을 담고 있지 않음."
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "우리가 멀티에이전트 오케스트레이션을 실제 운영하며 겪은 조정(coordination) 관련 교훈—특히 API 계약 드리프트(생산자/소비자 스키마 불일치), 워크플로 재실행·클린룸 포팅 패턴, 에이전트 간 핸드오프/역할 분담 실패 모드—의 원인과 대응책은 무엇이었나?",
+              "claims": 16
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "게임 서버(Tikron 등) 봇 채움 거점/도미네이션 모드에서 드러난 조정 결함과, 다중 에이전트 개발을 모니터링한 fleet 모니터링 방식(진척도 vs 라이브니스, 관측 지표, 실패 감지)에서 얻은 구체적 교훈은 무엇인가?",
+              "claims": 13
+            }
+          ],
+          "insufficient": false,
+          "mode": "deep",
+          "cost": {
+            "llm_calls": 4,
+            "secs": 329.52,
+            "model": "sonnet",
+            "stages": {
+              "planner": 55.6,
+              "cluster_agents": 84.62,
+              "rebuttal": 0,
+              "synthesis_1": 187.4
+            }
+          }
+        },
+        "secs": 329.519,
+        "error": null
+      },
+      "judged": {
+        "crit1": {
+          "pass": true,
+          "reason": "",
+          "clusters": [
+            "multi-agent-workflow-lessons",
+            "personal-project-portfolio-dev-infra"
+          ]
+        },
+        "crit2": {
+          "pass": true,
+          "reason": "",
+          "newOrigins": [
+            "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md",
+            "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+            "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-code-sonnet-manage-fable.md",
+            "http://arxiv.org/abs/2607.09600v1",
+            "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+            "C:\\Users\\User\\.claude\\wiki\\wire-codec-example-sized-landmine.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\ironsight-web-fps.md",
+            "C:\\Users\\User\\.claude\\wiki\\teamless-mode-team-checks-audit.md",
+            "C:\\Users\\User\\.claude\\wiki\\claude-fleet-monitoring-canon.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md"
+          ]
+        },
+        "crit3": {
+          "pass": true,
+          "reason": "",
+          "missing": [],
+          "malformed": []
+        }
+      }
+    },
+    {
+      "id": "qd02",
+      "question": "Cloudflare가 최근 발표한 AI 에이전트 플랫폼 트렌드(Flue SDK, Cloudflare One, 임시 에이전트 계정)가 우리 Tikron 멀티플레이 Durable Objects 운영의 원가 모델·세션 보안 이슈와 어떻게 연결되는지 설명해줘.",
+      "expect": "answer",
+      "expected_clusters": [
+        "indie-saas-licensing-paywall-infra",
+        "personal-project-portfolio-dev-infra"
+      ],
+      "gold_files_any": [
+        "https://blog.cloudflare.com/temporary-accounts/",
+        "https://blog.cloudflare.com/agents-platform-flue-sdk/",
+        "https://blog.cloudflare.com/cloudflare-one-stack/",
+        "C:\\Users\\User\\.claude\\wiki\\cloudflare-do-cost-model.md",
+        "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+        "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+        "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cloudflare-account-onoffer.md"
+      ],
+      "fast": {
+        "envelope": {
+          "answer": "제공된 자료만으로는 이 질문에 답할 근거가 충분하지 않습니다.",
+          "sentences": [
+            {
+              "text": "Cloudflare가 발표한 '에이전트용 임시 계정(Temporary Accounts)'은 AI 에이전트가 wrangler deploy만으로 즉시 Worker를 배포할 수 있게 하는 기능이다.",
+              "cites": [
+                4
+              ]
+            },
+            {
+              "text": "반면 Tikron은 dev@onoffer.kr 단일 계정의 Workers Paid($5/월) 구독 위에서 운영되며, 이 구독이 Workers·Durable Objects·D1·Browser Rendering을 전 프로젝트에 걸쳐 공용으로 커버한다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "이 계정 기준 원가 모델에서 Durable Objects 실시간 게임 비용은 방-시간당 약 $0.0056(듀레이션)과 CCU-시간당 약 $0.00054로 추산되고 상시 CCU 1명당 월 약 $0.5~0.6 수준이며, Billing 예산 알림은 아직 설정되지 않은 상태다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "그런데 Tikron 방 연결에서는 `?_session=` 값이 그대로 `client.id`가 되어 `PeerJoined` 같은 브로드캐스트 메시지를 통해 같은 방의 모든 피어에게 평문으로 노출되는 보안 결함이 이미 확인되어 있다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "이 결함은 Emberfall M2에서 실제 CRITICAL 사고로 이어져, 다른 플레이어가 세션 토큰을 스니핑해 캐릭터를 탈취하거나 seat을 가로채 계정을 완전히 장악했고, 동일 토큰의 다중 접속 시 D1 last-write-wins로 아이템·골드가 복제되기도 했다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "즉 에이전트가 배포·운영까지 자율적으로 담당하는 임시 계정 트렌드를 Tikron에 적용하려면, 이미 존재하는 세션 자격증명 노출 취약점과 예산 알림 미설정 상태의 원가 리스크를 함께 다뤄야 한다.",
+              "cites": [
+                4,
+                3,
+                1,
+                2
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\cloudflare-do-cost-model.md",
+              "chunk_id": "bbd39042-a5d3-42b5-a736-59f775bd40d7",
+              "char_start": 0,
+              "char_end": 1150,
+              "title": "Cloudflare 계정·원가 모델 — Workers Paid 하나로 전 프로젝트 커버"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cloudflare-account-onoffer.md",
+              "chunk_id": "f19a41ff-16b5-4264-92bc-e856e3321f24",
+              "char_start": 0,
+              "char_end": 1182,
+              "title": "cloudflare-account-onoffer"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "79277fe1-1393-4ae6-853c-a90d4ff07a36",
+              "char_start": 0,
+              "char_end": 1315,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            },
+            {
+              "n": 4,
+              "origin": "https://blog.cloudflare.com/temporary-accounts/",
+              "chunk_id": "599dd2e8-8982-4f92-ba95-7b3d063af9dc",
+              "char_start": 0,
+              "char_end": 293,
+              "title": "Temporary Cloudflare Accounts for AI agents"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "score 0.81 (rank 1)"
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "consulted",
+              "why": "score 0.80 (rank 2)"
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "score 0.68 (rank 3)"
+            },
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "skipped",
+              "why": "score 0.64 (rank 4) — top 3 밖"
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "score 0.55 (rank 5) — top 3 밖"
+            }
+          ],
+          "insufficient": true,
+          "mode": "fast",
+          "cost": {
+            "llm_calls": 1,
+            "secs": 90.46,
+            "model": "sonnet"
+          }
+        },
+        "secs": 90.463,
+        "error": null
+      },
+      "deep": {
+        "envelope": {
+          "answer": "제공된 자료만으로는 이 질문에 답할 근거가 충분하지 않습니다.",
+          "sentences": [
+            {
+              "text": "Tikron은 Cloudflare Workers + Durable Objects 위에 서버 권위 룸과 TS SDK를 올린 실시간 멀티플레이 BaaS이며, 대상 사용자를 사람 개발자가 아니라 AI 코딩 에이전트로 잡은 오픈코어·셀프호스트 제품이다.",
+              "cites": [
+                1,
+                3
+              ]
+            },
+            {
+              "text": "그러나 제공된 근거 자료 [1]~[32] 어디에도 질문이 전제한 Cloudflare의 Flue SDK·Cloudflare One·임시 에이전트 계정 발표에 대한 정보가 없어, 그 발표들을 Tikron의 원가 모델·세션 보안과 직접 연결하는 서술은 근거로 성립하지 않는다 — 따라서 아래는 근거가 뒷받침하는 Tikron 자체의 구성과, 그 발표들에 개념적으로 대응시킬 수 있는 내부 패턴만 정리한 것이다.",
+              "cites": [
+                1,
+                3
+              ]
+            },
+            {
+              "text": "Tikron 인프라는 Cloudflare 계정 dev@onoffer.kr의 Workers Paid($5/월) 구독으로 운영되며, 이 계정 단위 구독이 Workers·Durable Objects·D1를 전 프로젝트 공용으로 커버하고 일일 캡 없는 종량제 구조다.",
+              "cites": [
+                14,
+                15
+              ]
+            },
+            {
+              "text": "DO 실시간 게임 원가 어림치는 방-시간당 약 $0.0056(듀레이션)에 CCU-시간당 약 $0.00054(20Hz 입력·인바운드 WS 메시지 20:1 요청 과금)를 더한 값으로, 상시 CCU 1명당 월 약 $0.5~0.6 수준이다.",
+              "cites": [
+                14,
+                15
+              ]
+            },
+            {
+              "text": "인바운드 WebSocket 메시지의 20:1 과금은 Durable Object가 비하이버네이션 상태여도 동일하게 적용되는 것으로 추론 확인(verified-by-inference)됐고, 실시간 룸 실비용은 동시접속 20/64/100 CCU에서 각각 약 $0.016/$0.040/$0.060으로 문서화돼 있다.",
+              "cites": [
+                7
+              ]
+            },
+            {
+              "text": "무료 요금제는 월 1,000 방-시간·동시 20방·방당 20명을 D1 설정값으로 상한하며 유료 Pro($25 예정)가 예정돼 있다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "MMO 룸 엔진은 serialize/restore로 DO의 eviction 이후에도 상태를 보존하고 복원 시 clockBase를 스냅샷의 nowMs로 리베이스하므로, DO는 상시 가동이 아니라 evict/restore(wake) 기반으로 운영됨을 시사한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "다만 계정 단위로 일일 캡 없는 종량제여서 사용량 폭주 시 비용이 무제한 증가할 수 있는데, 2026-07-02 기준 Billing 예산 알림(~$20)이 아직 설정되지 않아 원가 통제 안전장치가 비어 있다.",
+              "cites": [
+                14,
+                15
+              ]
+            },
+            {
+              "text": "운영 제약으로, 라이브에 DO 마이그레이션(new_sqlite_classes 등)이 적용된 뒤에는 해당 클래스를 뺀 구성으로 배포할 수 없어(wrangler 거부 또는 파괴적 클래스 삭제 요구) DO 마이그레이션은 단방향 래칫으로 취급해야 한다.",
+              "cites": [
+                2
+              ]
+            },
+            {
+              "text": "세션 보안의 핵심은 쿼리 채널 분리다 — `?_session=`은 client.id가 되어 방 전체에 브로드캐스트되므로 비밀을 담으면 안 되고(랜덤 세션 id만), 진짜 자격증명은 피어에 노출되지 않는 `?_auth=` + onAuth로만 검증한다.",
+              "cites": [
+                9,
+                12
+              ]
+            },
+            {
+              "text": "크로스-DO 배타가 필요하면 D1의 active_session_id에 CAS로 세션을 클레임해 같은 토큰의 2중 접속(계정 장악·아이템 복제 원천)을 차단하고, 크래시 잔존은 하트비트 + TTL(90s)로 회수하며 저장은 낙관적 동시성(UPDATE ... WHERE active_session_id=?)으로 stale writer clobber를 막는다.",
+              "cites": [
+                9,
+                11,
+                12
+              ]
+            },
+            {
+              "text": "클라이언트 인증(client.auth, AuthResult)은 tk_live_ live 키 전용이고, 키는 tk_pub_/tk_live_ 두 종이며 기본값이 public이라 인증 용도로는 대시보드에서 scope 전환이 필요하다.",
+              "cites": [
+                7
+              ]
+            },
+            {
+              "text": "룸 입장 단계에는 RoomJoinError(protocol_mismatch|schema_mismatch) 가드가 있어 프로토콜/스키마 불일치 접속을 거부한다.",
+              "cites": [
+                7
+              ]
+            },
+            {
+              "text": "서버-투-서버 플랫폼 API(occupancy ingest, 리더보드 점수 제출 POST /api/ingest/score)는 tk_live_ 접두어 Bearer 인증을 강제하고 키 scope를 접두어에서 파생하며, 리더보드 제출은 보드당 캡 50과 레이트 버킷으로 오남용을 제한한다.",
+              "cites": [
+                4,
+                7
+              ]
+            },
+            {
+              "text": "키 없는 접속은 demo 프로젝트로 미터링된다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "질문의 '임시 에이전트 계정·에이전트 세션' 운영에 개념적으로 대응시킬 수 있는 내부 패턴으로는, 브로드캐스트돼도 무해한 세션 id와 별도 채널로만 전달되는 자격증명을 분리하는 설계가 있으며 이는 임시 에이전트 세션에도 그대로 적용 가능하다.",
+              "cites": [
+                9,
+                12
+              ]
+            },
+            {
+              "text": "단일 자격증명에 CAS 단일 활성 세션 배타를 걸고 하트비트+TTL로 회수하는 패턴은 임시 에이전트 계정이 중복 기동돼 비용이 이중 발생하는 상황을 원천 차단하는 데 쓸 수 있다.",
+              "cites": [
+                11,
+                12
+              ]
+            },
+            {
+              "text": "원가 통제 측면에서는 비용·rate limit 소모가 큰 고성능 모델(Opus)은 검토·설계에만 쓰고 명세·경계·게이트가 명확한 구현에는 저비용 모델(Sonnet)을 기본값으로 두는 모델 티어 차등 배정이 적용 가능하며, 품질은 계약 설계와 게이트 검증이 담보한다.",
+              "cites": [
+                8,
+                13
+              ]
+            },
+            {
+              "text": "다수 에이전트 세션을 동시 폭주시키면(예: 동시 16개 fanout) 계정 전체 소진성 서버 rate limit이 유발되므로 동시 실행 규모를 제한하는 용량 관리가 필요하다.",
+              "cites": [
+                10
+              ]
+            },
+            {
+              "text": "세션 인증에는 AuthError만 자격/세션을 롤백하고 일시적 네트워크·안티봇 오류는 폐기하지 않고 verified:false로만 표시하는 fail-closed 원칙과, 요청 바디가 아닌 서버측 세션 user id에 스코프를 바인딩(IDOR 차단)하고 비밀값을 SELECT·응답·에러 문자열에서 배제하는 마스킹 원칙이 Tikron 세션 키 하이재킹·누수 방지에 재사용된다.",
+              "cites": [
+                16,
+                17
+              ]
+            },
+            {
+              "text": "반면 사용량/과금 게이팅에는 서버 불통 시 전원 무료로 여는 fail-open이 의도된 트레이드오프로, 세션 인증(fail-closed)과 정반대 원칙을 상황별로 구분 적용해야 한다.",
+              "cites": [
+                16,
+                17,
+                18,
+                19
+              ]
+            },
+            {
+              "text": "원격 페이월 config처럼 클라이언트 재배포 없이 서버 DB 값 한 줄 UPDATE로 즉시 반영되는 무캐시 config 구조는, Tikron에서 DO 사용량 상한·게이팅 정책을 원격으로 flip해야 할 때 참고할 수 있다.",
+              "cites": [
+                18,
+                19
+              ]
+            },
+            {
+              "text": "정리하면 근거는 Tikron의 DO 원가 모델(20:1 WS 과금·CCU당 월 $0.5~0.6·예산 알림 미설정)과 세션 보안(세션/자격 채널 분리·CAS 단일 세션·live 키 인증)까지는 충실히 뒷받침하지만, 이를 Cloudflare가 발표했다는 Flue SDK·Cloudflare One·임시 에이전트 계정과 연결하는 부분은 근거가 전혀 없어 답할 수 없다.",
+              "cites": [
+                7,
+                9,
+                14
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "6a24260c-736d-4128-aec2-6499f30db97b",
+              "char_start": 0,
+              "char_end": 943,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\prod-ahead-of-git-deploy-forensics.md",
+              "chunk_id": "6f115bba-6229-4178-b466-a311734bf9e5",
+              "char_start": 1223,
+              "char_end": 2337,
+              "title": "프로덕션이 git보다 앞선 레포의 안전 배포 — 라이브 포렌식 후 소스 결정"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "bc8e9eec-c829-46fd-aed7-1cf47d7b3033",
+              "char_start": 743,
+              "char_end": 2108,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\nyam-duel-face-game.md",
+              "chunk_id": "8ba3b409-fc58-4390-95bb-5819ec7e3617",
+              "char_start": 3772,
+              "char_end": 5191,
+              "title": "nyam-duel-face-game"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "5c2b6374-0f65-47eb-a39e-64f023357009",
+              "char_start": 2983,
+              "char_end": 4355,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "482983a4-bdaa-44b4-ac6d-c42bfedf44e5",
+              "char_start": 17007,
+              "char_end": 18466,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "a103638f-0974-491e-9805-8eeeb7458978",
+              "char_start": 18924,
+              "char_end": 20412,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 8,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-code-sonnet-manage-fable.md",
+              "chunk_id": "14dc0a91-192c-490b-b3dd-c355bbdeb272",
+              "char_start": 1155,
+              "char_end": 2279,
+              "title": "directive-code-sonnet-manage-fable"
+            },
+            {
+              "n": 9,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "1d682639-a992-434e-a743-787b680a87c5",
+              "char_start": 1115,
+              "char_end": 2232,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            },
+            {
+              "n": 10,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+              "chunk_id": "a98e2460-113a-489d-88fe-6cd92cb16473",
+              "char_start": 1296,
+              "char_end": 2344,
+              "title": "Workflow 도구 resume은 prefix 캐시 — 실패 그룹 재실행 전략"
+            },
+            {
+              "n": 11,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "c1effb1b-e62a-4038-8ab7-44122c17640b",
+              "char_start": 3058,
+              "char_end": 3628,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            },
+            {
+              "n": 12,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "245c0a40-b00b-4cc2-9510-ef96e7de088c",
+              "char_start": 2032,
+              "char_end": 3260,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            },
+            {
+              "n": 13,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-code-sonnet-manage-fable.md",
+              "chunk_id": "8ac5194c-2b19-4bab-8cd4-e74f491c7b9b",
+              "char_start": 0,
+              "char_end": 1355,
+              "title": "directive-code-sonnet-manage-fable"
+            },
+            {
+              "n": 14,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\cloudflare-do-cost-model.md",
+              "chunk_id": "bbd39042-a5d3-42b5-a736-59f775bd40d7",
+              "char_start": 0,
+              "char_end": 1150,
+              "title": "Cloudflare 계정·원가 모델 — Workers Paid 하나로 전 프로젝트 커버"
+            },
+            {
+              "n": 15,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\cloudflare-account-onoffer.md",
+              "chunk_id": "f19a41ff-16b5-4264-92bc-e856e3321f24",
+              "char_start": 0,
+              "char_end": 1182,
+              "title": "cloudflare-account-onoffer"
+            },
+            {
+              "n": 16,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\per-user-credential-migration-fail-closed.md",
+              "chunk_id": "9db45ce6-0b01-433b-9b64-5a79702bba59",
+              "char_start": 2860,
+              "char_end": 4310,
+              "title": "전역→사용자별 자격증명 전환의 격리 함정 (폴백=교차계정 로그인, fail-closed + 소비형 마이그레이션)"
+            },
+            {
+              "n": 17,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\per-user-credential-migration-fail-closed.md",
+              "chunk_id": "ff0e052e-9d5c-48ce-a289-a344ff65ff06",
+              "char_start": 4110,
+              "char_end": 5014,
+              "title": "전역→사용자별 자격증명 전환의 격리 함정 (폴백=교차계정 로그인, fail-closed + 소비형 마이그레이션)"
+            },
+            {
+              "n": 18,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "e7732f25-a8c4-438b-adf1-bc9d0bd34279",
+              "char_start": 846,
+              "char_end": 1869,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 19,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md",
+              "chunk_id": "018b2878-2316-4b20-8c43-1acf3097f8a6",
+              "char_start": 0,
+              "char_end": 1480,
+              "title": "원격 페이월 config — 무료 출시 후 서버 flip으로 무릴리스 유료 전환"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "Cloudflare Workers/edge·CSP·API 세션 인증 관련 트러블슈팅 노트 중 Durable Objects 세션 보안이나 엣지 원가 절감에 참고할 만한 항목이 있으면 알려줘.",
+              "claims": 0
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "세션 인증·가입승인·원격 페이월 구조 중 임시 세션/계정 보안과 사용량 기반 원가 통제 관점에서 Tikron 세션 보안·Durable Objects 원가 모델에 재사용할 만한 패턴이 있는지 알려줘.",
+              "claims": 7
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "클로드 메모리 디렉티브의 온톨로지 스키마·MOC 조직화 전용 클러스터로, Cloudflare 에이전트 플랫폼 트렌드나 Tikron Durable Objects의 원가·세션 보안과 주제적 접점이 없음."
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "보안·결제/원가·모델 라우팅 교훈 중 AI 에이전트 플랫폼(임시 에이전트 계정·에이전트 세션) 운영의 원가 통제·세션 보안 설계에 적용 가능한 패턴이 있는지 정리해줘.",
+              "claims": 5
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "Tikron 멀티플레이의 Durable Objects 운영 현황에서 현재 원가 모델(요청 수·스토리지·상시 가동/wake 비용 등)과 세션 보안(연결 인증·플레이어 상태 격리·세션 하이재킹 방지) 관련해 알려진 이슈나 구성이 무엇인지 정리해줘.",
+              "claims": 9
+            }
+          ],
+          "insufficient": true,
+          "mode": "deep",
+          "cost": {
+            "llm_calls": 6,
+            "secs": 375.55,
+            "model": "sonnet",
+            "stages": {
+              "planner": 72.08,
+              "cluster_agents": 149.22,
+              "rebuttal": 0,
+              "synthesis_1": 153.65
+            }
+          }
+        },
+        "secs": 375.555,
+        "error": null
+      },
+      "judged": {
+        "crit1": {
+          "pass": true,
+          "reason": "",
+          "clusters": [
+            "personal-project-portfolio-dev-infra",
+            "multi-agent-workflow-lessons",
+            "indie-saas-licensing-paywall-infra"
+          ]
+        },
+        "crit2": {
+          "pass": true,
+          "reason": "",
+          "newOrigins": [
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+            "C:\\Users\\User\\.claude\\wiki\\prod-ahead-of-git-deploy-forensics.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\nyam-duel-face-game.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\directive-code-sonnet-manage-fable.md",
+            "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+            "C:\\Users\\User\\.claude\\wiki\\per-user-credential-migration-fail-closed.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+            "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md"
+          ]
+        },
+        "crit3": {
+          "pass": true,
+          "reason": "",
+          "missing": [],
+          "malformed": []
+        }
+      }
+    },
+    {
+      "id": "qd03",
+      "question": "우리 메모리에 기록된 PowerShell UTF-8 텍스트 손상 교훈과, 위키에 있는 PowerShell 5.1 UTF-8 BOM 지뢰 기술 노트가 서로 어떻게 일치하거나 확장되는지 비교하고, 두 기록을 종합해서 핵심 회피 규칙을 정리해줘.",
+      "expect": "answer",
+      "expected_clusters": [
+        "memory-ontology-moc",
+        "cross-project-tech-notes-and-directives"
+      ],
+      "gold_files_any": [
+        "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md",
+        "C:\\Users\\User\\.claude\\wiki\\powershell51-utf8-bom-hazards.md",
+        "C:\\Users\\User\\.claude\\wiki\\claude-edit-unicode-escape-mine.md",
+        "C:\\Users\\User\\.claude\\wiki\\obsidian-frontmatter-unquoted-colon-wipe.md"
+      ],
+      "fast": {
+        "envelope": {
+          "answer": "메모리 directive와 위키 문서 모두 2026-07-02 Tikron 작업 중 발생한 실제 사고 2건을 근거로, PowerShell 5.1로 UTF-8 텍스트 파일을 다루면 파손된다는 동일한 핵심 사실을 전달한다. [1][2] 첫째 사고는 `Get-Content -Raw | -replace | Set-Content` 조합이 파일을 시스템 ANSI(CP949)로 읽어 em-dash(—)·화살표(→)·한글 등 멀티바이트 문자를 `??`로 깨뜨리고, `-Encoding utf8`을 줘도 BOM이 강제 삽입된다는 점에서 두 기록이 일치한다. [1][2] 둘째 사고는 `\"value\" | native.exe` 형태의 파이프가 stdin 앞에 BOM(EF BB BF)을 붙여 `wrangler secret put`에 넣은 GitHub OAuth client_id가 통째로 무효화된 실사고라는 점도 두 기록이 동일하게 서술한다. [1][2] 메모리 기록은 원인을 \"PS 5.1의 기본 인코딩 체계가 UTF-8이 아닌 레거시 코드페이지+BOM 강제 방식이며 PowerShell 7과 다르다\"는 Why로 요약한다. [1] 위키 기록은 같은 원인 설명에 더해 대응 절차를 구체화하여, 파일 치환에는 Claude Edit 도구·Git Bash `sed -i`(바이트 단위)·node 스크립트를 쓰고 PowerShell `Set-Content`는 금지하며, 시크릿 등 텍스트를 네이티브 명령 stdin으로 주입할 때는 bash `printf '%s' \"value\" | cmd`를 쓰라고 확장한다. [2] 메모리 기록도 이후 청크의 \"How to apply\"에서 동일한 회피 절차(Edit 도구·bash sed -i·node 스크립트, bash printf 주입)를 담고 있어 위키 내용과 서로 확장·일치한다. [3] 사고 감지·복구 방법에서도 두 기록은 일치한다 — `git diff --stat`이 비정상적으로 크면 인코딩 처닝을 의심해 `head -c 3 | od`로 BOM 여부와 diff의 `??` 패턴을 확인하고, 문제 발견 시 `git checkout -- <files>` 후 안전한 도구로 재적용한다. [2][3] 메모리 기록은 위키 상세판을 `[[powershell51-utf8-bom-hazards]]`로, 위키 기록은 \"관련: memory directive `powershell-utf8-text-corruption`\"으로 서로를 명시적으로 링크해, 메모리는 요약판(directive)·위키는 상세판이라는 역할 분담으로 확장 관계임을 보여준다. [3][2] 두 기록을 종합한 핵심 회피 규칙은 다음과 같다 — PowerShell 5.1에서 UTF-8 파일을 `Get-Content`/`Set-Content`로 편집하지 말고 Edit 도구·bash `sed -i`·node 스크립트를 사용하고, 네이티브 명령에 시크릿 등 텍스트를 주입할 때는 PowerShell 파이프 대신 bash `printf '%s' | cmd`를 사용하며, 편집 후 `git diff --stat` 이상 여부와 파일 앞 3바이트의 BOM 유무로 손상을 점검하고, 손상이 확인되면 `git checkout`으로 되돌린 뒤 안전한 도구로 재적용한다. [1][2][3]",
+          "sentences": [
+            {
+              "text": "메모리 directive와 위키 문서 모두 2026-07-02 Tikron 작업 중 발생한 실제 사고 2건을 근거로, PowerShell 5.1로 UTF-8 텍스트 파일을 다루면 파손된다는 동일한 핵심 사실을 전달한다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "첫째 사고는 `Get-Content -Raw | -replace | Set-Content` 조합이 파일을 시스템 ANSI(CP949)로 읽어 em-dash(—)·화살표(→)·한글 등 멀티바이트 문자를 `??`로 깨뜨리고, `-Encoding utf8`을 줘도 BOM이 강제 삽입된다는 점에서 두 기록이 일치한다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "둘째 사고는 `\"value\" | native.exe` 형태의 파이프가 stdin 앞에 BOM(EF BB BF)을 붙여 `wrangler secret put`에 넣은 GitHub OAuth client_id가 통째로 무효화된 실사고라는 점도 두 기록이 동일하게 서술한다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "메모리 기록은 원인을 \"PS 5.1의 기본 인코딩 체계가 UTF-8이 아닌 레거시 코드페이지+BOM 강제 방식이며 PowerShell 7과 다르다\"는 Why로 요약한다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "위키 기록은 같은 원인 설명에 더해 대응 절차를 구체화하여, 파일 치환에는 Claude Edit 도구·Git Bash `sed -i`(바이트 단위)·node 스크립트를 쓰고 PowerShell `Set-Content`는 금지하며, 시크릿 등 텍스트를 네이티브 명령 stdin으로 주입할 때는 bash `printf '%s' \"value\" | cmd`를 쓰라고 확장한다.",
+              "cites": [
+                2
+              ]
+            },
+            {
+              "text": "메모리 기록도 이후 청크의 \"How to apply\"에서 동일한 회피 절차(Edit 도구·bash sed -i·node 스크립트, bash printf 주입)를 담고 있어 위키 내용과 서로 확장·일치한다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "사고 감지·복구 방법에서도 두 기록은 일치한다 — `git diff --stat`이 비정상적으로 크면 인코딩 처닝을 의심해 `head -c 3 | od`로 BOM 여부와 diff의 `??` 패턴을 확인하고, 문제 발견 시 `git checkout -- <files>` 후 안전한 도구로 재적용한다.",
+              "cites": [
+                2,
+                3
+              ]
+            },
+            {
+              "text": "메모리 기록은 위키 상세판을 `[[powershell51-utf8-bom-hazards]]`로, 위키 기록은 \"관련: memory directive `powershell-utf8-text-corruption`\"으로 서로를 명시적으로 링크해, 메모리는 요약판(directive)·위키는 상세판이라는 역할 분담으로 확장 관계임을 보여준다.",
+              "cites": [
+                3,
+                2
+              ]
+            },
+            {
+              "text": "두 기록을 종합한 핵심 회피 규칙은 다음과 같다 — PowerShell 5.1에서 UTF-8 파일을 `Get-Content`/`Set-Content`로 편집하지 말고 Edit 도구·bash `sed -i`·node 스크립트를 사용하고, 네이티브 명령에 시크릿 등 텍스트를 주입할 때는 PowerShell 파이프 대신 bash `printf '%s' | cmd`를 사용하며, 편집 후 `git diff --stat` 이상 여부와 파일 앞 3바이트의 BOM 유무로 손상을 점검하고, 손상이 확인되면 `git checkout`으로 되돌린 뒤 안전한 도구로 재적용한다.",
+              "cites": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md",
+              "chunk_id": "3c8ade6f-54c9-496e-8d26-ad6a8fdd1a83",
+              "char_start": 0,
+              "char_end": 1098,
+              "title": "powershell-utf8-text-corruption"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\powershell51-utf8-bom-hazards.md",
+              "chunk_id": "11f741dd-d6be-43b7-93cf-73c7db81af4e",
+              "char_start": 0,
+              "char_end": 1236,
+              "title": "PowerShell 5.1 UTF-8 지뢰 — Set-Content 파손과 파이프 BOM"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md",
+              "chunk_id": "e6af7608-319c-4dc5-a4d2-9e12b4d43b06",
+              "char_start": 898,
+              "char_end": 1652,
+              "title": "powershell-utf8-text-corruption"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "score 0.87 (rank 1)"
+            },
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "score 0.64 (rank 2)"
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "consulted",
+              "why": "score 0.61 (rank 3)"
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "skipped",
+              "why": "score 0.60 (rank 4) — top 3 밖"
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "score 0.60 (rank 5) — top 3 밖"
+            }
+          ],
+          "insufficient": false,
+          "mode": "fast",
+          "cost": {
+            "llm_calls": 1,
+            "secs": 69.89,
+            "model": "sonnet"
+          }
+        },
+        "secs": 69.888,
+        "error": null
+      },
+      "deep": {
+        "envelope": {
+          "answer": "결론부터: 메모리에 기록된 PowerShell UTF-8 손상 교훈(powershell-utf8-text-corruption)과 위키의 PowerShell 5.1 UTF-8 BOM 지뢰 노트(powershell51-utf8-bom-hazards)는 서로 모순 없이 완전히 일치하며, 명시적으로 서로를 교차 링크하는 '요약판(메모리) ↔ 상세판(위키)' 한 쌍으로 설계되어 있다. [4][5][6] 두 기록은 같은 실사고 2건(2026-07-02 Tikron 작업 중)을 근거로 동일한 두 가지 파손 형태를 든다. [5][6] 첫 번째 형태는 `Get-Content -Raw | -replace | Set-Content` 패턴으로, 파일을 시스템 ANSI(CP949)로 읽어 em-dash(—)·화살표(→)·불릿(·)·한글 같은 멀티바이트 문자가 전부 `??`로 깨지며, `-Encoding utf8`을 줘도 BOM이 강제 삽입된다. [5][6] 두 번째 형태는 `\"value\" | native.exe` 파이프로, stdin 맨 앞에 BOM(EF BB BF)이 붙어 `wrangler secret put`에 주입한 GitHub OAuth client_id가 통째로 무효화된 실사고로 나타났다. [5][6] 두 기록 모두 원인을 PS 5.1의 기본 인코딩 체계가 UTF-8이 아니라 레거시 코드페이지 기반이며 BOM을 강제하기 때문으로 지목하고, PowerShell 7과는 다르다고 명시한다. [5][6] 두 기록의 관계는 상보적으로, 메모리 directive는 본문 끝에서 '상세판(전역 위키)'으로 위키 [[powershell51-utf8-bom-hazards]]를 가리키고, 위키 노트는 '요약판'으로 메모리 directive를 되가리킨다. [4][6] 분류 축도 서로 확장적이어서, 메모리 기록은 `up: [[moc-tooling]]`로 툴링(도구·환경·CLI 사용 규칙) MOC 아래에 등재되어 있고, 위키 노트는 `category: environment`(환경 지뢰)로 분류된다. [5][3][6] 위키 노트는 여기에 더해 PowerShell 7은 기본 인코딩이 UTF-8 no-BOM이라 이 문제가 발생하지 않는다는 점을 명시적으로 확장한다. [6] 또한 이 PS 5.1 지뢰는 위키 안에서 wrangler 배포·Docker/firewalld·Obsidian frontmatter·Windows cmd 인용 문서들이 공통으로 교차 참조하는 반복 주의사항으로 취급되어, 단일 사고를 넘어선 횡단 규칙으로 자리 잡았다. [7][8][9][10] 종합한 핵심 회피 규칙 (1): 파일 텍스트 치환은 PS `Set-Content`를 쓰지 말고 Claude Edit 도구, bash `sed -i`(Git Bash, 바이트 단위라 UTF-8 안전), 또는 node 스크립트로만 수행한다. [4][6] 핵심 회피 규칙 (2): 시크릿 등 민감한 값을 네이티브 명령의 stdin으로 주입할 때는 PowerShell 파이프 대신 bash `printf '%s' \"value\" | cmd` 형태를 써서 BOM 오염을 막는다. [4][6][7] 핵심 회피 규칙 (3) 감지: `git diff --stat` 결과가 예상보다 비정상적으로 크면 인코딩 처닝을 의심하고, `head -c 3 | od`로 파일 앞부분 BOM을, diff 내 `??` 문자를 검사한다. [4][6] 핵심 회피 규칙 (4) 복구: 손상이 확인되면 `git checkout -- <files>`로 되돌린 뒤 안전한 도구(Edit/sed/node)로 재적용한다. [4][6] 한편 함께 조사된 국가법령정보센터 API 기록의 '한글 query는 UTF-8 %인코딩(encodeURIComponent)만 통한다'는 이슈는 URL 쿼리 인코딩 지뢰로, PowerShell로 파일을 쓸 때의 UTF-8 텍스트 손상/BOM 문제와는 별개 주제이므로 혼동하지 않아야 한다. [1][2]",
+          "sentences": [
+            {
+              "text": "결론부터: 메모리에 기록된 PowerShell UTF-8 손상 교훈(powershell-utf8-text-corruption)과 위키의 PowerShell 5.1 UTF-8 BOM 지뢰 노트(powershell51-utf8-bom-hazards)는 서로 모순 없이 완전히 일치하며, 명시적으로 서로를 교차 링크하는 '요약판(메모리) ↔ 상세판(위키)' 한 쌍으로 설계되어 있다.",
+              "cites": [
+                4,
+                5,
+                6
+              ]
+            },
+            {
+              "text": "두 기록은 같은 실사고 2건(2026-07-02 Tikron 작업 중)을 근거로 동일한 두 가지 파손 형태를 든다.",
+              "cites": [
+                5,
+                6
+              ]
+            },
+            {
+              "text": "첫 번째 형태는 `Get-Content -Raw | -replace | Set-Content` 패턴으로, 파일을 시스템 ANSI(CP949)로 읽어 em-dash(—)·화살표(→)·불릿(·)·한글 같은 멀티바이트 문자가 전부 `??`로 깨지며, `-Encoding utf8`을 줘도 BOM이 강제 삽입된다.",
+              "cites": [
+                5,
+                6
+              ]
+            },
+            {
+              "text": "두 번째 형태는 `\"value\" | native.exe` 파이프로, stdin 맨 앞에 BOM(EF BB BF)이 붙어 `wrangler secret put`에 주입한 GitHub OAuth client_id가 통째로 무효화된 실사고로 나타났다.",
+              "cites": [
+                5,
+                6
+              ]
+            },
+            {
+              "text": "두 기록 모두 원인을 PS 5.1의 기본 인코딩 체계가 UTF-8이 아니라 레거시 코드페이지 기반이며 BOM을 강제하기 때문으로 지목하고, PowerShell 7과는 다르다고 명시한다.",
+              "cites": [
+                5,
+                6
+              ]
+            },
+            {
+              "text": "두 기록의 관계는 상보적으로, 메모리 directive는 본문 끝에서 '상세판(전역 위키)'으로 위키 [[powershell51-utf8-bom-hazards]]를 가리키고, 위키 노트는 '요약판'으로 메모리 directive를 되가리킨다.",
+              "cites": [
+                4,
+                6
+              ]
+            },
+            {
+              "text": "분류 축도 서로 확장적이어서, 메모리 기록은 `up: [[moc-tooling]]`로 툴링(도구·환경·CLI 사용 규칙) MOC 아래에 등재되어 있고, 위키 노트는 `category: environment`(환경 지뢰)로 분류된다.",
+              "cites": [
+                5,
+                3,
+                6
+              ]
+            },
+            {
+              "text": "위키 노트는 여기에 더해 PowerShell 7은 기본 인코딩이 UTF-8 no-BOM이라 이 문제가 발생하지 않는다는 점을 명시적으로 확장한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "또한 이 PS 5.1 지뢰는 위키 안에서 wrangler 배포·Docker/firewalld·Obsidian frontmatter·Windows cmd 인용 문서들이 공통으로 교차 참조하는 반복 주의사항으로 취급되어, 단일 사고를 넘어선 횡단 규칙으로 자리 잡았다.",
+              "cites": [
+                7,
+                8,
+                9,
+                10
+              ]
+            },
+            {
+              "text": "종합한 핵심 회피 규칙 (1): 파일 텍스트 치환은 PS `Set-Content`를 쓰지 말고 Claude Edit 도구, bash `sed -i`(Git Bash, 바이트 단위라 UTF-8 안전), 또는 node 스크립트로만 수행한다.",
+              "cites": [
+                4,
+                6
+              ]
+            },
+            {
+              "text": "핵심 회피 규칙 (2): 시크릿 등 민감한 값을 네이티브 명령의 stdin으로 주입할 때는 PowerShell 파이프 대신 bash `printf '%s' \"value\" | cmd` 형태를 써서 BOM 오염을 막는다.",
+              "cites": [
+                4,
+                6,
+                7
+              ]
+            },
+            {
+              "text": "핵심 회피 규칙 (3) 감지: `git diff --stat` 결과가 예상보다 비정상적으로 크면 인코딩 처닝을 의심하고, `head -c 3 | od`로 파일 앞부분 BOM을, diff 내 `??` 문자를 검사한다.",
+              "cites": [
+                4,
+                6
+              ]
+            },
+            {
+              "text": "핵심 회피 규칙 (4) 복구: 손상이 확인되면 `git checkout -- <files>`로 되돌린 뒤 안전한 도구(Edit/sed/node)로 재적용한다.",
+              "cites": [
+                4,
+                6
+              ]
+            },
+            {
+              "text": "한편 함께 조사된 국가법령정보센터 API 기록의 '한글 query는 UTF-8 %인코딩(encodeURIComponent)만 통한다'는 이슈는 URL 쿼리 인코딩 지뢰로, PowerShell로 파일을 쓸 때의 UTF-8 텍스트 손상/BOM 문제와는 별개 주제이므로 혼동하지 않아야 한다.",
+              "cites": [
+                1,
+                2
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+              "chunk_id": "21c04f30-6145-4e64-8354-a268ff6f8af2",
+              "char_start": 707,
+              "char_end": 1969,
+              "title": "국가법령정보센터 Open API — 한글 query는 UTF-8 %인코딩만, 본문은 대법원 출처만 열린다"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+              "chunk_id": "8f0c2d2c-3c2f-4f83-a34e-a7e4ff21ba4a",
+              "char_start": 1769,
+              "char_end": 2996,
+              "title": "국가법령정보센터 Open API — 한글 query는 UTF-8 %인코딩만, 본문은 대법원 출처만 열린다"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-tooling.md",
+              "chunk_id": "b2e69f15-8881-47e8-a456-0d07317cf214",
+              "char_start": 0,
+              "char_end": 646,
+              "title": "moc-tooling"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md",
+              "chunk_id": "e6af7608-319c-4dc5-a4d2-9e12b4d43b06",
+              "char_start": 898,
+              "char_end": 1652,
+              "title": "powershell-utf8-text-corruption"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\powershell-utf8-text-corruption.md",
+              "chunk_id": "3c8ade6f-54c9-496e-8d26-ad6a8fdd1a83",
+              "char_start": 0,
+              "char_end": 1098,
+              "title": "powershell-utf8-text-corruption"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\powershell51-utf8-bom-hazards.md",
+              "chunk_id": "11f741dd-d6be-43b7-93cf-73c7db81af4e",
+              "char_start": 0,
+              "char_end": 1236,
+              "title": "PowerShell 5.1 UTF-8 지뢰 — Set-Content 파손과 파이프 BOM"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\wrangler-deploy-env-gotchas.md",
+              "chunk_id": "b8a9ace5-f8a6-417d-8f11-30ac1cd01cc6",
+              "char_start": 0,
+              "char_end": 1339,
+              "title": "wrangler 배포 함정 — Pages --branch, Worker --env production, dev 동시빌드"
+            },
+            {
+              "n": 8,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\docker-bypasses-firewalld-dnat.md",
+              "chunk_id": "17a8d221-a473-44c1-ba8a-546ff39b0f59",
+              "char_start": 5463,
+              "char_end": 6442,
+              "title": "Docker가 firewalld를 우회한다 — DNAT WAN 노출과 근본 차단"
+            },
+            {
+              "n": 9,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\obsidian-frontmatter-unquoted-colon-wipe.md",
+              "chunk_id": "757a6f38-50ec-4c16-8130-3aa7eecd544f",
+              "char_start": 1194,
+              "char_end": 2492,
+              "title": "옵시디언 연동 파일의 YAML frontmatter — 따옴표 없는 스칼라 안의 '콜론+공백'이 frontmatter 전체를 날린다"
+            },
+            {
+              "n": 10,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\windows-spawn-cmd-quoting-mines.md",
+              "chunk_id": "54d51031-bb6d-4c15-83c6-a91933fc94f7",
+              "char_start": 2382,
+              "char_end": 2752,
+              "title": "Windows cmd 인용 지뢰 — start 창제목 함정·Node spawn 이스케이프 파손·write_text CRLF"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "이 클러스터의 협업 디렉티브(feedback memory)와 위키성 기술 노트 양쪽에서 PowerShell(특히 5.1)로 파일을 쓸 때 발생하는 UTF-8 텍스트 손상 및 UTF-8 BOM 지뢰에 관한 기록을 모두 찾아, 각 기록이 명시한 원인·증상·회피 규칙(예: Write/Edit 도구로만 파일 조작, Out-File/Set-Content에 -Encoding utf8 지정, BOM 회피, 네이티브 exe에 대한 2>&1 주의 등)을 원문 그대로 정리해줘.",
+              "claims": 4
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "라이선스 서버·원격 페이월·세션 인증 등 수익화 인프라 주제에 한정되어 PowerShell UTF-8/BOM 인코딩 교훈과 무관함."
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "메모리 온톨로지/MOC 체계 안에 PowerShell UTF-8 인코딩 손상 관련 directive가 등재되어 있는지, 있다면 어느 카테고리(환경·툴링 등)로 분류되며 정규화된 규칙 문구(canonical phrasing)가 무엇인지 알려줘.",
+              "claims": 3
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "skipped",
+              "why": "오케스트레이션 패턴과 보안·결제·모델 라우팅 교훈에 국한되어 셸/파일 텍스트 인코딩 손상 주제와 겹치지 않음."
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "개인 프로젝트 개발 인프라 노하우 문서들 중 PowerShell 5.1의 UTF-8/BOM 파일 쓰기 함정과 그 회피책(인코딩 명시, 파일 조작 도구 선택, here-string/리다이렉션 주의 등)을 다룬 내용이 있으면 구체적으로 정리해줘.",
+              "claims": 10
+            }
+          ],
+          "insufficient": false,
+          "mode": "deep",
+          "cost": {
+            "llm_calls": 5,
+            "secs": 303.28,
+            "model": "sonnet",
+            "stages": {
+              "planner": 99.3,
+              "cluster_agents": 111.26,
+              "rebuttal": 0,
+              "synthesis_1": 92.04
+            }
+          }
+        },
+        "secs": 303.279,
+        "error": null
+      },
+      "judged": {
+        "crit1": {
+          "pass": true,
+          "reason": "",
+          "clusters": [
+            "cross-project-tech-notes-and-directives",
+            "memory-ontology-moc",
+            "personal-project-portfolio-dev-infra"
+          ]
+        },
+        "crit2": {
+          "pass": true,
+          "reason": "",
+          "newOrigins": [
+            "C:\\Users\\User\\.claude\\wiki\\law-go-kr-openapi-korean-query-encoding.md",
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\moc-tooling.md",
+            "C:\\Users\\User\\.claude\\wiki\\wrangler-deploy-env-gotchas.md",
+            "C:\\Users\\User\\.claude\\wiki\\docker-bypasses-firewalld-dnat.md",
+            "C:\\Users\\User\\.claude\\wiki\\obsidian-frontmatter-unquoted-colon-wipe.md",
+            "C:\\Users\\User\\.claude\\wiki\\windows-spawn-cmd-quoting-mines.md"
+          ]
+        },
+        "crit3": {
+          "pass": true,
+          "reason": "",
+          "missing": [],
+          "malformed": []
+        }
+      }
+    },
+    {
+      "id": "qd04",
+      "question": "Figma 플러그인들(psyfi 등)의 원격 페이월 config 무료→유료 전환 결정과, 위키에 기록된 원격 페이월 config 패턴·라이선스 서버 디바이스 인증 아키텍처 기술 세부사항이 어떻게 맞물리는지 설명해줘. 전환 시 어떤 기술적 전제조건이 필요해?",
+      "expect": "answer",
+      "expected_clusters": [
+        "personal-project-portfolio-dev-infra",
+        "indie-saas-licensing-paywall-infra"
+      ],
+      "gold_files_any": [
+        "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+        "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-plugin-launch.md",
+        "C:\\Users\\User\\.claude\\projects\\D--\\memory\\figma-plugins-inapp-payment.md",
+        "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md",
+        "C:\\Users\\User\\.claude\\wiki\\license-server-device-auth-architecture.md",
+        "C:\\Users\\User\\.claude\\wiki\\traxel-license-server-integration.md"
+      ],
+      "fast": {
+        "envelope": {
+          "answer": "Figma가 신규 플러그인의 인앱결제(figma.payments) 승인을 중단하면서 psyfi·snap3d·traxel 3종은 외부 라이선스 서버(api.ontooler.com) 체계를 유지하기로 결정했다. [3][6] 이 정책 리스크 속에서도 유료 전환 타이밍을 새 릴리스·재심사 없이 유연하게 가져가기 위해, 기존 외부 라이선스 체계 위에 서버 원격 페이월 config 레이어가 추가되었다. [1][2][3] 이 구조는 무료 출시로 먼저 리텐션 데이터를 확보한 뒤 약 2달 뒤(~2026-09) 유료로 전환한다는 목적을 갖는다. [2][5] 동작 원리는 플러그인이 실행 시작 시 POST /v1/plugin/config 요청으로 {figmaUserId, productSlug}를 보내면 서버가 {paywallActive, freeDailyLimit, grandfathered}를 반환하는 방식이다. [1][4] 게이트 로직은 unlocked = isPro || !(paywallActive && !grandfathered)로 계산되며, isPro 판정은 기존 외부 라이선스(license-server) 기반 Pro 상태와 그대로 결합되어 동작한다. [1][4] config 조회는 fail-open으로 설계되어 서버 장애·불통 시에도 paywalled=false, 즉 전원 무료로 처리된다. [1][4] config는 캐시되지 않고 매 실행마다 조회되므로 서버에서 plugin_products의 paywall_active를 flip하면 기존 설치본도 재배포 없이 다음 실행 시 즉시 반영된다. [1][4][5] flip 시점에 grandfather_before를 함께 설정하면 그 이전 가입자는 계속 무료로 유지되는 그랜드퍼더링이 가능하다. [1][2][4] 무료기 동안에도 기존 로그인·라이선스 코드는 삭제되지 않고 그대로 남아 있으며, flip 이후에는 이 기존 외부 라이선스 게이팅이 다시 활성화된다. [4] 3종 플러그인은 모두 같은 라이선스 서버(license-server, api.ontooler.com)를 공유하며, snap3d와 traxel은 device-auth 로그인(/v1/plugin-auth) 방식을 사용한다. [6] psyfi는 Figma iframe이 insecure context라 crypto.subtle을 지원하지 않는 문제로 sha256을 순수 JS로 교체하고, 라이선스 키 입력 경로를 제거해 로그인 단일 경로로 정리하는 라이선스 정비를 거쳤다. [7] 유료 전환(flip) 전 가장 중요한 기술적 전제조건은 Toss PG 승인 이후 실결제 1건으로 구매→라이선스 발급→/plugin/me의 pro 상태 반영까지 이어지는 E2E 체인을 검증하는 것이며, 이는 현재 유일하게 미검증된 구간이다. [2][5] 결제가 되지 않는 상태에서 flip하면 사용자가 사용 한도에 막혀도 구매할 방법이 없어지므로 이 검증 전에는 flip이 금지된다. [5] 추가로 snap3d는 서버의 일일 한도(3/day)를 무시하고 게스트 평생 1회 export라는 자체 카운터를 쓰고 있어 무료 정책을 서버 기준으로 통일해야 한다. [5] traxel(pvec)은 FREE 프리셋에 4종이 모두 포함되어 있어 프리셋 잠금이 사실상 no-op 상태이므로 무료 티어 범위를 먼저 확정해야 한다. [5] 마지막으로 Figma 정책상 리스팅 설명에 'Pro는 별도 라이선스'라는 고지를 반드시 포함해야 한다. [3]",
+          "sentences": [
+            {
+              "text": "Figma가 신규 플러그인의 인앱결제(figma.payments) 승인을 중단하면서 psyfi·snap3d·traxel 3종은 외부 라이선스 서버(api.ontooler.com) 체계를 유지하기로 결정했다.",
+              "cites": [
+                3,
+                6
+              ]
+            },
+            {
+              "text": "이 정책 리스크 속에서도 유료 전환 타이밍을 새 릴리스·재심사 없이 유연하게 가져가기 위해, 기존 외부 라이선스 체계 위에 서버 원격 페이월 config 레이어가 추가되었다.",
+              "cites": [
+                1,
+                2,
+                3
+              ]
+            },
+            {
+              "text": "이 구조는 무료 출시로 먼저 리텐션 데이터를 확보한 뒤 약 2달 뒤(~2026-09) 유료로 전환한다는 목적을 갖는다.",
+              "cites": [
+                2,
+                5
+              ]
+            },
+            {
+              "text": "동작 원리는 플러그인이 실행 시작 시 POST /v1/plugin/config 요청으로 {figmaUserId, productSlug}를 보내면 서버가 {paywallActive, freeDailyLimit, grandfathered}를 반환하는 방식이다.",
+              "cites": [
+                1,
+                4
+              ]
+            },
+            {
+              "text": "게이트 로직은 unlocked = isPro || !(paywallActive && !grandfathered)로 계산되며, isPro 판정은 기존 외부 라이선스(license-server) 기반 Pro 상태와 그대로 결합되어 동작한다.",
+              "cites": [
+                1,
+                4
+              ]
+            },
+            {
+              "text": "config 조회는 fail-open으로 설계되어 서버 장애·불통 시에도 paywalled=false, 즉 전원 무료로 처리된다.",
+              "cites": [
+                1,
+                4
+              ]
+            },
+            {
+              "text": "config는 캐시되지 않고 매 실행마다 조회되므로 서버에서 plugin_products의 paywall_active를 flip하면 기존 설치본도 재배포 없이 다음 실행 시 즉시 반영된다.",
+              "cites": [
+                1,
+                4,
+                5
+              ]
+            },
+            {
+              "text": "flip 시점에 grandfather_before를 함께 설정하면 그 이전 가입자는 계속 무료로 유지되는 그랜드퍼더링이 가능하다.",
+              "cites": [
+                1,
+                2,
+                4
+              ]
+            },
+            {
+              "text": "무료기 동안에도 기존 로그인·라이선스 코드는 삭제되지 않고 그대로 남아 있으며, flip 이후에는 이 기존 외부 라이선스 게이팅이 다시 활성화된다.",
+              "cites": [
+                4
+              ]
+            },
+            {
+              "text": "3종 플러그인은 모두 같은 라이선스 서버(license-server, api.ontooler.com)를 공유하며, snap3d와 traxel은 device-auth 로그인(/v1/plugin-auth) 방식을 사용한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "psyfi는 Figma iframe이 insecure context라 crypto.subtle을 지원하지 않는 문제로 sha256을 순수 JS로 교체하고, 라이선스 키 입력 경로를 제거해 로그인 단일 경로로 정리하는 라이선스 정비를 거쳤다.",
+              "cites": [
+                7
+              ]
+            },
+            {
+              "text": "유료 전환(flip) 전 가장 중요한 기술적 전제조건은 Toss PG 승인 이후 실결제 1건으로 구매→라이선스 발급→/plugin/me의 pro 상태 반영까지 이어지는 E2E 체인을 검증하는 것이며, 이는 현재 유일하게 미검증된 구간이다.",
+              "cites": [
+                2,
+                5
+              ]
+            },
+            {
+              "text": "결제가 되지 않는 상태에서 flip하면 사용자가 사용 한도에 막혀도 구매할 방법이 없어지므로 이 검증 전에는 flip이 금지된다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "추가로 snap3d는 서버의 일일 한도(3/day)를 무시하고 게스트 평생 1회 export라는 자체 카운터를 쓰고 있어 무료 정책을 서버 기준으로 통일해야 한다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "traxel(pvec)은 FREE 프리셋에 4종이 모두 포함되어 있어 프리셋 잠금이 사실상 no-op 상태이므로 무료 티어 범위를 먼저 확정해야 한다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "마지막으로 Figma 정책상 리스팅 설명에 'Pro는 별도 라이선스'라는 고지를 반드시 포함해야 한다.",
+              "cites": [
+                3
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md",
+              "chunk_id": "018b2878-2316-4b20-8c43-1acf3097f8a6",
+              "char_start": 0,
+              "char_end": 1480,
+              "title": "원격 페이월 config — 무료 출시 후 서버 flip으로 무릴리스 유료 전환"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "04b4646b-4896-4e69-bf8c-61b370c79ec0",
+              "char_start": 0,
+              "char_end": 1046,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\figma-payments-approval-halted.md",
+              "chunk_id": "cae593ae-aa8c-4e89-a0cc-121cf89286f2",
+              "char_start": 0,
+              "char_end": 1177,
+              "title": "Figma 신규 플러그인 인앱결제(figma.payments) 승인 중단 — 외부 라이선스가 정답"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "e7732f25-a8c4-438b-adf1-bc9d0bd34279",
+              "char_start": 846,
+              "char_end": 1869,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "282c4611-038f-4fda-9a7a-c09e3dcae32b",
+              "char_start": 3927,
+              "char_end": 5384,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\figma-plugins-inapp-payment.md",
+              "chunk_id": "630f45a2-ca2f-42c3-8bc5-1b678c8a28c4",
+              "char_start": 0,
+              "char_end": 1445,
+              "title": "figma-plugins-inapp-payment"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-plugin-launch.md",
+              "chunk_id": "80fac3cc-8702-4285-9fc5-7df8f003278b",
+              "char_start": 10894,
+              "char_end": 12381,
+              "title": "psyfi-plugin-launch"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "consulted",
+              "why": "score 0.92 (rank 1)"
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "score 0.67 (rank 2)"
+            },
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "score 0.60 (rank 3)"
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "skipped",
+              "why": "score 0.60 (rank 4) — top 3 밖"
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "score 0.54 (rank 5) — top 3 밖"
+            }
+          ],
+          "insufficient": false,
+          "mode": "fast",
+          "cost": {
+            "llm_calls": 1,
+            "secs": 75.33,
+            "model": "sonnet"
+          }
+        },
+        "secs": 75.336,
+        "error": null
+      },
+      "deep": {
+        "envelope": {
+          "answer": "이 두 축(무료→유료 전환 결정과 위키에 기록된 원격 페이월 config 패턴·디바이스 인증 아키텍처)은 모순 없이 하나의 수익화 설계로 맞물린다. 출발점은 Figma가 2026-07-01부로 신규 플러그인의 인앱결제(figma.payments) 승인을 중단해, psyfi·snap3d·traxel 3종을 IAP 구독형으로 전환했다가 전량 원복하고 외부 라이선스(api.ontooler.com) 유지로 확정한 것이다. [5][6] 이 제약 위에서 유료 전환을 새 릴리스·재심사 없이 수행하기 위해, 3종을 무료로 출시해 리텐션을 측정한 뒤 약 2026-09에 서버 값 하나로 유료 전환하는 '원격 페이월 config' 레이어를 추가했다. [1][2] 위키에 기록된 원격 페이월 config 패턴상, 플러그인은 시작 시 POST api.ontooler.com/v1/plugin/config {figmaUserId, productSlug}를 호출해 {paywallActive, freeDailyLimit, grandfathered}를 응답받는다. [2][3] 게이트 로직은 paywalled = paywallActive && !grandfathered로 계산한 뒤 unlocked = isPro || !paywalled로 잠금 해제 여부를 결정한다. [2][3] 서버 불통·오류 시 paywalled=false로 처리되는 fail-open 설계이며, 이는 유료 전환 후 서버 장애 시에도 전원 무료가 되는 의도된 트레이드오프다. [2][3] 서버 스키마는 plugin_products(product_slug·paywall_active·free_daily_limit·grandfather_before), 코호트·그랜드퍼더 기준의 plugin_first_seen, D1/D7/D30 리텐션의 plugin_daily_active 3개 테이블로 구성된다. [2] config는 무캐시(매 실행마다 조회)라 서버 값을 바꾸면 flip이 즉시 반영된다. [2][4] 실제 유료 전환(flip)은 `update plugin_products set paywall_active=true, grandfather_before=now() where product_slug='psyfi';`처럼 제품별 UPDATE 한 줄로 수행되며, 플러그인 재배포·재심사가 불필요하고 기존 설치분은 다음 실행 시 자동 반영된다. [2][3][4] 무료 기간 동안 기존 라이선스·로그인 코드는 그대로 남아 사실상 동면 상태이고, flip 이후에는 기존 외부 라이선스 게이팅이 다시 동작한다. [3] 2026-07-02 라이브 재검증에서 3종 모두 /v1/plugin/config가 paywallActive:false를 정상 반환했고 first_seen 기록이 진행 중이었으며, 그랜드퍼더링 기준은 데이터가 지금부터 쌓이므로 flip 시점에 결정할 수 있다. [4] 이 config 레이어가 디바이스 인증 아키텍처와 맞물리는 지점은, flip 이후 살아나는 플러그인별 인증·무료 정책이다 — psyfi는 외부 라이선스 키 HMAC 검증+로그인 핸드오프+무료 하루 3회 서버 카운트, snap3d는 device-auth 로그인(/v1/plugin-auth)+무료 게스트 export 카운트, traxel은 device-auth 로그인+무료 서버 쿼터(/v1/plugin/usage)를 사용한다. [6] 라이선스 서버의 /v1/plugin/me 엔드포인트는 원래 Worker 환경변수 PLUGIN_PRODUCT_SLUG(기본값 psyfi)로 상품을 고정 결정해 단일 배포가 하나의 상품에만 Pro 엔타이틀먼트를 부여할 수 있었고, /v1/plugin/usage는 이미 요청 바디의 productSlug를 받고 있어 두 엔드포인트가 불일치했다. [8] 이 불일치를 해소하기 위해 /v1/plugin/me도 쿼리 파라미터 product(정규식 검증)를 우선 사용하고 없으면 env 기본값으로 폴백하도록 하위 호환 방식으로 수정해, 상품별 Pro 엔타이틀먼트 토글이 가능해졌으며 응답 스키마({pro, expiresAt, tokenExpiresAt})는 불변이다. [8] 이 제품별 엔타이틀먼트 스코핑은 flip이 제품별 UPDATE라는 점과 정확히 맞물린다 — paywall config와 라이선스 검증(/plugin/me)이 모두 productSlug 단위로 동작해야 한 제품만 유료로 돌리고 나머지는 무료로 둘 수 있기 때문이다. [4][8] 전환에 필요한 기술적 전제조건의 핵심은 flip 전 체크리스트로, ① PG(Toss) 승인 후 실결제 1건으로 구매→라이선스 발급→/plugin/me pro 반영 체인을 E2E 검증하는 것이며, 이것이 유일한 미검증 구간이라 결제가 안 되는 상태에서 flip은 금지된다(유저가 한도에 막히는데 살 방법이 없기 때문). [2][4] 나머지 전제조건은 ② snap3d의 무료 정책을 서버 일일한도(3/day)와 통일하고(현재는 게스트 평생 1회 export 카운터를 별도 사용), ③ traxel의 무료 티어를 확정하는 것이다(FREE.presets에 4종 프리셋 전부가 포함돼 프리셋 잠금이 no-op). [4] 또한 2026-07-02에 3종 클라이언트의 crypto.subtle 결함을 수정해 로그인 경로가 실제 Figma에서 동작하게 되었으며, 이 수정 전에는 flip하더라도 psyfi·traxel의 Pro 로그인이 불가능했다. [4] psyfi는 라이선스 키 입력 UI를 제거해 로그인 단일 경로로 통합하고, 로그아웃 / 로그인+무료(Pro 업그레이드 링크 ontooler.com/products/psyfi 포함) / Pro의 3상태 로그인 UI로 개편했다. [4][7] Figma 정책상 3rd-party 결제+라이선스 키는 Community 리스팅에 허용되지만 리스팅 설명에 '추후 Pro 도입 / Pro는 별도 라이선스' 고지가 필수이며, 구매 포털은 ontooler.com/products/<slug> 형태다. [2][5] ①의 결제 E2E를 실제로 통과시키려면 Toss confirm이 React StrictMode·새로고침·리트라이로 반드시 재호출된다고 가정해야 하고, 재호출 시 반환되는 ALREADY_PROCESSED_PAYMENT(400)를 실패가 아니라 멱등 성공(confirmed=true)으로 해석해야 한다. [9] 이를 실패로 오판하면 발급 RPC가 'WHERE status=pending' 조건에서 0행 롤백돼 실제로는 결제가 캡처됐음에도 화면에 Failed가 뜨므로, 이미처리=성공 해석·발급 레이스 패자의 기존 라이선스 재반환·클라 측 useRef 중복 호출 가드의 3종 방어를 갖춰야 한다. [9] 구현 관점의 전제조건으로, 인증·결제 모듈을 여러 서브에이전트에게 병렬로 맡기면 API 와이어 계약(필드명·인코딩·타임스탬프 포맷)이 실제로 드리프트한 사례가 있어, 계약을 테스트로 고정해 단일 정본 레포/패키지에 두고 계약 테스트 통과를 완료 조건으로 삼아야 한다. [10] 무료→유료처럼 서버 스키마가 확장되는 변경에서는 로드테스트 하네스 같은 미러/픽스처가 있을 경우 미러 동기화를 체크리스트에 포함해야 한다(스키마 1회 확장에 미러 누락이 반복된 사고 패턴). [10] 디바이스/세션 인증 일반 교훈으로, 인증 우회·토큰 유출은 실측으로 검증해야 하며(두 클라이언트 접속 후 상대가 받는 프레임에 내 비밀값이 없는지 grep, 동일 토큰의 이중 접속이 실제로 거부되는지 테스트), 동일 토큰 중복 접속(디바이스 복제)은 DB(D1 등)의 CAS 컬럼으로 단일 라이브 세션을 배타 클레임하고 크래시 대비 하트비트+TTL로 자동 회수해 막을 수 있다 — 다만 이 교훈의 출처는 결제 라이선스가 아니라 Tikron 게임 멀티플레이 세션 보안이므로 라이선스 서버에 그대로 적용되는지는 별도 확인이 필요하다. [11][12][13] 한계로, 라이선스 서버 디바이스 인증 아키텍처(내부 토큰 발급·세션 검증·기기 바인딩 등) 자체의 상세 스펙은 위키 [[license-server-device-auth-architecture]]로 참조만 되어 있고 원문 내용이 이 자료들에 포함되지 않아 엔드포인트별 내부 동작은 확인할 수 없으며, flip 전 체크리스트의 4번째 항목도 근거 자료가 중간에 잘려 있어 내용을 알 수 없다. [2][4][5] 끝으로 실제 flip 실행 여부·일자·실행 후 결과에 대한 기록은 없으며, 최신 상태는 Toss PG 승인 대기(blocked_on)로 인한 '무료기 리텐션 수집 중'이다. [1]",
+          "sentences": [
+            {
+              "text": "이 두 축(무료→유료 전환 결정과 위키에 기록된 원격 페이월 config 패턴·디바이스 인증 아키텍처)은 모순 없이 하나의 수익화 설계로 맞물린다. 출발점은 Figma가 2026-07-01부로 신규 플러그인의 인앱결제(figma.payments) 승인을 중단해, psyfi·snap3d·traxel 3종을 IAP 구독형으로 전환했다가 전량 원복하고 외부 라이선스(api.ontooler.com) 유지로 확정한 것이다.",
+              "cites": [
+                5,
+                6
+              ]
+            },
+            {
+              "text": "이 제약 위에서 유료 전환을 새 릴리스·재심사 없이 수행하기 위해, 3종을 무료로 출시해 리텐션을 측정한 뒤 약 2026-09에 서버 값 하나로 유료 전환하는 '원격 페이월 config' 레이어를 추가했다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "위키에 기록된 원격 페이월 config 패턴상, 플러그인은 시작 시 POST api.ontooler.com/v1/plugin/config {figmaUserId, productSlug}를 호출해 {paywallActive, freeDailyLimit, grandfathered}를 응답받는다.",
+              "cites": [
+                2,
+                3
+              ]
+            },
+            {
+              "text": "게이트 로직은 paywalled = paywallActive && !grandfathered로 계산한 뒤 unlocked = isPro || !paywalled로 잠금 해제 여부를 결정한다.",
+              "cites": [
+                2,
+                3
+              ]
+            },
+            {
+              "text": "서버 불통·오류 시 paywalled=false로 처리되는 fail-open 설계이며, 이는 유료 전환 후 서버 장애 시에도 전원 무료가 되는 의도된 트레이드오프다.",
+              "cites": [
+                2,
+                3
+              ]
+            },
+            {
+              "text": "서버 스키마는 plugin_products(product_slug·paywall_active·free_daily_limit·grandfather_before), 코호트·그랜드퍼더 기준의 plugin_first_seen, D1/D7/D30 리텐션의 plugin_daily_active 3개 테이블로 구성된다.",
+              "cites": [
+                2
+              ]
+            },
+            {
+              "text": "config는 무캐시(매 실행마다 조회)라 서버 값을 바꾸면 flip이 즉시 반영된다.",
+              "cites": [
+                2,
+                4
+              ]
+            },
+            {
+              "text": "실제 유료 전환(flip)은 `update plugin_products set paywall_active=true, grandfather_before=now() where product_slug='psyfi';`처럼 제품별 UPDATE 한 줄로 수행되며, 플러그인 재배포·재심사가 불필요하고 기존 설치분은 다음 실행 시 자동 반영된다.",
+              "cites": [
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "text": "무료 기간 동안 기존 라이선스·로그인 코드는 그대로 남아 사실상 동면 상태이고, flip 이후에는 기존 외부 라이선스 게이팅이 다시 동작한다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "2026-07-02 라이브 재검증에서 3종 모두 /v1/plugin/config가 paywallActive:false를 정상 반환했고 first_seen 기록이 진행 중이었으며, 그랜드퍼더링 기준은 데이터가 지금부터 쌓이므로 flip 시점에 결정할 수 있다.",
+              "cites": [
+                4
+              ]
+            },
+            {
+              "text": "이 config 레이어가 디바이스 인증 아키텍처와 맞물리는 지점은, flip 이후 살아나는 플러그인별 인증·무료 정책이다 — psyfi는 외부 라이선스 키 HMAC 검증+로그인 핸드오프+무료 하루 3회 서버 카운트, snap3d는 device-auth 로그인(/v1/plugin-auth)+무료 게스트 export 카운트, traxel은 device-auth 로그인+무료 서버 쿼터(/v1/plugin/usage)를 사용한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "라이선스 서버의 /v1/plugin/me 엔드포인트는 원래 Worker 환경변수 PLUGIN_PRODUCT_SLUG(기본값 psyfi)로 상품을 고정 결정해 단일 배포가 하나의 상품에만 Pro 엔타이틀먼트를 부여할 수 있었고, /v1/plugin/usage는 이미 요청 바디의 productSlug를 받고 있어 두 엔드포인트가 불일치했다.",
+              "cites": [
+                8
+              ]
+            },
+            {
+              "text": "이 불일치를 해소하기 위해 /v1/plugin/me도 쿼리 파라미터 product(정규식 검증)를 우선 사용하고 없으면 env 기본값으로 폴백하도록 하위 호환 방식으로 수정해, 상품별 Pro 엔타이틀먼트 토글이 가능해졌으며 응답 스키마({pro, expiresAt, tokenExpiresAt})는 불변이다.",
+              "cites": [
+                8
+              ]
+            },
+            {
+              "text": "이 제품별 엔타이틀먼트 스코핑은 flip이 제품별 UPDATE라는 점과 정확히 맞물린다 — paywall config와 라이선스 검증(/plugin/me)이 모두 productSlug 단위로 동작해야 한 제품만 유료로 돌리고 나머지는 무료로 둘 수 있기 때문이다.",
+              "cites": [
+                4,
+                8
+              ]
+            },
+            {
+              "text": "전환에 필요한 기술적 전제조건의 핵심은 flip 전 체크리스트로, ① PG(Toss) 승인 후 실결제 1건으로 구매→라이선스 발급→/plugin/me pro 반영 체인을 E2E 검증하는 것이며, 이것이 유일한 미검증 구간이라 결제가 안 되는 상태에서 flip은 금지된다(유저가 한도에 막히는데 살 방법이 없기 때문).",
+              "cites": [
+                2,
+                4
+              ]
+            },
+            {
+              "text": "나머지 전제조건은 ② snap3d의 무료 정책을 서버 일일한도(3/day)와 통일하고(현재는 게스트 평생 1회 export 카운터를 별도 사용), ③ traxel의 무료 티어를 확정하는 것이다(FREE.presets에 4종 프리셋 전부가 포함돼 프리셋 잠금이 no-op).",
+              "cites": [
+                4
+              ]
+            },
+            {
+              "text": "또한 2026-07-02에 3종 클라이언트의 crypto.subtle 결함을 수정해 로그인 경로가 실제 Figma에서 동작하게 되었으며, 이 수정 전에는 flip하더라도 psyfi·traxel의 Pro 로그인이 불가능했다.",
+              "cites": [
+                4
+              ]
+            },
+            {
+              "text": "psyfi는 라이선스 키 입력 UI를 제거해 로그인 단일 경로로 통합하고, 로그아웃 / 로그인+무료(Pro 업그레이드 링크 ontooler.com/products/psyfi 포함) / Pro의 3상태 로그인 UI로 개편했다.",
+              "cites": [
+                4,
+                7
+              ]
+            },
+            {
+              "text": "Figma 정책상 3rd-party 결제+라이선스 키는 Community 리스팅에 허용되지만 리스팅 설명에 '추후 Pro 도입 / Pro는 별도 라이선스' 고지가 필수이며, 구매 포털은 ontooler.com/products/<slug> 형태다.",
+              "cites": [
+                2,
+                5
+              ]
+            },
+            {
+              "text": "①의 결제 E2E를 실제로 통과시키려면 Toss confirm이 React StrictMode·새로고침·리트라이로 반드시 재호출된다고 가정해야 하고, 재호출 시 반환되는 ALREADY_PROCESSED_PAYMENT(400)를 실패가 아니라 멱등 성공(confirmed=true)으로 해석해야 한다.",
+              "cites": [
+                9
+              ]
+            },
+            {
+              "text": "이를 실패로 오판하면 발급 RPC가 'WHERE status=pending' 조건에서 0행 롤백돼 실제로는 결제가 캡처됐음에도 화면에 Failed가 뜨므로, 이미처리=성공 해석·발급 레이스 패자의 기존 라이선스 재반환·클라 측 useRef 중복 호출 가드의 3종 방어를 갖춰야 한다.",
+              "cites": [
+                9
+              ]
+            },
+            {
+              "text": "구현 관점의 전제조건으로, 인증·결제 모듈을 여러 서브에이전트에게 병렬로 맡기면 API 와이어 계약(필드명·인코딩·타임스탬프 포맷)이 실제로 드리프트한 사례가 있어, 계약을 테스트로 고정해 단일 정본 레포/패키지에 두고 계약 테스트 통과를 완료 조건으로 삼아야 한다.",
+              "cites": [
+                10
+              ]
+            },
+            {
+              "text": "무료→유료처럼 서버 스키마가 확장되는 변경에서는 로드테스트 하네스 같은 미러/픽스처가 있을 경우 미러 동기화를 체크리스트에 포함해야 한다(스키마 1회 확장에 미러 누락이 반복된 사고 패턴).",
+              "cites": [
+                10
+              ]
+            },
+            {
+              "text": "디바이스/세션 인증 일반 교훈으로, 인증 우회·토큰 유출은 실측으로 검증해야 하며(두 클라이언트 접속 후 상대가 받는 프레임에 내 비밀값이 없는지 grep, 동일 토큰의 이중 접속이 실제로 거부되는지 테스트), 동일 토큰 중복 접속(디바이스 복제)은 DB(D1 등)의 CAS 컬럼으로 단일 라이브 세션을 배타 클레임하고 크래시 대비 하트비트+TTL로 자동 회수해 막을 수 있다 — 다만 이 교훈의 출처는 결제 라이선스가 아니라 Tikron 게임 멀티플레이 세션 보안이므로 라이선스 서버에 그대로 적용되는지는 별도 확인이 필요하다.",
+              "cites": [
+                11,
+                12,
+                13
+              ]
+            },
+            {
+              "text": "한계로, 라이선스 서버 디바이스 인증 아키텍처(내부 토큰 발급·세션 검증·기기 바인딩 등) 자체의 상세 스펙은 위키 [[license-server-device-auth-architecture]]로 참조만 되어 있고 원문 내용이 이 자료들에 포함되지 않아 엔드포인트별 내부 동작은 확인할 수 없으며, flip 전 체크리스트의 4번째 항목도 근거 자료가 중간에 잘려 있어 내용을 알 수 없다.",
+              "cites": [
+                2,
+                4,
+                5
+              ]
+            },
+            {
+              "text": "끝으로 실제 flip 실행 여부·일자·실행 후 결과에 대한 기록은 없으며, 최신 상태는 Toss PG 승인 대기(blocked_on)로 인한 '무료기 리텐션 수집 중'이다.",
+              "cites": [
+                1
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "04b4646b-4896-4e69-bf8c-61b370c79ec0",
+              "char_start": 0,
+              "char_end": 1046,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\remote-paywall-config-pattern.md",
+              "chunk_id": "018b2878-2316-4b20-8c43-1acf3097f8a6",
+              "char_start": 0,
+              "char_end": 1480,
+              "title": "원격 페이월 config — 무료 출시 후 서버 flip으로 무릴리스 유료 전환"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "e7732f25-a8c4-438b-adf1-bc9d0bd34279",
+              "char_start": 846,
+              "char_end": 1869,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\plugin-paywall-remote-flag.md",
+              "chunk_id": "282c4611-038f-4fda-9a7a-c09e3dcae32b",
+              "char_start": 3927,
+              "char_end": 5384,
+              "title": "plugin-paywall-remote-flag"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\figma-payments-approval-halted.md",
+              "chunk_id": "cae593ae-aa8c-4e89-a0cc-121cf89286f2",
+              "char_start": 0,
+              "char_end": 1177,
+              "title": "Figma 신규 플러그인 인앱결제(figma.payments) 승인 중단 — 외부 라이선스가 정답"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\figma-plugins-inapp-payment.md",
+              "chunk_id": "630f45a2-ca2f-42c3-8bc5-1b678c8a28c4",
+              "char_start": 0,
+              "char_end": 1445,
+              "title": "figma-plugins-inapp-payment"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\psyfi-plugin-launch.md",
+              "chunk_id": "82a48f77-7c1d-409f-9fe3-eb2e3851a774",
+              "char_start": 12181,
+              "char_end": 13348,
+              "title": "psyfi-plugin-launch"
+            },
+            {
+              "n": 8,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\plugin-me-product-slug-scoping.md",
+              "chunk_id": "c872af45-de77-4e62-8ef5-183d0d575807",
+              "char_start": 0,
+              "char_end": 1307,
+              "title": "license-server /v1/plugin/me product scoping (env vs per-request)"
+            },
+            {
+              "n": 9,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\toss-payments-idempotency.md",
+              "chunk_id": "367e06a1-511a-4d03-80c8-e33a6c09c0e7",
+              "char_start": 0,
+              "char_end": 1351,
+              "title": "Toss 결제 confirm 멱등 — ALREADY_PROCESSED_PAYMENT는 성공이다"
+            },
+            {
+              "n": 10,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+              "chunk_id": "4b715ee3-f822-4f84-9cfc-f8ae83f561a2",
+              "char_start": 0,
+              "char_end": 1208,
+              "title": "병렬 에이전트는 API 계약이 드리프트한다 — 와이어 계약은 테스트로 고정"
+            },
+            {
+              "n": 11,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "79277fe1-1393-4ae6-853c-a90d4ff07a36",
+              "char_start": 0,
+              "char_end": 1315,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            },
+            {
+              "n": 12,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "c1effb1b-e62a-4038-8ab7-44122c17640b",
+              "char_start": 3058,
+              "char_end": 3628,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            },
+            {
+              "n": 13,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md",
+              "chunk_id": "245c0a40-b00b-4cc2-9510-ef96e7de088c",
+              "char_start": 2032,
+              "char_end": 3260,
+              "title": "Tikron — ?_session=은 client.id가 되어 방 전체에 브로드캐스트된다(비밀 넣지 말 것)"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "원격 페이월 config 전달·토글에 관련된 위키 기록(원격 config 패턴, API/CSP·캐싱·엔드포인트 통합 이슈)과 무료→유료 전환 권한·정책 관련 협업 디렉티브가 있는가?",
+              "claims": 5
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "Psyfi 등 Figma 플러그인의 원격 페이월 config를 무료→유료로 전환한 결정 기록과, 라이선스 서버의 디바이스 인증 아키텍처 및 원격 페이월 config 스키마·배포 방식의 기술 세부사항, 그리고 전환에 필요한 기술적 전제조건(엔드포인트·검증·세션/가입승인 연동)은 무엇인가?",
+              "claims": 15
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "디렉티브의 온톨로지 스키마·MOC 조직화 체계에 관한 메타 문서로, 원격 페이월 config나 디바이스 인증의 기술 세부사항과 무관."
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "원격 페이월/라이선스 디바이스 인증 구현에서 얻은 보안·결제 교훈과, 무료→유료 전환 시 유의해야 할 기술적 전제조건(계약 드리프트, 인증 우회 방지 등) 관련 교훈이 있는가?",
+              "claims": 9
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "skipped",
+              "why": "게임·문서AI·홈서버 등 별개 개인 프로젝트 현황과 Rust/오프라인 LLM 인프라 노하우로, Figma 플러그인 페이월·라이선싱 주제와 겹치지 않음."
+            }
+          ],
+          "insufficient": false,
+          "mode": "deep",
+          "cost": {
+            "llm_calls": 5,
+            "secs": 362.01,
+            "model": "sonnet",
+            "stages": {
+              "planner": 44.06,
+              "cluster_agents": 171.25,
+              "rebuttal": 0,
+              "synthesis_1": 146.01
+            }
+          }
+        },
+        "secs": 362.015,
+        "error": null
+      },
+      "judged": {
+        "crit1": {
+          "pass": true,
+          "reason": "",
+          "clusters": [
+            "indie-saas-licensing-paywall-infra",
+            "cross-project-tech-notes-and-directives",
+            "multi-agent-workflow-lessons"
+          ]
+        },
+        "crit2": {
+          "pass": true,
+          "reason": "",
+          "newOrigins": [
+            "C:\\Users\\User\\.claude\\wiki\\plugin-me-product-slug-scoping.md",
+            "C:\\Users\\User\\.claude\\wiki\\toss-payments-idempotency.md",
+            "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+            "C:\\Users\\User\\.claude\\wiki\\tikron-session-key-is-broadcast.md"
+          ]
+        },
+        "crit3": {
+          "pass": true,
+          "reason": "",
+          "missing": [],
+          "malformed": []
+        }
+      }
+    },
+    {
+      "id": "qd05",
+      "question": "병렬 에이전트 운영에서 겪은 API 계약 드리프트 문제와, 재현성 확보를 위한 시드 결정성·봉인 평가셋 운용 원칙을 종합해서, 멀티에이전트 시스템 테스트를 안정적으로 만들려면 어떤 원칙들을 지켜야 하는지 정리해줘.",
+      "expect": "answer",
+      "expected_clusters": [
+        "multi-agent-workflow-lessons",
+        "cross-project-tech-notes-and-directives"
+      ],
+      "gold_files_any": [
+        "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+        "C:\\Users\\User\\.claude\\wiki\\llm-codegen-transactional-kb-pipeline.md",
+        "C:\\Users\\User\\.claude\\wiki\\sealed-eval-hidden-state-blindspot.md",
+        "C:\\Users\\User\\.claude\\wiki\\seed-aware-test-determinism.md"
+      ],
+      "fast": {
+        "envelope": {
+          "answer": "여러 서브에이전트에게 클라이언트/서버 양쪽을 병렬로 맡기면 API 계약이 어긋나며, 실제로 limits 필드명 불일치와 ISO 타임스탬프 포맷 차이로 2회 발생한 사례가 있다. [1][2] 이를 예방하려면 와이어 계약(스키마·필드명·인코딩)을 테스트로 고정하고 그 테스트를 단일 정본 레포/패키지에 두어, 에이전트는 계약 테스트를 통과해야 완료로 인정해야 한다. [1] 작업은 파일이 겹치지 않게 분할하고 단계별 리뷰·테스트·E2E 게이트를 거친 뒤 커밋해야 하며, 미러/픽스처가 있다면 스키마 변경 시 미러 동기화를 체크리스트에 포함해야 한다. [1] 공유 자원(사전 파일 등)은 항상 단일 작성자만 두고, 나머지 작업은 코로케이트 패턴으로 파일 겹침 없이 병렬화한 뒤 리더가 통합 게이트를 최종 확인하는 방식이 충돌을 막는다. [5] 재현성 확보를 위해서는 결정적 시드 계약(예: xorshift32 기반 제로와이어 맵 계약)처럼 시드 기반 로직을 명세화하여 동일 시드에서 동일 결과가 나오도록 보장해야 한다. [6] 검색/랭킹류 기능처럼 봉인 평가셋을 운용할 때는 구현 착수 전에 문항·기대값·판정 규칙을 파일로 확정하고, 구현자의 열람·grep을 포함한 접근을 명시적으로 금지해야 한다. [3] 게이트 실행은 관리자만 수행하여 구현자의 자기 채점을 배제해야 하며, 실행은 제품과 동일한 공개 API 경로를 사용하고 별도 백도어를 두지 않아야 한다. [3] 리뷰 단계에서는 평가 문항의 특징적 표현이 랭킹 로직이나 별칭 부스팅에 하드코딩되어 있는지 전수 검사해야 하며, 수정 후에는 표시 메타데이터만 바뀐 경우 전 문항 점수가 소수점까지 동일한지 확인하는 점수 불변 diff로 재현성을 판정해야 한다. [3] 다중 에이전트 검증 운영에서는 검증용 스크래치 테스트 파일이 트리에 남아있는 동안 다른 에이전트가 스위트를 돌리면 거짓 블로커(red suite)가 발생하므로, 최종 검증 패스는 주체를 하나로 통합하고 스크래치 파일은 고유명으로 만들어 실행 후 즉시 삭제하고 git status로 확인해야 한다. [7] 서브에이전트가 최종 리포트를 일반 텍스트로만 출력하면 팀메이트에게 유실될 수 있으므로, 발주 프롬프트에 최종 리포트를 SendMessage(to main)로 전달하도록 명시해야 한다. [4][7] 대규모 검증 팬아웃 시 동시 다발적 verify 에이전트가 반복적으로 전멸하는 서버측 rate limit과 상관관계가 있으므로, 실패 시 저널(journal.jsonl)에 누적된 성공 결과를 수확하고 남은 항목만 별도로 재실행하는 회복 전략이 안정성을 높인다. [8]",
+          "sentences": [
+            {
+              "text": "여러 서브에이전트에게 클라이언트/서버 양쪽을 병렬로 맡기면 API 계약이 어긋나며, 실제로 limits 필드명 불일치와 ISO 타임스탬프 포맷 차이로 2회 발생한 사례가 있다.",
+              "cites": [
+                1,
+                2
+              ]
+            },
+            {
+              "text": "이를 예방하려면 와이어 계약(스키마·필드명·인코딩)을 테스트로 고정하고 그 테스트를 단일 정본 레포/패키지에 두어, 에이전트는 계약 테스트를 통과해야 완료로 인정해야 한다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "작업은 파일이 겹치지 않게 분할하고 단계별 리뷰·테스트·E2E 게이트를 거친 뒤 커밋해야 하며, 미러/픽스처가 있다면 스키마 변경 시 미러 동기화를 체크리스트에 포함해야 한다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "공유 자원(사전 파일 등)은 항상 단일 작성자만 두고, 나머지 작업은 코로케이트 패턴으로 파일 겹침 없이 병렬화한 뒤 리더가 통합 게이트를 최종 확인하는 방식이 충돌을 막는다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "재현성 확보를 위해서는 결정적 시드 계약(예: xorshift32 기반 제로와이어 맵 계약)처럼 시드 기반 로직을 명세화하여 동일 시드에서 동일 결과가 나오도록 보장해야 한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "검색/랭킹류 기능처럼 봉인 평가셋을 운용할 때는 구현 착수 전에 문항·기대값·판정 규칙을 파일로 확정하고, 구현자의 열람·grep을 포함한 접근을 명시적으로 금지해야 한다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "게이트 실행은 관리자만 수행하여 구현자의 자기 채점을 배제해야 하며, 실행은 제품과 동일한 공개 API 경로를 사용하고 별도 백도어를 두지 않아야 한다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "리뷰 단계에서는 평가 문항의 특징적 표현이 랭킹 로직이나 별칭 부스팅에 하드코딩되어 있는지 전수 검사해야 하며, 수정 후에는 표시 메타데이터만 바뀐 경우 전 문항 점수가 소수점까지 동일한지 확인하는 점수 불변 diff로 재현성을 판정해야 한다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "다중 에이전트 검증 운영에서는 검증용 스크래치 테스트 파일이 트리에 남아있는 동안 다른 에이전트가 스위트를 돌리면 거짓 블로커(red suite)가 발생하므로, 최종 검증 패스는 주체를 하나로 통합하고 스크래치 파일은 고유명으로 만들어 실행 후 즉시 삭제하고 git status로 확인해야 한다.",
+              "cites": [
+                7
+              ]
+            },
+            {
+              "text": "서브에이전트가 최종 리포트를 일반 텍스트로만 출력하면 팀메이트에게 유실될 수 있으므로, 발주 프롬프트에 최종 리포트를 SendMessage(to main)로 전달하도록 명시해야 한다.",
+              "cites": [
+                4,
+                7
+              ]
+            },
+            {
+              "text": "대규모 검증 팬아웃 시 동시 다발적 verify 에이전트가 반복적으로 전멸하는 서버측 rate limit과 상관관계가 있으므로, 실패 시 저널(journal.jsonl)에 누적된 성공 결과를 수확하고 남은 항목만 별도로 재실행하는 회복 전략이 안정성을 높인다.",
+              "cites": [
+                8
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+              "chunk_id": "4b715ee3-f822-4f84-9cfc-f8ae83f561a2",
+              "char_start": 0,
+              "char_end": 1208,
+              "title": "병렬 에이전트는 API 계약이 드리프트한다 — 와이어 계약은 테스트로 고정"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "b23b8f4b-a1cc-4f96-8b9f-46155ac8be33",
+              "char_start": 4153,
+              "char_end": 5526,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\sealed-eval-hidden-state-blindspot.md",
+              "chunk_id": "ea047ac9-9c13-41d2-9117-f057c326d218",
+              "char_start": 0,
+              "char_end": 1498,
+              "title": "봉인 평가셋 운영 + 평가 환경의 gitignore 상태가 가리는 fresh-clone 결함"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md",
+              "chunk_id": "d8f2e67f-5644-4a83-bd67-ae497d7214ae",
+              "char_start": 2155,
+              "char_end": 3467,
+              "title": "GPL 클린룸 포팅 워크플로 (멀티에이전트 방화벽)"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\nextjs15-region-i18n-no-url-cookie.md",
+              "chunk_id": "a527dc97-64b3-4cfc-931c-920abc5c0530",
+              "char_start": 2324,
+              "char_end": 3650,
+              "title": "Next.js 15 지역기반 i18n (URL 불변, 쿠키+cf-ipcountry) + 병렬 변환 설계"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\playedge-webgame-baas.md",
+              "chunk_id": "5fd2c322-914c-4802-8710-b737f46942e2",
+              "char_start": 14589,
+              "char_end": 16009,
+              "title": "playedge-webgame-baas"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+              "chunk_id": "c6e4d4e1-a861-4a85-b1ac-93fccbc4c332",
+              "char_start": 3676,
+              "char_end": 4646,
+              "title": "봇 채움 거점 모드는 두 층위에서 따로 죽는다 — 기하(도달성)와 행동(목표 지향), 계량 프로브 게이트로 벗겨내기"
+            },
+            {
+              "n": 8,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+              "chunk_id": "a98e2460-113a-489d-88fe-6cd92cb16473",
+              "char_start": 1296,
+              "char_end": 2344,
+              "title": "Workflow 도구 resume은 prefix 캐시 — 실패 그룹 재실행 전략"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "score 0.85 (rank 1)"
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "score 0.84 (rank 2)"
+            },
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "score 0.64 (rank 3)"
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "score 0.63 (rank 4) — top 3 밖"
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "score 0.55 (rank 5) — top 3 밖"
+            }
+          ],
+          "insufficient": false,
+          "mode": "fast",
+          "cost": {
+            "llm_calls": 1,
+            "secs": 57.99,
+            "model": "sonnet"
+          }
+        },
+        "secs": 57.987,
+        "error": null
+      },
+      "deep": {
+        "envelope": {
+          "answer": "여러 서브에이전트에게 클라이언트와 서버(또는 모듈 양쪽)를 병렬로 맡기면 API 계약이 어긋나는 드리프트가 발생하며, 실제로 limits 필드명 불일치와 ISO 타임스탬프 포맷 차이로 2회 겪었다. [1] 같은 계약 불일치는 단일 프로젝트 안에서도 나타나, license-server에서는 /v1/plugin/me가 요청이 아닌 Worker env로만 상품을 결정해 이미 body로 productSlug를 받던 /v1/plugin/usage와 두 엔드포인트의 계약이 어긋났다. [11] 따라서 가장 핵심 원칙은 와이어 계약(스키마·필드명·인코딩)을 테스트로 고정하고 그 테스트를 단일 정본 레포·패키지에 두어, 에이전트가 이 계약 테스트를 통과해야만 완료로 인정하는 것이다. [1] 작업은 파일이 겹치지 않게 분할하고, 단계별 리뷰·테스트·E2E 게이트를 통과한 뒤에 커밋해야 한다. [1] 로드테스트 하네스 같은 미러·픽스처가 있으면 스키마 변경 시 미러 동기화를 체크리스트에 반드시 포함해야 하며, 스키마를 한 번 확장할 때 미러 누락이 단골 사고 원인이었다. [1] 다만 프로덕션 배선을 그대로 복제한 미러 테스트는 실제 라우트가 변경돼도 이를 잡지 못하는 드리프트 위험을 내포하므로, 슬롯 리졸버와 computePro 같은 로직을 export해 미러가 아닌 진짜 라우트 테스트로 전환하는 것이 근본 해법이다. [9] 계약과 명세를 디스크(리포 내 문서)에 정본으로 저장해두면 구현 에이전트를 여러 번 교체(컨텍스트 리셋)해도 계약·방화벽이 유지된다. [2] 반대로 서버 계약이 변하지 않는 화면 전용 작업(데모 클라이언트 UI, 모바일 컨트롤 등)은 병렬 서브에이전트 위임이 잘 작동한 성공 사례였다. [1] 병렬 실행 자체를 안정화하려면 단일 에이전트에게 큰 구조화 출력(예: 140개 항목 병합)을 맡기지 말고 카테고리별 팬아웃으로 에이전트당 출력을 약 20개 이하로 유지해야 하며, 그러지 않으면 생성 도중 중단되고 워크플로가 동일 실패 호출을 무한 재시도해 시간을 크게 낭비한다(실측 6회×10~40분). [3][4] Workflow의 resume 캐시는 개별 호출 단위가 아니라 '가장 긴 불변 prefix' 단위로 동작하므로, 부분 실패 후 리줌을 반복하면 이전에 성공한 호출까지 재실행되고 rate limit 상황에서는 매번 다른 그룹이 죽어 검증된 결과 수가 오히려 줄어들 수 있다(실측 98→67). [4] 동시 다발적 팬아웃(예: 동시 16개 verify 에이전트)은 '전 계정 사용량 소진'을 뜻하는 서버측 rate limit과 상관관계가 있어 에이전트들이 반복적으로 전멸한다. [3] 이 때문에 무거운 작업은 병렬로 돌리지 말고, Claude API 레이트리밋이 공유 풀임을 전제로 한 번에 하나씩 직렬 실행하는 편이 안정적이다. [7] 부분 실패 시에는 리줌을 반복하는 대신 journal.jsonl의 결과 라인을 id 기준으로 union해 이미 성공한 결과를 회수하고, 남은 항목만 개별 Agent 호출(항목은 스크래치패드 파일로 전달, 결과는 파일과 메시지에 이중 출력)로 마무리하는 방식이 더 안정적이다. [3] rate limit으로 중단된 named 에이전트는 컨텍스트가 유지되므로 SendMessage로 재개를 지시하면 재생성 비용 없이 이어서 완료할 수 있다(실측 3/3). [3] 보고 경로도 계약처럼 관리해야 하며, 팀메이트 모드에서 서브에이전트의 최종 보고를 일반 텍스트로만 출력하면 유실될 수 있으므로 장문 보고는 [n/m] 분할 SendMessage나 파일 저장으로 전달해야 한다. [2] 서브에이전트가 유휴 알림만 보내고 최종 리포트를 넘기지 않는 실패 패턴을 막으려면 발주 프롬프트에 '최종 리포트는 SendMessage(to main)로 전달'을 명시해야 한다. [6] 재현성 확보의 축은 봉인 평가셋 운용으로, 구현 착수 전에 평가 문항·기대값·판정 규칙을 파일로 확정('봉인')하고 구현자의 열람·grep 접근을 금지하며 문항 대비 하드코딩·질문 문자열 매칭을 리뷰 결함으로 규정한다. [5] 게이트 실행은 관리자만 수행해 구현자의 자기 채점을 배제하고, 실행은 제품과 동일한 공개 API 경로를 사용하며 별도 백도어를 두지 않는다. [5] 리뷰 단계에서는 평가 문항의 특징적 표현(예: 'totalCnt=0', 'mojibake')이 랭킹 로직이나 별칭 부스팅 코드에 박혀 있는지 리뷰어가 전수 grep해 오염 여부를 확인한다. [5] 수정 사이클 후 재현성은 '점수 불변 diff'로 판정하며, 표시 메타데이터만 바꾼 수정이라면 전 문항 점수가 소수점까지 동일해야 한다는 원칙을 kcode M2.1에서 캐시를 전면 재구축한 뒤에도 소수점 셋째 자리까지 불변함으로 실증했다. [5] 검증 운영에서는 검증용 스크래치 테스트 파일이 트리에 남아 있는 동안 다른 에이전트가 스위트를 돌리면 거짓 블로커(red suite)가 나므로, 최종 검증 패스는 단일 주체로 통합하고 스크래치 파일은 고유명 부여·실행 직후 삭제·git status 확인까지 한 에이전트가 전담해야 한다. [6] 멀티에이전트 병렬 작업에서는 각 에이전트가 자신의 타입체크로 자가검증한 뒤 통합 tsc는 리더가 최종 게이트로 한 번만 수행하고 에이전트 간 과도기적 tsc 실패는 무시하는 방식이 유효했다. [10] 공유 파일(예: 번역 dict)의 동시편집 충돌을 막기 위해 그 파일의 writer는 항상 1명만 두고, 나머지 작업은 파일이 서로 겹치지 않는 코로케이트 패턴으로 설계해 N개 에이전트를 파일 겹침 없이 동시 실행했다. [10] LLM이 만드는 구조화 산출물의 수렴을 위해서는 리페어 자체를 신뢰할 수 없다는 전제로 섹션 리페어 1회마다 재검증하고 오류 수가 늘면 즉시 롤백해 오류 수를 단조감소시키며, 전체 오류를 모든 섹션에 방송하지 않고 담당 섹션에만 라우팅해 재현 가능한 수렴을 확보한다. [8] 요컨대 멀티에이전트 테스트 안정화의 공통 원리는 계약과 평가 기준을 코드가 아닌 정본 파일·테스트로 먼저 고정해 에이전트가 통과해야 완료로 삼고, 병렬성은 파일 분할과 출력 크기 제한으로 통제하며, 최종 검증·게이트는 단일 주체가 책임지는 것이다. [1][5][10][6]",
+          "sentences": [
+            {
+              "text": "여러 서브에이전트에게 클라이언트와 서버(또는 모듈 양쪽)를 병렬로 맡기면 API 계약이 어긋나는 드리프트가 발생하며, 실제로 limits 필드명 불일치와 ISO 타임스탬프 포맷 차이로 2회 겪었다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "같은 계약 불일치는 단일 프로젝트 안에서도 나타나, license-server에서는 /v1/plugin/me가 요청이 아닌 Worker env로만 상품을 결정해 이미 body로 productSlug를 받던 /v1/plugin/usage와 두 엔드포인트의 계약이 어긋났다.",
+              "cites": [
+                11
+              ]
+            },
+            {
+              "text": "따라서 가장 핵심 원칙은 와이어 계약(스키마·필드명·인코딩)을 테스트로 고정하고 그 테스트를 단일 정본 레포·패키지에 두어, 에이전트가 이 계약 테스트를 통과해야만 완료로 인정하는 것이다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "작업은 파일이 겹치지 않게 분할하고, 단계별 리뷰·테스트·E2E 게이트를 통과한 뒤에 커밋해야 한다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "로드테스트 하네스 같은 미러·픽스처가 있으면 스키마 변경 시 미러 동기화를 체크리스트에 반드시 포함해야 하며, 스키마를 한 번 확장할 때 미러 누락이 단골 사고 원인이었다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "다만 프로덕션 배선을 그대로 복제한 미러 테스트는 실제 라우트가 변경돼도 이를 잡지 못하는 드리프트 위험을 내포하므로, 슬롯 리졸버와 computePro 같은 로직을 export해 미러가 아닌 진짜 라우트 테스트로 전환하는 것이 근본 해법이다.",
+              "cites": [
+                9
+              ]
+            },
+            {
+              "text": "계약과 명세를 디스크(리포 내 문서)에 정본으로 저장해두면 구현 에이전트를 여러 번 교체(컨텍스트 리셋)해도 계약·방화벽이 유지된다.",
+              "cites": [
+                2
+              ]
+            },
+            {
+              "text": "반대로 서버 계약이 변하지 않는 화면 전용 작업(데모 클라이언트 UI, 모바일 컨트롤 등)은 병렬 서브에이전트 위임이 잘 작동한 성공 사례였다.",
+              "cites": [
+                1
+              ]
+            },
+            {
+              "text": "병렬 실행 자체를 안정화하려면 단일 에이전트에게 큰 구조화 출력(예: 140개 항목 병합)을 맡기지 말고 카테고리별 팬아웃으로 에이전트당 출력을 약 20개 이하로 유지해야 하며, 그러지 않으면 생성 도중 중단되고 워크플로가 동일 실패 호출을 무한 재시도해 시간을 크게 낭비한다(실측 6회×10~40분).",
+              "cites": [
+                3,
+                4
+              ]
+            },
+            {
+              "text": "Workflow의 resume 캐시는 개별 호출 단위가 아니라 '가장 긴 불변 prefix' 단위로 동작하므로, 부분 실패 후 리줌을 반복하면 이전에 성공한 호출까지 재실행되고 rate limit 상황에서는 매번 다른 그룹이 죽어 검증된 결과 수가 오히려 줄어들 수 있다(실측 98→67).",
+              "cites": [
+                4
+              ]
+            },
+            {
+              "text": "동시 다발적 팬아웃(예: 동시 16개 verify 에이전트)은 '전 계정 사용량 소진'을 뜻하는 서버측 rate limit과 상관관계가 있어 에이전트들이 반복적으로 전멸한다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "이 때문에 무거운 작업은 병렬로 돌리지 말고, Claude API 레이트리밋이 공유 풀임을 전제로 한 번에 하나씩 직렬 실행하는 편이 안정적이다.",
+              "cites": [
+                7
+              ]
+            },
+            {
+              "text": "부분 실패 시에는 리줌을 반복하는 대신 journal.jsonl의 결과 라인을 id 기준으로 union해 이미 성공한 결과를 회수하고, 남은 항목만 개별 Agent 호출(항목은 스크래치패드 파일로 전달, 결과는 파일과 메시지에 이중 출력)로 마무리하는 방식이 더 안정적이다.",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "rate limit으로 중단된 named 에이전트는 컨텍스트가 유지되므로 SendMessage로 재개를 지시하면 재생성 비용 없이 이어서 완료할 수 있다(실측 3/3).",
+              "cites": [
+                3
+              ]
+            },
+            {
+              "text": "보고 경로도 계약처럼 관리해야 하며, 팀메이트 모드에서 서브에이전트의 최종 보고를 일반 텍스트로만 출력하면 유실될 수 있으므로 장문 보고는 [n/m] 분할 SendMessage나 파일 저장으로 전달해야 한다.",
+              "cites": [
+                2
+              ]
+            },
+            {
+              "text": "서브에이전트가 유휴 알림만 보내고 최종 리포트를 넘기지 않는 실패 패턴을 막으려면 발주 프롬프트에 '최종 리포트는 SendMessage(to main)로 전달'을 명시해야 한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "재현성 확보의 축은 봉인 평가셋 운용으로, 구현 착수 전에 평가 문항·기대값·판정 규칙을 파일로 확정('봉인')하고 구현자의 열람·grep 접근을 금지하며 문항 대비 하드코딩·질문 문자열 매칭을 리뷰 결함으로 규정한다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "게이트 실행은 관리자만 수행해 구현자의 자기 채점을 배제하고, 실행은 제품과 동일한 공개 API 경로를 사용하며 별도 백도어를 두지 않는다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "리뷰 단계에서는 평가 문항의 특징적 표현(예: 'totalCnt=0', 'mojibake')이 랭킹 로직이나 별칭 부스팅 코드에 박혀 있는지 리뷰어가 전수 grep해 오염 여부를 확인한다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "수정 사이클 후 재현성은 '점수 불변 diff'로 판정하며, 표시 메타데이터만 바꾼 수정이라면 전 문항 점수가 소수점까지 동일해야 한다는 원칙을 kcode M2.1에서 캐시를 전면 재구축한 뒤에도 소수점 셋째 자리까지 불변함으로 실증했다.",
+              "cites": [
+                5
+              ]
+            },
+            {
+              "text": "검증 운영에서는 검증용 스크래치 테스트 파일이 트리에 남아 있는 동안 다른 에이전트가 스위트를 돌리면 거짓 블로커(red suite)가 나므로, 최종 검증 패스는 단일 주체로 통합하고 스크래치 파일은 고유명 부여·실행 직후 삭제·git status 확인까지 한 에이전트가 전담해야 한다.",
+              "cites": [
+                6
+              ]
+            },
+            {
+              "text": "멀티에이전트 병렬 작업에서는 각 에이전트가 자신의 타입체크로 자가검증한 뒤 통합 tsc는 리더가 최종 게이트로 한 번만 수행하고 에이전트 간 과도기적 tsc 실패는 무시하는 방식이 유효했다.",
+              "cites": [
+                10
+              ]
+            },
+            {
+              "text": "공유 파일(예: 번역 dict)의 동시편집 충돌을 막기 위해 그 파일의 writer는 항상 1명만 두고, 나머지 작업은 파일이 서로 겹치지 않는 코로케이트 패턴으로 설계해 N개 에이전트를 파일 겹침 없이 동시 실행했다.",
+              "cites": [
+                10
+              ]
+            },
+            {
+              "text": "LLM이 만드는 구조화 산출물의 수렴을 위해서는 리페어 자체를 신뢰할 수 없다는 전제로 섹션 리페어 1회마다 재검증하고 오류 수가 늘면 즉시 롤백해 오류 수를 단조감소시키며, 전체 오류를 모든 섹션에 방송하지 않고 담당 섹션에만 라우팅해 재현 가능한 수렴을 확보한다.",
+              "cites": [
+                8
+              ]
+            },
+            {
+              "text": "요컨대 멀티에이전트 테스트 안정화의 공통 원리는 계약과 평가 기준을 코드가 아닌 정본 파일·테스트로 먼저 고정해 에이전트가 통과해야 완료로 삼고, 병렬성은 파일 분할과 출력 크기 제한으로 통제하며, 최종 검증·게이트는 단일 주체가 책임지는 것이다.",
+              "cites": [
+                1,
+                5,
+                10,
+                6
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "n": 1,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\parallel-agents-wire-contract-drift.md",
+              "chunk_id": "4b715ee3-f822-4f84-9cfc-f8ae83f561a2",
+              "char_start": 0,
+              "char_end": 1208,
+              "title": "병렬 에이전트는 API 계약이 드리프트한다 — 와이어 계약은 테스트로 고정"
+            },
+            {
+              "n": 2,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\gpl-cleanroom-port-workflow.md",
+              "chunk_id": "d8f2e67f-5644-4a83-bd67-ae497d7214ae",
+              "char_start": 2155,
+              "char_end": 3467,
+              "title": "GPL 클린룸 포팅 워크플로 (멀티에이전트 방화벽)"
+            },
+            {
+              "n": 3,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+              "chunk_id": "a98e2460-113a-489d-88fe-6cd92cb16473",
+              "char_start": 1296,
+              "char_end": 2344,
+              "title": "Workflow 도구 resume은 prefix 캐시 — 실패 그룹 재실행 전략"
+            },
+            {
+              "n": 4,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\workflow-resume-prefix-cache.md",
+              "chunk_id": "641f4a73-3472-4411-87a8-8b72854cbfe3",
+              "char_start": 0,
+              "char_end": 1498,
+              "title": "Workflow 도구 resume은 prefix 캐시 — 실패 그룹 재실행 전략"
+            },
+            {
+              "n": 5,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\sealed-eval-hidden-state-blindspot.md",
+              "chunk_id": "ea047ac9-9c13-41d2-9117-f057c326d218",
+              "char_start": 0,
+              "char_end": 1498,
+              "title": "봉인 평가셋 운영 + 평가 환경의 gitignore 상태가 가리는 fresh-clone 결함"
+            },
+            {
+              "n": 6,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\bot-filled-objective-mode-two-layer-defects.md",
+              "chunk_id": "c6e4d4e1-a861-4a85-b1ac-93fccbc4c332",
+              "char_start": 3676,
+              "char_end": 4646,
+              "title": "봇 채움 거점 모드는 두 층위에서 따로 죽는다 — 기하(도달성)와 행동(목표 지향), 계량 프로브 게이트로 벗겨내기"
+            },
+            {
+              "n": 7,
+              "origin": "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+              "chunk_id": "8f223f65-2d42-443f-a64a-a6dbf2a4a42a",
+              "char_start": 6318,
+              "char_end": 7659,
+              "title": "docseal-onprem-doc-ai"
+            },
+            {
+              "n": 8,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\llm-config-pipeline-convergence.md",
+              "chunk_id": "3712246c-d4f7-401e-9235-18dae08bb722",
+              "char_start": 330,
+              "char_end": 1751,
+              "title": "LLM 구조화 산출(config) 파이프라인 수렴 설계"
+            },
+            {
+              "n": 9,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\plugin-me-product-slug-scoping.md",
+              "chunk_id": "52e53482-35cf-4366-9ae1-e2270324236d",
+              "char_start": 1107,
+              "char_end": 1932,
+              "title": "license-server /v1/plugin/me product scoping (env vs per-request)"
+            },
+            {
+              "n": 10,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\nextjs15-region-i18n-no-url-cookie.md",
+              "chunk_id": "a527dc97-64b3-4cfc-931c-920abc5c0530",
+              "char_start": 2324,
+              "char_end": 3650,
+              "title": "Next.js 15 지역기반 i18n (URL 불변, 쿠키+cf-ipcountry) + 병렬 변환 설계"
+            },
+            {
+              "n": 11,
+              "origin": "C:\\Users\\User\\.claude\\wiki\\plugin-me-product-slug-scoping.md",
+              "chunk_id": "c872af45-de77-4e62-8ef5-183d0d575807",
+              "char_start": 0,
+              "char_end": 1307,
+              "title": "license-server /v1/plugin/me product scoping (env vs per-request)"
+            }
+          ],
+          "trace": [
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "여러 프로젝트의 웹·백엔드 API 통합에서 계약 불일치/드리프트로 겪은 트러블슈팅 노트와, 검증·승인 규율에 관한 협업 디렉티브 중 멀티에이전트 테스트 안정화에 참고할 만한 원칙은?",
+              "claims": 6
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "라이선스 서버·페이월·세션 인증 등 제품 수익화 인프라 문서로, API 계약 드리프트나 시드 결정성·봉인 평가셋 같은 멀티에이전트 테스트 재현성 주제와 직접 관련이 없음."
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "메모리 디렉티브의 온톨로지 스키마·MOC 조직화 문서로, 지식 구조화에 관한 것이지 멀티에이전트 시스템 테스트 안정성·재현성 원칙과는 무관함."
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "병렬/멀티에이전트 오케스트레이션에서 발생한 API 계약 드리프트(contract drift) 사례의 근본 원인과 완화 패턴은 무엇이며, 워크플로 재실행·계약 검증 관점에서 멀티에이전트 테스트를 안정화한 구체적 교훈은?",
+              "claims": 12
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "플래너 배정",
+              "subquestion": "오프라인 LLM 추출·Rust 서빙·다중 에이전트 모니터링 같은 개인 프로젝트 인프라에서 재현성 확보를 위해 사용한 시드 결정성과 봉인 평가셋(sealed eval) 운용 원칙, 그리고 멀티에이전트 실행을 안정적으로 관측·검증한 노하우는?",
+              "claims": 9
+            }
+          ],
+          "insufficient": false,
+          "mode": "deep",
+          "cost": {
+            "llm_calls": 5,
+            "secs": 327.26,
+            "model": "sonnet",
+            "stages": {
+              "planner": 55.62,
+              "cluster_agents": 143.3,
+              "rebuttal": 0,
+              "synthesis_1": 127.82
+            }
+          }
+        },
+        "secs": 327.264,
+        "error": null
+      },
+      "judged": {
+        "crit1": {
+          "pass": true,
+          "reason": "",
+          "clusters": [
+            "multi-agent-workflow-lessons",
+            "personal-project-portfolio-dev-infra",
+            "cross-project-tech-notes-and-directives"
+          ]
+        },
+        "crit2": {
+          "pass": true,
+          "reason": "",
+          "newOrigins": [
+            "C:\\Users\\User\\.claude\\projects\\D--\\memory\\docseal-onprem-doc-ai.md",
+            "C:\\Users\\User\\.claude\\wiki\\llm-config-pipeline-convergence.md",
+            "C:\\Users\\User\\.claude\\wiki\\plugin-me-product-slug-scoping.md"
+          ]
+        },
+        "crit3": {
+          "pass": true,
+          "reason": "",
+          "missing": [],
+          "malformed": []
+        }
+      }
+    },
+    {
+      "id": "qd06",
+      "question": "극자외선(EUV) 리소그래피 공정에서 펠리클 투과율과 레지스트 확률적 결함률 사이의 트레이드오프는 노광 선량을 어떻게 조정해야 개선돼?",
+      "expect": "insufficient",
+      "expected_clusters": [],
+      "gold_files_any": [],
+      "fast": {
+        "envelope": {
+          "answer": "제공된 자료만으로는 이 질문에 답할 근거가 충분하지 않습니다.",
+          "sentences": [],
+          "sources": [],
+          "trace": [
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "consulted",
+              "why": "score 0.61 (rank 1)"
+            },
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "consulted",
+              "why": "score 0.53 (rank 2)"
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "consulted",
+              "why": "score 0.51 (rank 3)"
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "score 0.50 (rank 4) — top 3 밖"
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "score 0.42 (rank 5) — top 3 밖"
+            }
+          ],
+          "insufficient": true,
+          "mode": "fast",
+          "cost": {
+            "llm_calls": 0,
+            "secs": 5.13,
+            "model": "sonnet"
+          }
+        },
+        "secs": 5.128,
+        "error": null
+      },
+      "deep": {
+        "envelope": {
+          "answer": "제공된 자료만으로는 이 질문에 답할 근거가 충분하지 않습니다.",
+          "sentences": [],
+          "sources": [],
+          "trace": [
+            {
+              "cluster": "cross-project-tech-notes-and-directives",
+              "action": "skipped",
+              "why": "웹·백엔드 통합 이슈와 협업 운영 지침 클러스터로, EUV 리소그래피·반도체 공정과 무관."
+            },
+            {
+              "cluster": "indie-saas-licensing-paywall-infra",
+              "action": "skipped",
+              "why": "SaaS 라이선스·페이월 인프라 문서로, 노광 선량·펠리클·레지스트 물리와 무관."
+            },
+            {
+              "cluster": "memory-ontology-moc",
+              "action": "skipped",
+              "why": "메모리 온톨로지·MOC 조직화 체계로, 반도체 공정 트레이드오프와 무관."
+            },
+            {
+              "cluster": "multi-agent-workflow-lessons",
+              "action": "skipped",
+              "why": "멀티에이전트 오케스트레이션·소프트웨어 프로젝트 교훈으로, EUV 공정 파라미터와 무관."
+            },
+            {
+              "cluster": "personal-project-portfolio-dev-infra",
+              "action": "skipped",
+              "why": "게임·문서AI·홈서버 등 개인 개발 프로젝트 현황과 인프라 노하우로, 리소그래피 공정과 무관."
+            }
+          ],
+          "insufficient": true,
+          "mode": "deep",
+          "cost": {
+            "llm_calls": 1,
+            "secs": 27.12,
+            "model": "sonnet",
+            "stages": {
+              "planner": 26.77,
+              "cluster_agents": 0,
+              "rebuttal": 0,
+              "synthesis_1": 0
+            }
+          }
+        },
+        "secs": 27.116,
+        "error": null
+      },
+      "judged": {
+        "negative": {
+          "pass": true,
+          "reason": ""
+        }
+      }
+    }
+  ]
+}
