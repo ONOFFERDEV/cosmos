@@ -10,3 +10,9 @@ deploy/.env
 
 # 배포처별 실설정(개인 경로 포함) — 예시는 cosmos.config.example.json
 cosmos.config.json
+
+# 내부 운영 정보(외부 비공개)
+CLAUDE.local.md
+tools/sync-hub.ps1
+tools/invite.ps1
+tools/eval/report*.json

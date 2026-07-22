@@ -21,7 +21,7 @@ services:
     ports:
       # 바인딩 주소는 .env의 COSMOS_BIND로 지정(기본 0.0.0.0 — 전체 인터페이스).
       # 공인 회선이 물린 서버라면 반드시 LAN IP로 제한할 것: Docker는 firewalld를
-      # 우회(DNAT)해 노출시킨다([[docker-bypasses-firewalld-dnat]] — 온오퍼는 192.168.0.34).
+      # 우회(DNAT)해 노출시킨다([[docker-bypasses-firewalld-dnat]]).
       - "${COSMOS_BIND:-0.0.0.0}:8800:8800"
     volumes:
       # LLM 백엔드 상태 영속(비-api 백엔드용 내부 옵션 — api 모드에선 미사용).

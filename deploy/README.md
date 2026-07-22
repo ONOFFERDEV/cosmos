@@ -20,7 +20,7 @@ deploy/
    ```bash
    ./deploy.sh [remote_host] [remote_dir]
    # 예: ./deploy.sh rocky ~/cosmos
-   # remote_host는 SSH config의 별칭(예: rocky) 또는 user@192.168.0.34 형태.
+   # remote_host는 SSH config의 별칭(예: rocky) 또는 user@<서버IP> 형태.
    # 생략하면 기본값 rocky / ~/cosmos 사용.
    ```
 

@@ -1174,7 +1174,7 @@ $ npm run build
 ## M6b
 
 - **작업 1 (표기 스윕)**: 사용자-가시 한국어 문자열 "우주"→"코스모스" 치환 완료. 대상 파일: `mind/web/index.html`(제목·로딩·에러 문구 3곳), `mind/web/app.js`(네트워크 에러 메시지 1곳), `mind/web/ask.js`(fixture 답변·불충분 배너 2곳), `mind/web/style.css`(파일 헤더 주석 1곳), `mind/src/server.ts`(라우트 설명 주석 1곳), `mind/src/server.test.ts`(테스트 설명 문자열 1곳, 기대값 동기화), `mcp/src/index.ts`(도구 description 3곳), `mcp/README.md`(설명 1곳), `README.md`(제목 1곳). 코드 식별자(`universe-canvas-mount`, `buildUniverse`, `loadUniverse`, `createUniverseScene` 등)와 API 경로 `/universe`, 파일명 `universe.ts`는 전부 불변. 치환 후 각 대상 파일 grep "우주" 잔존 0건 확인.
-- **작업 2 (sync-hub.ps1)**: `tools/sync-hub.ps1` 신규 작성. `data/cosmos_token.txt` 부재 시 로그 1줄 남기고 exit 0. 존재 시 `COSMOS_MIND_URL=http://192.168.0.34:8800`, `COSMOS_TOKEN=<토큰>` 환경변수 설정 후 `node mind/dist/cli.js scan` 실행, JSON 출력을 파싱해 `scanned/ingested/duplicate/replaced/failed` 요약 한 줄을 `data/sync-hub.log`에 append(200줄 초과 시 오래된 줄부터 삭제). 어떤 경로든 항상 exit 0(로그만, 실패로 상위 스케줄을 막지 않음). PS 5.1 제약 준수: 모든 파일 I/O에 `-Encoding utf8` 명시, `node` 네이티브 실행 시 `2>&1` 미사용(ErrorRecord 오염 방지), `&&` 미사용(try/catch 구조).
+- **작업 2 (sync-hub.ps1)**: `tools/sync-hub.ps1` 신규 작성. `data/cosmos_token.txt` 부재 시 로그 1줄 남기고 exit 0. 존재 시 `COSMOS_MIND_URL=http://localhost:8800`, `COSMOS_TOKEN=<토큰>` 환경변수 설정 후 `node mind/dist/cli.js scan` 실행, JSON 출력을 파싱해 `scanned/ingested/duplicate/replaced/failed` 요약 한 줄을 `data/sync-hub.log`에 append(200줄 초과 시 오래된 줄부터 삭제). 어떤 경로든 항상 exit 0(로그만, 실패로 상위 스케줄을 막지 않음). PS 5.1 제약 준수: 모든 파일 I/O에 `-Encoding utf8` 명시, `node` 네이티브 실행 시 `2>&1` 미사용(ErrorRecord 오염 방지), `&&` 미사용(try/catch 구조).
 
 ### 검증
 - mind: `npx tsc --noEmit` 0 에러, `npm run build` 성공, `node --test "dist/**/*.test.js"` → tests 113, pass 113, fail 0.

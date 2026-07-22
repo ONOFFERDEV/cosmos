@@ -53,7 +53,7 @@
 - 주의: 관리자 PC의 CosmosHubSync(파일경로 origin)와 같은 내용을 레포 커넥터로 이중 연결하면 origin이 달라 중복 문서가 된다 — 한 소스는 한 경로로만.
 
 ## 운영
-- Rocky(192.168.0.34) compose 2서비스: core(cosmos-data:/data/out, cosmos-models:/models) + mind(cosmos-mind-data:/data, cosmos-claude:/root/.claude, LLM=컨테이너 claude CLI).
+- 운영 서버 compose 2서비스(온오퍼 배포분은 LAN 전용 바인딩): core(cosmos-data:/data/out, cosmos-models:/models) + mind(cosmos-mind-data:/data, cosmos-claude:/root/.claude, LLM=컨테이너 claude CLI).
 - **이미지는 로컬 빌드 → `docker save | gzip | ssh docker load`** (서버 빌드는 -j32 하드행 금지). `up -d --no-build`. 배포 파이프의 exit는 PIPESTATUS로 확인.
 - 마이그레이션 CLI: `cosmos-core migrate-owner --out <dir> [--source-type session] [--owner admin] [--dry-run]`, 스코프 부트스트랩: `bootstrap --owner <name>`(mind CLI `bootstrap --owner`는 LLM 라벨 포함, 슬러그 `p-<owner>-` 접두 유지).
 
@@ -354,7 +354,7 @@ cosmos-core serve  --port 8801 --out <dir> [--models <dir>]
 - **core**: 베이스 `rust:1-trixie`(glibc 2.38+ 필수 — [[ort-onnxruntime-glibc-238-docker-base]]), 멀티스테이지(release 빌드→slim 런타임). 볼륨: `cosmos-data:/data/out`, `cosmos-models:/models`(fastembed 첫 실행 다운로드 허용). **포트 비공개**(compose 내부망 전용, mind만 접근).
 - **mind**: 베이스 `node:22-slim` + **claude CLI 설치**(`npm i -g @anthropic-ai/claude-code`). 볼륨: `cosmos-claude:/root/.claude`(OAuth 자격증명 영속 — 컨테이너 안에서 1회 `claude /login`, headless URL 방식). env: `COSMOS_LLM=claude-cli`, `COSMOS_CORE_URL=http://core:8801`, `COSMOS_TOKEN`. 포트 **8800만 LAN 노출**. web/ 정적 포함.
 - core-client의 core 주소는 env `COSMOS_CORE_URL`(기본 http://127.0.0.1:8801) — 하드코딩 제거.
-- 배포 타깃: Rocky(192.168.0.34, ssh 키, docker compose 검증됨 — video-automation 8320/8321과 포트 무충돌). 데이터 이관 = data/out(sqlite+tantivy)을 볼륨에 rsync(재임베딩 회피).
+- 배포 타깃: 사내 서버(ssh 키, docker compose 검증됨 — video-automation 8320/8321과 포트 무충돌). 데이터 이관 = data/out(sqlite+tantivy)을 볼륨에 rsync(재임베딩 회피).
 
 ## 토큰 인증 (mind, env COSMOS_TOKEN 설정 시 활성)
 - **보호**: POST /ask, /inbox/*, /ingest(신설 프록시), lifecycle 관련 — `Authorization: Bearer <token>` 불일치 시 401 JSON(한국어).
@@ -373,14 +373,14 @@ cosmos-core serve  --port 8801 --out <dir> [--models <dir>]
 - 기동 시각은 정각 회피(기동 시점 기준 상대 타이머면 충분). 실행 결과는 콘솔 로그+data/cron.log(1줄/회).
 
 ## MCP 정식화 (신규 패키지 `mcp/` — 이 패키지만 npm 의존성 허용: @modelcontextprotocol/sdk)
-- stdio MCP 서버 `cosmos-mcp`: env `COSMOS_MIND_URL`(기본 http://192.168.0.34:8800)+`COSMOS_TOKEN`으로 mind HTTP 호출.
+- stdio MCP 서버 `cosmos-mcp`: env `COSMOS_MIND_URL`(기본 http://localhost:8800)+`COSMOS_TOKEN`으로 mind HTTP 호출.
 - tools: `cosmos_ask{question, mode?}`(봉투 요약: 답변+출처+궤적), `cosmos_search{query,k?}`, `cosmos_ingest{url_or_text,title?}`, `cosmos_inbox_list{}`, `cosmos_inbox_approve{ids[]}`, `cosmos_inbox_reject{ids[]}`, `cosmos_status{}`(health+클러스터).
 - 등록 스니펫(.mcp.json)과 사용법을 mcp/README.md에.
 - deep은 수 분 소요 — tool 설명에 명시, 타임아웃 여유(1200s).
 
 ## M5 게이트 (검증=본체, 실 Rocky)
 1. compose up: core+mind 기동, 데이터 이관 후 /health docs 수 = 로컬과 일치.
-2. PC 브라우저에서 http://192.168.0.34:8800 — 3D 뷰 로드+fast ask 종단(컨테이너 claude CLI 실동작).
+2. PC 브라우저에서 http://localhost:8800 — 3D 뷰 로드+fast ask 종단(컨테이너 claude CLI 실동작).
 3. 토큰: 무토큰 /ask 401, 유토큰 200.
 4. **동시 사용자**: fast ask 2건 병렬 → 둘 다 정상 봉투(멀티유저 게이트).
 5. MCP: PC의 클로드 세션에서 cosmos_ask → 인용 답변 수신(타 세션 게이트).
@@ -409,7 +409,7 @@ cosmos-core serve  --port 8801 --out <dir> [--models <dir>]
 - origin=절대경로(기존 규약), 재스캔 멱등(origin+hash)이 갱신 처리.
 
 ## PC 동기화 자동화
-- `tools/sync-hub.ps1`: COSMOS_MIND_URL=http://192.168.0.34:8800, 토큰=data/cosmos_token.txt 읽기 → `node mind/dist/cli.js scan` → 결과 1줄을 data/sync-hub.log append(날짜 포함, 최근 200줄 유지). 서버 미응답 시 조용히 종료(exit 0, 로그만).
+- `tools/sync-hub.ps1`: COSMOS_MIND_URL=http://localhost:8800, 토큰=data/cosmos_token.txt 읽기 → `node mind/dist/cli.js scan` → 결과 1줄을 data/sync-hub.log append(날짜 포함, 최근 200줄 유지). 서버 미응답 시 조용히 종료(exit 0, 로그만).
 - 윈도우 작업 스케줄러 등록(관리자=본체 실행): 일 1회 09:23, 놓친 스케줄은 다음 로그온 시 실행(StartWhenAvailable).
 
 ## M6 게이트 (검증=본체)
@@ -520,7 +520,7 @@ cosmos-core serve  --port 8801 --out <dir> [--models <dir>]
 ## 결정(사용자): 링크 발급→봇이 직접 DM→팀원이 인증하면 DM에서 링크 삭제. 슬랙 봇=store-sentinel 앱 재사용(스코프 im:write·chat:write 확인됨, 워크스페이스 onofferhq).
 
 ## mind 구현
-- env 신설: `SLACK_BOT_TOKEN`(미설정 시 초대 봇 기능 전체 비활성 — 기존 동작 무변경), `COSMOS_PUBLIC_URL`(초대 링크 베이스, 기본 http://192.168.0.34:8800).
+- env 신설: `SLACK_BOT_TOKEN`(미설정 시 초대 봇 기능 전체 비활성 — 기존 동작 무변경), `COSMOS_PUBLIC_URL`(초대 링크 베이스, 기본 http://localhost:8800).
 - `users.ts`: resolveIdentity 성공 시 해당 유저에 `first_used_at` **write-once** 기록(이미 있으면 무기록 — 매 요청 파일쓰기 방지).
 - 신규 `invite.ts`(슬랙 호출=내장 fetch, 의존성 0):
   - `sendInvite(name, slackUserId)`: addUser(재사용, 토큰 확보)→링크 `${PUBLIC_URL}/#token=<토큰>` 조립→`conversations.open`(users=slackUserId)→`chat.postMessage`(DM: 초대 안내+링크+"인증되면 이 메시지는 자동 삭제됩니다")→`data/invites.json`에 {name, slack_user, channel, ts, sent_at, status:"pending"} 기록. 슬랙 실패 시 계정은 생성된 채 토큰을 CLI에 출력(수동 전달 폴백).

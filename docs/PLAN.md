@@ -58,7 +58,7 @@
 
 **경계 원칙**: LLM 호출은 전부 TS(mind), 결정론적 무거운 일은 전부 Rust(core). core는 LLM을 모르고, mind는 색인 내부를 모른다. 계약은 OpenAPI 스키마 하나로 고정(양쪽 코드젠) — 병렬 개발 시 wire-contract drift 방지(docseal 교훈 [[parallel-agents-wire-contract-drift]]).
 
-**배포**: Rocky 서버(192.168.0.34) Docker compose 2컨테이너(core+mind). LAN 내부 서비스. (M5)
+**배포**: 사내 서버 Docker compose 2컨테이너(core+mind). LAN 내부 서비스. (M5)
 
 ## 4. 데이터 모델 (SQLite 정본 + LanceDB 벡터 + Tantivy 역색인)
 

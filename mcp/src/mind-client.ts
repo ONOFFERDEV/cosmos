@@ -6,7 +6,7 @@ import http from "node:http";
 import https from "node:https";
 import { URL } from "node:url";
 
-export const DEFAULT_MIND_BASE_URL = "http://192.168.0.34:8800";
+export const DEFAULT_MIND_BASE_URL = "http://localhost:8800";
 
 export type AskMode = "fast" | "deep";
 

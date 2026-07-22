@@ -25,13 +25,3 @@ cd core && cargo test                      # Rust 엔진 (ignored 테스트는 -
 cd mind && npm test                        # TS 전체
 node mind/dist/cli.js serve --port 8807    # 로컬 서버 → http://localhost:8807/?fixture=1 (샘플 데이터 3D 뷰)
 ```
-
----
-
-## 온오퍼 운영 메모 (자체 배포분)
-
-- 접속: **http://192.168.0.34:8800** (LAN) · 헬스: `curl http://192.168.0.34:8800/health`
-- 상태: `ssh onofferserver "docker ps --format '{{.Names}} {{.Status}}' | grep deploy-"`
-- 팀원 초대: 웹 관리 패널(이름 검색→봇 DM) 또는 `docker exec deploy-mind-1 node dist/cli.js invite <이름> <슬랙ID>`
-- 관리자 PC→코스모스 일일 동기화: Windows 스케줄러 `CosmosHubSync`(09:23, `tools/sync-hub.ps1`)
-- 재배포: 이미지 **로컬 빌드** 후 `docker save | ssh docker load` (Rocky 서버 빌드 금지 — `CLAUDE.md` 참고)

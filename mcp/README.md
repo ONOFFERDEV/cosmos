@@ -1,6 +1,6 @@
 # cosmos-mcp
 
-Cosmos M5 — `mind` HTTP API(기본 `http://192.168.0.34:8800`)를 감싸는 MCP stdio 브리지.
+Cosmos M5 — `mind` HTTP API(기본 `http://localhost:8800`)를 감싸는 MCP stdio 브리지.
 Claude Code, Claude Desktop 등 MCP 클라이언트에서 Cosmos 지식 코스모스를 직접 질의/검색/편입할 수 있게 한다.
 
 ## 설치 및 빌드
@@ -20,7 +20,7 @@ npm run build   # tsc -p tsconfig.json → dist/index.js 생성
       "command": "node",
       "args": ["D:\\cosmos\\mcp\\dist\\index.js"],
       "env": {
-        "COSMOS_MIND_URL": "http://192.168.0.34:8800",
+        "COSMOS_MIND_URL": "http://localhost:8800",
         "COSMOS_TOKEN": ""
       }
     }
@@ -28,7 +28,7 @@ npm run build   # tsc -p tsconfig.json → dist/index.js 생성
 }
 ```
 
-- `COSMOS_MIND_URL`: mind 서버 base URL (기본값 `http://192.168.0.34:8800`, 미설정 시 이 기본값 사용).
+- `COSMOS_MIND_URL`: mind 서버 base URL (기본값 `http://localhost:8800`, 미설정 시 이 기본값 사용).
 - `COSMOS_TOKEN`: 설정 시 모든 요청에 `Authorization: Bearer <COSMOS_TOKEN>` 헤더를 붙인다. 인증이 필요 없으면 비워두거나 생략.
 
 ## 제공 도구 (7종)

@@ -39,9 +39,10 @@ node mind/dist/cli.js serve --port 8807   # → http://localhost:8807/?fixture=1
 # 배포 (Rocky 서버 빌드 금지 — -j32 하드행. 반드시 로컬 빌드→직렬 전송)
 docker build -f deploy/Dockerfile.core -t cosmos-core:latest .
 docker build -f deploy/Dockerfile.mind -t cosmos-mind:latest .
-docker save cosmos-mind:latest | gzip | ssh onofferserver "gunzip | docker load"
-ssh onofferserver "cd ~/cosmos && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d"
-curl -fsS http://192.168.0.34:8800/health   # 포트는 LAN IP 바인딩 — 127.0.0.1로는 안 잡힌다
+docker save cosmos-mind:latest | gzip | ssh <운영서버> "gunzip | docker load"
+ssh <운영서버> "cd ~/cosmos && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d"
+curl -fsS <공개주소>/health   # COSMOS_BIND를 LAN IP로 제한한 배포는 127.0.0.1로 안 잡힌다
+# 실제 서버 주소·계정 등 배포처별 값은 CLAUDE.local.md(로컬 전용, git 미추적)를 본다.
 ```
 
 ## 작업 규율 (실사고에서 나온 규칙 — 지키면 산다)
