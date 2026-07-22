@@ -26,7 +26,7 @@ use crate::store::{
 };
 use crate::vector::{bytes_to_f32_vec, cosine, f32_vec_to_bytes, SqliteVectorStore, VectorStore};
 use crate::{
-    chunk, cluster, frontmatter, journal, parse, DEFAULT_BIRTH_COHESION, DEFAULT_BIRTH_MIN, DEFAULT_MERGE_SIM,
+    chunk, cluster, frontmatter, journal, parse, wikilinks, DEFAULT_BIRTH_COHESION, DEFAULT_BIRTH_MIN, DEFAULT_MERGE_SIM,
     RRF_POOL, TOP_M_BM25, TOP_N_VEC,
 };
 use base64::{engine::general_purpose::STANDARD, Engine as _};
@@ -297,6 +297,49 @@ pub struct ClusterBootstrapResult {
 pub struct TagBranchDocsResponse {
     pub tagged: usize,
     pub branch_id: String,
+}
+
+// ---------------------------------------------------------------------
+// M10 관계 그래프 API 타입 (contract "관계 그래프 (M10 v1)")
+// ---------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize)]
+pub struct GraphDocRef {
+    pub doc_id: String,
+    pub origin: String,
+    pub title: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct GraphLinkItem {
+    pub rel_type: String,
+    pub target_name: String,
+    /// 해석된 상대 문서(스코프 안일 때만). None = dangling(코퍼스 밖 이름).
+    pub doc: Option<GraphDocRef>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct GraphDocResponse {
+    pub doc_id: String,
+    pub outbound: Vec<GraphLinkItem>,
+    pub inbound: Vec<GraphLinkItem>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct GraphNeighborsRequest {
+    pub doc_ids: Vec<String>,
+    #[serde(default)]
+    pub owner_scope: Option<String>,
+    #[serde(default)]
+    pub limit: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct GraphNeighborDoc {
+    pub doc_id: String,
+    pub origin: String,
+    pub title: Option<String>,
+    pub snippet: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -1058,6 +1101,7 @@ impl Engine {
 // ---------------------------------------------------------------------
 mod branches; // 지식 PR: 브랜치·승격·병합·폐기
 mod clusters; // bootstrap·birth·merge·메타 갱신
+mod graph; // M10 관계 그래프 조회
 mod ingest; // 데이터 유입
 mod lifecycle; // 탄생/병합 후보 판정
 mod listing; // 읽기 목록 API

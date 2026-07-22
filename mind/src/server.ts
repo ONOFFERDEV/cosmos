@@ -193,6 +193,8 @@ const ROUTES: Route[] = [
   { method: "POST", path: "/search", auth: "public", handler: ({ req, res, deps }) => handleSearch(req, res, deps) },
   // public: 3D 코스모스 데이터 — 무인증=공통(shared)만, 토큰 있으면 핸들러가 본인 스코프 부여.
   { method: "GET", path: "/universe", auth: "public", handler: ({ req, res, deps }) => handleUniverse(req, res, deps) },
+  // public: M10 문서 관계 그래프 — /universe와 동급(무인증=공통만, 스코프는 서버가 강제).
+  { method: "GET", path: /^\/graph\/docs\/([^/]+)$/, auth: "public", handler: ({ req, res, deps, params }) => handleGraphDoc(req, res, deps, params[0]) },
 
   // public: 팀원 개인 지식 킷 설치기(짧은 주소) — 스크립트에 시크릿 없음, 토큰은 실행자가 입력.
   { method: "GET", path: "/kit", auth: "public", handler: ({ res }) => serveWebAsset(res, "kit/install.ps1") },
@@ -229,6 +231,35 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse, deps: Se
   }
 
   sendJson(res, 404, { message: "찾을 수 없는 경로입니다." });
+}
+
+/**
+ * GET /graph/docs/{doc_id}: 문서의 관계(in/out)를 core에서 조회해 그대로 반환한다.
+ * 공개 경로 — 옵션 토큰을 해석해 owner_scope를 서버 계산값으로 강제한다(/search와 동일 원칙).
+ */
+async function handleGraphDoc(
+  req: IncomingMessage,
+  res: ServerResponse,
+  deps: ServerDeps,
+  docId: string
+): Promise<void> {
+  try {
+    const header = req.headers.authorization;
+    const token = header && header.startsWith("Bearer ") ? header.slice("Bearer ".length) : null;
+    const identity = await resolveIdentity(token, deps.dataDir);
+    if (!deps.core.graphDoc) {
+      sendJson(res, 501, { message: "그래프 미지원 core입니다" });
+      return;
+    }
+    const payload = await deps.core.graphDoc(decodeURIComponent(docId), ownerScopeFor(identity));
+    sendJson(res, 200, payload);
+  } catch (err) {
+    if (err instanceof CoreHttpError) {
+      sendJson(res, err.status, { message: err.message });
+      return;
+    }
+    sendJson(res, 500, { message: `/graph 조회 실패: ${errorMessage(err)}` });
+  }
 }
 
 // ---- M9.6 개인 지식 레포 커넥터 핸들러 ----

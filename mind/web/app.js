@@ -245,7 +245,8 @@ async function main() {
     return;
   }
 
-  setupInteractions({ sceneApi, canvasEl: sceneApi.renderer.domElement, els });
+  // 반환된 패널 API를 sceneApi에 실어 헤드리스 게이트(__cosmosSceneApi.interactions)에서 쓴다.
+  sceneApi.interactions = setupInteractions({ sceneApi, canvasEl: sceneApi.renderer.domElement, els });
   setupAsk({ sceneApi, els, isFixtureMode });
   setupMotionControls(sceneApi);
   setupDisplayOptions(sceneApi);

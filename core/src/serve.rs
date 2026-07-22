@@ -19,8 +19,9 @@ use crate::engine::{
     BirthClusterRequest, BootstrapRequest, BootstrapResponse, Branch, CentroidEntry, ClusterDigest, ClusterSummary,
     CreateBranchRequest, DocSummary, Engine, EngineError, Entity, Health, IngestRequest, IngestResponse, IngestedDoc,
     JournalResponse, LifecycleProposalsQuery, LifecycleProposalsResponse, MergeBranchRequest, MergeBranchResponse,
-    MergeClustersRequest, MisfitDoc, RollbackRequest, RollbackResponse, RouteRequest, RouteResponse, SearchRequest,
-    SearchResponse, TagBranchDocsResponse, UpdateClusterDigestRequest, UpdateClusterRequest,
+    GraphDocResponse, GraphNeighborDoc, GraphNeighborsRequest, MergeClustersRequest, MisfitDoc, RollbackRequest,
+    RollbackResponse, RouteRequest, RouteResponse, SearchRequest, SearchResponse, TagBranchDocsResponse,
+    UpdateClusterDigestRequest, UpdateClusterRequest,
 };
 
 /// Wraps a status code + `anyhow::Error` for ergonomic `?`-based error
@@ -267,6 +268,23 @@ async fn branch_docs_handler(
     engine.branch_docs(&branch_id).map(Json).map_err(engine_error_to_app_error)
 }
 
+/// M10: `GET /graph/docs/{doc_id}?owner_scope=` — 문서의 in/out 관계(스코프 격리).
+async fn graph_doc_handler(
+    State(engine): State<Arc<Engine>>,
+    Path(doc_id): Path<String>,
+    Query(q): Query<OwnerScopeQuery>,
+) -> Result<Json<GraphDocResponse>, AppError> {
+    engine.graph_doc(&doc_id, q.owner_scope.as_deref()).map(Json).map_err(engine_error_to_app_error)
+}
+
+/// M10: `POST /graph/neighbors` — 1-hop 이웃(mind fast 그래프 확장용).
+async fn graph_neighbors_handler(
+    State(engine): State<Arc<Engine>>,
+    Json(req): Json<GraphNeighborsRequest>,
+) -> Result<Json<Vec<GraphNeighborDoc>>, AppError> {
+    Ok(Json(engine.graph_neighbors(&req)?))
+}
+
 /// M9: `POST /branches/{branch_id}/docs` — tag personal docs into an open
 /// branch for promotion review. 400 for shared/already-tagged docs, 404 for
 /// missing docs/branch, 409 for a non-open branch.
@@ -327,6 +345,8 @@ fn build_router(engine: Arc<Engine>) -> Router {
         .route("/clusters/digests", get(cluster_digests_handler))
         .route("/clusters/{cluster_id}/digest", put(update_cluster_digest_handler))
         .route("/entities", get(entities_handler))
+        .route("/graph/docs/{doc_id}", get(graph_doc_handler))
+        .route("/graph/neighbors", post(graph_neighbors_handler))
         .route("/rollback", post(rollback_handler))
         .route("/branches", get(list_branches_handler).post(create_branch_handler))
         .route("/branches/{branch_id}/docs", get(branch_docs_handler).post(tag_branch_docs_handler))

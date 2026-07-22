@@ -41,6 +41,11 @@ impl Engine {
         // duplicate-return path and the new/replaced path below, so daily
         // rescans self-heal the registry without a backfill command.
         let entity_fields = frontmatter::parse(text);
+        // M10: 결정론 관계 추출도 양 경로에서 교체(멱등) — 일일 재스캔이 곧 그래프 백필.
+        let doc_name = wikilinks::doc_name_from_origin(origin);
+        let doc_links = wikilinks::extract_links(text, &doc_name);
+        let link_pairs: Vec<(String, String)> =
+            doc_links.into_iter().map(|l| (l.rel_type, l.target_name)).collect();
 
         let mut replaced = false;
         if let Some((existing_id, existing_hash)) = self.store.find_doc_by_origin(origin)? {
@@ -49,6 +54,7 @@ impl Engine {
                 if let Some(fields) = &entity_fields {
                     self.store.upsert_entity(&existing_id, fields)?;
                 }
+                self.store.replace_doc_links(&existing_id, &link_pairs)?;
                 // M9: self-heal ownership — re-ingesting an existing (e.g.
                 // common) doc under a personal request claims it.
                 self.store.update_doc_owner(&existing_id, owner)?;
@@ -85,6 +91,9 @@ impl Engine {
         if let Some(fields) = &entity_fields {
             self.store.upsert_entity(&doc_id, fields)?;
         }
+        // M10: 이 문서의 링크 저장 + 이 문서의 이름을 기다리던 dangling 링크 역해석(self-heal).
+        self.store.replace_doc_links(&doc_id, &link_pairs)?;
+        self.store.resolve_dangling_links(&doc_name, &doc_id)?;
 
         let chunks = chunk::chunk_text(&normalized);
 

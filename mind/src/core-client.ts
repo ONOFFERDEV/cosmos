@@ -250,9 +250,32 @@ export interface MergeBranchResponse {
   remaining: number;
 }
 
+/** M10: 그래프 이웃 문서(첫 청크 스니펫 동봉). */
+export interface GraphNeighborDoc {
+  doc_id: string;
+  origin: string;
+  title?: string | null;
+  snippet: string;
+}
+
+export interface GraphLinkItem {
+  rel_type: string;
+  target_name: string;
+  doc?: { doc_id: string; origin: string; title?: string | null } | null;
+}
+
+export interface GraphDocResponse {
+  doc_id: string;
+  outbound: GraphLinkItem[];
+  inbound: GraphLinkItem[];
+}
+
 export interface CoreClient {
   health(): Promise<HealthResponse>;
   search(req: SearchRequest): Promise<SearchResponse>;
+  // M10: 선택 메서드 — ask의 그래프 확장은 미구현 core(테스트 fake 포함)에서 조용히 생략된다.
+  graphNeighbors?(docIds: string[], ownerScope?: string, limit?: number): Promise<GraphNeighborDoc[]>;
+  graphDoc?(docId: string, ownerScope?: string): Promise<GraphDocResponse>;
   listClusters(ownerScope?: string): Promise<ClusterSummary[]>;
   bootstrapClusters(opts?: BootstrapOptions): Promise<BootstrapResponse>;
   updateCluster(clusterId: string, patch: UpdateClusterRequest): Promise<ClusterSummary>;
@@ -301,6 +324,19 @@ export class CosmosCoreClient implements CoreClient {
   async listClusters(ownerScope?: string): Promise<ClusterSummary[]> {
     const suffix = ownerScope ? `?owner_scope=${encodeURIComponent(ownerScope)}` : "";
     return this.getJson<ClusterSummary[]>(`/clusters${suffix}`);
+  }
+
+  async graphNeighbors(docIds: string[], ownerScope?: string, limit?: number): Promise<GraphNeighborDoc[]> {
+    return this.postJson<GraphNeighborDoc[]>("/graph/neighbors", {
+      doc_ids: docIds,
+      ...(ownerScope ? { owner_scope: ownerScope } : {}),
+      ...(limit !== undefined ? { limit } : {}),
+    });
+  }
+
+  async graphDoc(docId: string, ownerScope?: string): Promise<GraphDocResponse> {
+    const suffix = ownerScope ? `?owner_scope=${encodeURIComponent(ownerScope)}` : "";
+    return this.getJson<GraphDocResponse>(`/graph/docs/${encodeURIComponent(docId)}${suffix}`);
   }
 
   async bootstrapClusters(opts: BootstrapOptions = {}): Promise<BootstrapResponse> {

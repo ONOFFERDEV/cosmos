@@ -44,10 +44,12 @@ impl Store {
         owner: Option<&str>,
     ) -> Result<()> {
         let conn = self.conn.lock().expect("sqlite mutex poisoned");
+        // M10: doc_name(origin 스템)은 관계 그래프의 링크 해석 키 — 삽입 시 항상 계산해 둔다.
+        let doc_name = crate::wikilinks::doc_name_from_origin(origin);
         conn.execute(
-            "INSERT INTO docs(id, source_type, origin, title, hash, n_chars, ingested_at, meta_json, branch_id, owner)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, '{}', ?8, ?9)",
-            params![id, source_type, origin, title, hash, n_chars, ingested_at, branch_id, owner],
+            "INSERT INTO docs(id, source_type, origin, title, hash, n_chars, ingested_at, meta_json, branch_id, owner, doc_name)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, '{}', ?8, ?9, ?10)",
+            params![id, source_type, origin, title, hash, n_chars, ingested_at, branch_id, owner, doc_name],
         )
         .context("inserting doc")?;
         Ok(())

@@ -149,3 +149,43 @@ test("scanOnce는 session 문서가 없으면 repo 배치 1콜만 보낸다", as
   assert.equal(calls.ingest.length, 1);
   assert.equal((calls.ingest[0] as { owner?: string }).owner, undefined);
 });
+
+test("runAsk는 검색 히트가 있으면 graphNeighbors에 ownerScope를 전달하고 이웃을 인용 후보로 합류시킨다", async () => {
+  const calls: { docIds?: string[]; ownerScope?: string } = {};
+  const core = {
+    async route() {
+      return { scores: [] };
+    },
+    async search(): Promise<SearchResponse> {
+      return {
+        results: [
+          {
+            chunk_id: "c1", doc_id: "d1", origin: "origin://hit.md", title: "히트",
+            text: "히트 본문", char_start: 0, char_end: 5, section: null, score: 1,
+            stages: { bm25_rank: 1, vec_rank: 1, rrf_score: 1, rerank_score: 1 },
+          },
+        ],
+        stats: { num_bm25: 1, num_vec: 1, pool: 1, reranked: 1, secs: 0 },
+      };
+    },
+    async graphNeighbors(docIds: string[], ownerScope?: string) {
+      calls.docIds = docIds;
+      calls.ownerScope = ownerScope;
+      return [{ doc_id: "d2", origin: "origin://neighbor.md", title: "이웃", snippet: "이웃 스니펫" }];
+    },
+  } as unknown as CoreClient;
+
+  // sources는 "인용된 청크만" 담는 결정적 조립이므로, 이웃([2])을 실제로 인용하는 LLM 스텁을 쓴다.
+  const citingLlm: LlmClient = {
+    model: "stub",
+    async complete() {
+      return JSON.stringify({ sentences: [{ text: "이웃 근거 문장", cites: [2] }], insufficient: false });
+    },
+  } as unknown as LlmClient;
+
+  const envelope = await runAsk("질문", { core, llm: citingLlm, dataDir: await tempDir(), ownerScope: "shared+admin" });
+  assert.deepEqual(calls.docIds, ["d1"]);
+  assert.equal(calls.ownerScope, "shared+admin");
+  assert.ok(envelope.sources.some((s) => s.origin === "origin://neighbor.md"), "인용된 이웃이 sources에 등장");
+  assert.ok(envelope.trace.some((t) => t.cluster === "graph"), "trace에 graph 확장 기록");
+});

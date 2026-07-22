@@ -1509,3 +1509,79 @@
 
         let _ = std::fs::remove_dir_all(&dir);
     }
+
+/// M10: 관계 그래프 — dangling 저장→새 문서 인제스트 시 역해석(self-heal),
+/// in/out 조회, 그리고 **스코프 격리**(타인 개인 문서는 관계 항목째 비노출).
+/// insert_doc이 doc_name(origin 스템)을 저장하므로 store 시딩만으로 검증 가능.
+#[test]
+fn graph_links_resolve_and_respect_owner_scope() {
+    let (engine, dir) = temp_engine();
+
+    // 공통 문서 a가 아직 없는 b와 타인 개인 문서 p를 가리킨다.
+    engine.store.insert_doc("a", "session", "origin://notes/a.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.insert_doc("p", "session", "origin://notes/p.md", Some("P"), "h2", 10, "2026-01-01T00:00:00Z", None, Some("alice")).unwrap();
+    engine.store.replace_doc_links("a", &[
+        ("links".to_string(), "b".to_string()),
+        ("related".to_string(), "p".to_string()),
+    ]).unwrap();
+
+    // b가 없을 땐 dangling.
+    let g = engine.graph_doc("a", None).unwrap();
+    let b_link = g.outbound.iter().find(|l| l.target_name == "b").expect("b 링크 존재");
+    assert!(b_link.doc.is_none(), "미해석(dangling)이어야 함");
+    // 공통 스코프에서 alice 개인 문서 p는 항목째 제외(이름도 유출 금지).
+    assert!(!g.outbound.iter().any(|l| l.target_name == "p"), "타인 개인 링크 비노출: {:?}", g.outbound);
+
+    // b 인제스트 → a의 dangling이 역해석돼야 한다(resolve_dangling_links).
+    engine.store.insert_doc("b", "session", "origin://notes/b.md", Some("B"), "h3", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.resolve_dangling_links("b", "b").unwrap();
+    let g2 = engine.graph_doc("a", None).unwrap();
+    let b_link2 = g2.outbound.iter().find(|l| l.target_name == "b").unwrap();
+    assert_eq!(b_link2.doc.as_ref().map(|d| d.doc_id.as_str()), Some("b"), "self-heal 해석");
+
+    // inbound: b 입장에서 a가 들어온다.
+    let gb = engine.graph_doc("b", None).unwrap();
+    assert!(gb.inbound.iter().any(|l| l.doc.as_ref().map(|d| d.doc_id.as_str()) == Some("a")));
+
+    // alice 스코프에선 p 링크가 보인다.
+    let ga = engine.graph_doc("a", Some("shared+alice")).unwrap();
+    assert!(ga.outbound.iter().any(|l| l.target_name == "p" && l.doc.is_some()));
+
+    // 타인 개인 문서 자체 조회는 공통 스코프에서 404 동급.
+    assert!(matches!(engine.graph_doc("p", None), Err(EngineError::DocNotFound(_))));
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// M10: 1-hop 이웃 확장 — 방향 무관 수집, 입력 제외, 스코프 격리, limit 상한.
+#[test]
+fn graph_neighbors_expand_one_hop_with_scope() {
+    let (engine, dir) = temp_engine();
+    engine.store.insert_doc("a", "manual", "origin://n/a.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.insert_doc("b", "manual", "origin://n/b.md", Some("B"), "h2", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.insert_doc("c", "manual", "origin://n/c.md", Some("C"), "h3", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.insert_doc("p", "manual", "origin://n/p.md", Some("P"), "h4", 10, "2026-01-01T00:00:00Z", None, Some("alice")).unwrap();
+    // a→b, c→a, a→p (p는 alice 개인)
+    engine.store.replace_doc_links("a", &[("links".into(), "b".into()), ("links".into(), "p".into())]).unwrap();
+    engine.store.replace_doc_links("c", &[("links".into(), "a".into())]).unwrap();
+
+    let shared = engine.graph_neighbors(&GraphNeighborsRequest {
+        doc_ids: vec!["a".into()],
+        owner_scope: None,
+        limit: None,
+    }).unwrap();
+    let ids: Vec<&str> = shared.iter().map(|d| d.doc_id.as_str()).collect();
+    assert!(ids.contains(&"b"), "out 이웃");
+    assert!(ids.contains(&"c"), "in 이웃");
+    assert!(!ids.contains(&"p"), "타인 개인 이웃 비노출");
+    assert!(!ids.contains(&"a"), "입력 자신 제외");
+
+    let alice = engine.graph_neighbors(&GraphNeighborsRequest {
+        doc_ids: vec!["a".into()],
+        owner_scope: Some("shared+alice".into()),
+        limit: Some(1),
+    }).unwrap();
+    assert_eq!(alice.len(), 1, "limit 상한");
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

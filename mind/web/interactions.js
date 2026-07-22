@@ -1,4 +1,5 @@
 // 포인터 호버/클릭 -> 툴팁 + 우측 상세 패널. three.js 장면 구성/렌더는 scene.js가 담당.
+import { authHeaders } from './ask.js';
 import { escapeHtml, formatOrigin, hexToCss } from './utils.js';
 
 const SOURCE_LABEL = { session: '세션 기록', arxiv: 'arXiv 논문', rss: 'RSS 피드', manual: '수동 등록' };
@@ -117,6 +118,53 @@ export function setupInteractions({ sceneApi, canvasEl, els }) {
     // doc.pos는 정지 좌표(픽스처 원본) — 공전 중엔 getDocWorldPos()로 현재 위치를 써야
     // 카메라가 빈 옛 자리로 가지 않는다(ask.js 출처 인용 클릭과 동일한 방식).
     sceneApi.focusOn(sceneApi.getDocWorldPos(index).toArray(), 26);
+    void appendGraphLinks(doc);
+  }
+
+  // M10: 문서의 관계(들어옴/나감)를 패널 하단에 비동기로 붙인다. 그래프 미가용이면 조용히 생략.
+  async function appendGraphLinks(doc) {
+    if (!doc.doc_id) return;
+    let data;
+    try {
+      const res = await fetch(`/graph/docs/${encodeURIComponent(doc.doc_id)}`, { headers: authHeaders() });
+      if (!res.ok) return;
+      data = await res.json();
+    } catch {
+      return;
+    }
+    if (panelTitle.textContent !== doc.title) return; // 그 사이 다른 패널로 이동함
+    const total = (data.outbound?.length ?? 0) + (data.inbound?.length ?? 0);
+    if (total === 0) return;
+
+    const wrap = document.createElement('div');
+    const head = document.createElement('h3');
+    head.className = 'panel-subhead';
+    head.textContent = `연결된 지식 (${total})`;
+    wrap.appendChild(head);
+    const list = document.createElement('ul');
+    list.className = 'doc-list';
+    const addItem = (item, dirLabel) => {
+      const li = document.createElement('li');
+      li.className = 'doc-list-item';
+      const name = document.createElement('span');
+      name.className = 'doc-list-title';
+      name.textContent = item.doc?.title ?? item.target_name;
+      const meta = document.createElement('span');
+      meta.className = 'doc-list-meta';
+      meta.textContent = `${dirLabel} · ${item.rel_type}${item.doc ? '' : ' · 코퍼스 밖'}`;
+      li.append(name, meta);
+      if (item.doc) {
+        const idx = sceneApi.docs.findIndex((d) => d.doc_id === item.doc.doc_id);
+        if (idx >= 0) {
+          li.addEventListener('click', () => openDocPanel(sceneApi.docs[idx], idx));
+        }
+      }
+      list.appendChild(li);
+    };
+    for (const item of data.outbound ?? []) addItem(item, '나감');
+    for (const item of data.inbound ?? []) addItem(item, '들어옴');
+    wrap.appendChild(list);
+    panelBody.appendChild(wrap);
   }
 
   function closePanel() {

@@ -52,6 +52,16 @@
 - 웹: 챗 바 [📝 내 지식 연결] = 레포 연결 패널(현재 상태·repo 입력·선택 토큰·지금 동기화).
 - 주의: 관리자 PC의 파일 워처 동기화(파일경로 origin)와 같은 내용을 레포 커넥터로 이중 연결하면 origin이 달라 중복 문서가 된다 — 한 소스는 한 경로로만.
 
+## 관계 그래프 (M10 v1 — 결정론 문서 링크 온톨로지)
+- **원천은 저자가 쓴 명시적 관계뿐**(LLM 추출 없음 — 환각 0 설계): 본문 `[[이름]]`/`[[이름|표시]]`→`links`, frontmatter `up:`→`up`, `related:`→`related`.
+- 저장: `doc_links(id, src_doc_id, rel_type, target_name 정규화, target_doc_id NULL허용)` — 무파괴 CREATE. 문서의 "이름"=origin 마지막 세그먼트 스템(.md 제거, 소문자 비교).
+- **dangling은 1급 시민**(위키 철학): 대상 문서가 아직 없으면 target_doc_id=NULL로 저장, 그 이름의 문서가 나중에 ingest되면 **역해석 self-heal**. duplicate 재인제스트 시 관계 전체 재추출(멱등) — 일일 sync가 곧 백필.
+- API(core): `GET /graph/docs/{doc_id}?owner_scope=` → {outbound, inbound}(각 항목=rel_type·target_name·해석된 문서 요약). `POST /graph/neighbors {doc_ids, owner_scope?, limit?}` → 1-hop 이웃 문서+첫 청크 스니펫.
+- **스코프 격리가 관계에도 적용**: 스코프 밖 개인 문서는 그래프 응답에서 항목째 제외(이름도 유출이다). dangling 이름은 코퍼스 밖이므로 노출 무해.
+- 활용(mind fast): 검색 top-k 후 이웃 상위 N(기본 4)을 검색 결과 뒤에 합류(rerank 0점, source="graph") → LLM 인용 후보로 편입, trace.graph에 확장 기록. deep 적용·LLM 개념 관계 추출(concepts/relations 테이블)은 v2.
+- 웹: 문서 패널에 "연결된 지식"(들어옴/나감, 코퍼스 내 링크는 점프, dangling은 이름만).
+- 게이트: ①추출(별칭·중복 dedup·자기링크 제외) ②dangling→역해석 왕복 ③무인증/타인 그래프에 개인 문서 0 ④fast에서 이웃 인용 합류 실측 ⑤전 회귀.
+
 ## 운영
 - 운영 서버 compose 2서비스(온오퍼 배포분은 LAN 전용 바인딩): core(cosmos-data:/data/out, cosmos-models:/models) + mind(cosmos-mind-data:/data, cosmos-claude:/root/.claude, LLM=컨테이너 claude CLI).
 - **이미지는 로컬 빌드 → `docker save | gzip | ssh docker load`** (서버 빌드는 -j32 하드행 금지). `up -d --no-build`. 배포 파이프의 exit는 PIPESTATUS로 확인.

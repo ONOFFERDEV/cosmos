@@ -123,6 +123,53 @@ fn migrate_clusters_owner_column(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+/// M10: additive migration — `docs.doc_name`(origin 스템, 소문자) 컬럼과
+/// `doc_links` 테이블. 기존 행의 doc_name은 여기서 즉시 백필한다(문서 수백 건
+/// 규모라 open 시 1회 순회 비용은 무시 가능).
+fn migrate_doc_links(conn: &Connection) -> Result<()> {
+    let has_doc_name = conn
+        .prepare("PRAGMA table_info(docs)")
+        .context("preparing table_info(docs)")?
+        .query_map([], |row| row.get::<_, String>(1))
+        .context("querying table_info(docs)")?
+        .filter_map(|r| r.ok())
+        .any(|name| name == "doc_name");
+    if !has_doc_name {
+        conn.execute("ALTER TABLE docs ADD COLUMN doc_name TEXT", [])
+            .context("adding docs.doc_name column")?;
+    }
+
+    // 백필: doc_name이 비어 있는 행만(멱등).
+    let pending: Vec<(String, String)> = conn
+        .prepare("SELECT id, origin FROM docs WHERE doc_name IS NULL")
+        .context("preparing doc_name backfill query")?
+        .query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)))
+        .context("querying doc_name backfill rows")?
+        .collect::<rusqlite::Result<Vec<_>>>()
+        .context("collecting doc_name backfill rows")?;
+    for (id, origin) in pending {
+        let name = crate::wikilinks::doc_name_from_origin(&origin);
+        conn.execute("UPDATE docs SET doc_name = ?1 WHERE id = ?2", params![name, id])
+            .context("backfilling doc_name")?;
+    }
+
+    conn.execute_batch(
+        "CREATE TABLE IF NOT EXISTS doc_links(
+           id TEXT PRIMARY KEY,
+           src_doc_id TEXT NOT NULL,
+           rel_type TEXT NOT NULL,
+           target_name TEXT NOT NULL,
+           target_doc_id TEXT
+         );
+         CREATE INDEX IF NOT EXISTS idx_doc_links_src ON doc_links(src_doc_id);
+         CREATE INDEX IF NOT EXISTS idx_doc_links_target_doc ON doc_links(target_doc_id);
+         CREATE INDEX IF NOT EXISTS idx_doc_links_target_name ON doc_links(target_name);
+         CREATE INDEX IF NOT EXISTS idx_docs_doc_name ON docs(doc_name);",
+    )
+    .context("creating doc_links table")?;
+    Ok(())
+}
+
 pub struct Store {
     conn: Arc<Mutex<Connection>>,
 }
@@ -313,6 +360,7 @@ impl Store {
         migrate_docs_branch_id_column(&conn).context("running docs branch_id migration")?;
         migrate_docs_owner_column(&conn).context("running docs owner migration")?;
         migrate_clusters_owner_column(&conn).context("running clusters owner migration")?;
+        migrate_doc_links(&conn).context("running doc_links migration")?;
         Ok(Self { conn: Arc::new(Mutex::new(conn)) })
     }
 
@@ -343,6 +391,8 @@ impl Store {
 // 각 자식 모듈은 use super::*로 접근한다.
 // ---------------------------------------------------------------------
 mod branches; // 지식 PR 저장 계층
+mod links; // M10 문서 관계 그래프(doc_links)
+pub use links::DocLinkRow;
 mod chunks; // 청크·임베딩·exclusion-set
 mod clusters; // 클러스터 행 연산
 mod docs; // 문서 행 연산·소유권

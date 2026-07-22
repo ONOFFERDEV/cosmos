@@ -11,6 +11,7 @@ pub mod rerank;
 pub mod serve;
 pub mod store;
 pub mod vector;
+pub mod wikilinks;
 
 /// Search pipeline constants (CONTRACT.md).
 pub const TOP_M_BM25: usize = 20;

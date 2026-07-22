@@ -128,6 +128,32 @@ export async function runAsk(question: string, deps: AskDeps): Promise<AskEnvelo
   deps.onProgress?.("search", String(searchResponse.results.length));
 
   const results = searchResponse.results;
+
+  // M10 그래프 확장: 검색 히트 문서들의 1-hop 이웃(저자가 [[링크]]로 명시한 관계)을
+  // 인용 후보로 뒤에 합류시킨다. 실패·미구현(fake core)은 조용히 건너뛴다 —
+  // 확장은 보강이지 필수 경로가 아니다.
+  const GRAPH_NEIGHBOR_LIMIT = 4;
+  let graphNeighbors: { origin: string; title?: string | null; snippet: string; doc_id: string }[] = [];
+  const graphFn = (deps.core as Partial<CoreClient>).graphNeighbors?.bind(deps.core);
+  if (graphFn && results.length > 0) {
+    try {
+      const hitDocIds = [...new Set(results.map((r) => r.doc_id))];
+      const hitOrigins = new Set(results.map((r) => r.origin));
+      const neighbors = await graphFn(hitDocIds, deps.ownerScope, GRAPH_NEIGHBOR_LIMIT);
+      graphNeighbors = neighbors.filter((n) => n.snippet.trim() && !hitOrigins.has(n.origin));
+      if (graphNeighbors.length > 0) {
+        deps.onProgress?.("graph", String(graphNeighbors.length));
+        trace.push({
+          cluster: "graph",
+          action: "consulted",
+          why: `검색 히트와 [[링크]]로 연결된 이웃 문서 ${graphNeighbors.length}건 합류`,
+        });
+      }
+    } catch {
+      // 그래프 미가용은 답변을 막지 않는다.
+    }
+  }
+
   const chunks: NumberedChunk[] = results.map((r, idx) => {
     const chunk: NumberedChunk = {
       n: idx + 1,
@@ -142,6 +168,20 @@ export async function runAsk(question: string, deps: AskDeps): Promise<AskEnvelo
     }
     return chunk;
   });
+  for (const n of graphNeighbors) {
+    const chunk: NumberedChunk = {
+      n: chunks.length + 1,
+      origin: n.origin,
+      chunk_id: `graph:${n.doc_id}`,
+      char_start: 0,
+      char_end: n.snippet.length,
+      text: n.snippet,
+    };
+    if (n.title) {
+      chunk.title = n.title;
+    }
+    chunks.push(chunk);
+  }
 
   const topRerankScore = results.length > 0 ? results[0]!.stages.rerank_score : null;
 

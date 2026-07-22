@@ -151,6 +151,67 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ClusterSummary" }
         "404": { description: 없는 클러스터 }
+  /graph/docs/{doc_id}:
+    get:
+      operationId: graphDoc
+      description: "M10: 문서의 관계(나감/들어옴). 스코프 밖 개인 문서는 항목째 제외, dangling은 doc=null."
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: owner_scope
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: 관계 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [doc_id, outbound, inbound]
+                properties:
+                  doc_id: { type: string }
+                  outbound:
+                    type: array
+                    items: { $ref: "#/components/schemas/GraphLinkItem" }
+                  inbound:
+                    type: array
+                    items: { $ref: "#/components/schemas/GraphLinkItem" }
+        "404": { description: 없는 문서(스코프 밖 포함 — 존재 비확인) }
+  /graph/neighbors:
+    post:
+      operationId: graphNeighbors
+      description: "M10: 입력 문서들의 1-hop 이웃(스코프·브랜치 격리, 첫 청크 스니펫 동봉) — fast 그래프 확장용."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [doc_ids]
+              properties:
+                doc_ids:
+                  type: array
+                  items: { type: string }
+                owner_scope: { type: string }
+                limit: { type: integer, default: 4, maximum: 20 }
+      responses:
+        "200":
+          description: 이웃 문서 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [doc_id, origin, snippet]
+                  properties:
+                    doc_id: { type: string }
+                    origin: { type: string }
+                    title: { type: string, nullable: true }
+                    snippet: { type: string }
   /entities:
     get:
       operationId: listEntities
@@ -368,6 +429,20 @@ paths:
                     items: { $ref: "#/components/schemas/RouteScore" }
 components:
   schemas:
+    GraphLinkItem:
+      type: object
+      required: [rel_type, target_name]
+      properties:
+        rel_type: { type: string, enum: [links, up, related] }
+        target_name: { type: string }
+        doc:
+          type: object
+          nullable: true
+          description: 해석된 상대 문서(스코프 안일 때만). null=dangling(코퍼스 밖 이름).
+          properties:
+            doc_id: { type: string }
+            origin: { type: string }
+            title: { type: string, nullable: true }
     Health:
       type: object
       required: [status, version, docs, chunks, clusters]
