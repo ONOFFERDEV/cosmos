@@ -180,6 +180,32 @@ paths:
                     type: array
                     items: { $ref: "#/components/schemas/GraphLinkItem" }
         "404": { description: 없는 문서(스코프 밖 포함 — 존재 비확인) }
+  /graph/links:
+    get:
+      operationId: graphLinks
+      description: "M10: 스코프 안에서 양 끝이 모두 노출 가능한 해석 링크 쌍 전량(관계선 시각화용). dangling·브랜치 문서 제외."
+      parameters:
+        - name: owner_scope
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: 링크 쌍 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [links]
+                properties:
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      required: [src_doc_id, dst_doc_id, rel_type]
+                      properties:
+                        src_doc_id: { type: string }
+                        dst_doc_id: { type: string }
+                        rel_type: { type: string, enum: [links, up, related] }
   /graph/neighbors:
     post:
       operationId: graphNeighbors

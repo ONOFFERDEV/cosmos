@@ -270,12 +270,20 @@ export interface GraphDocResponse {
   inbound: GraphLinkItem[];
 }
 
+/** M10 관계선: 스코프 안에서 양 끝이 모두 노출 가능한 해석 링크 쌍. */
+export interface GraphLinkPair {
+  src_doc_id: string;
+  dst_doc_id: string;
+  rel_type: string;
+}
+
 export interface CoreClient {
   health(): Promise<HealthResponse>;
   search(req: SearchRequest): Promise<SearchResponse>;
   // M10: 선택 메서드 — ask의 그래프 확장은 미구현 core(테스트 fake 포함)에서 조용히 생략된다.
   graphNeighbors?(docIds: string[], ownerScope?: string, limit?: number): Promise<GraphNeighborDoc[]>;
   graphDoc?(docId: string, ownerScope?: string): Promise<GraphDocResponse>;
+  graphLinks?(ownerScope?: string): Promise<GraphLinkPair[]>;
   listClusters(ownerScope?: string): Promise<ClusterSummary[]>;
   bootstrapClusters(opts?: BootstrapOptions): Promise<BootstrapResponse>;
   updateCluster(clusterId: string, patch: UpdateClusterRequest): Promise<ClusterSummary>;
@@ -337,6 +345,12 @@ export class CosmosCoreClient implements CoreClient {
   async graphDoc(docId: string, ownerScope?: string): Promise<GraphDocResponse> {
     const suffix = ownerScope ? `?owner_scope=${encodeURIComponent(ownerScope)}` : "";
     return this.getJson<GraphDocResponse>(`/graph/docs/${encodeURIComponent(docId)}${suffix}`);
+  }
+
+  async graphLinks(ownerScope?: string): Promise<GraphLinkPair[]> {
+    const suffix = ownerScope ? `?owner_scope=${encodeURIComponent(ownerScope)}` : "";
+    const res = await this.getJson<{ links: GraphLinkPair[] }>(`/graph/links${suffix}`);
+    return res.links;
   }
 
   async bootstrapClusters(opts: BootstrapOptions = {}): Promise<BootstrapResponse> {

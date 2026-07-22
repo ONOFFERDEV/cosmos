@@ -42,6 +42,13 @@ export interface UniverseEdge {
   weight: number;
 }
 
+/** M10 관계선: 문서 점 사이에 그릴 링크(양 끝 doc_id는 docs에 존재 보장). */
+export interface UniverseLink {
+  src: string;
+  dst: string;
+  rel_type: string;
+}
+
 export interface UniverseRecentQuery {
   ts: string;
   question: string;
@@ -55,6 +62,8 @@ export interface UniversePayload {
   clusters: UniverseClusterNode[];
   docs: UniverseDocNode[];
   edges: UniverseEdge[];
+  /** M10 관계선. core /graph/links 미가용(구버전·테스트 fake)이면 빈 배열. */
+  links: UniverseLink[];
   recent_queries: UniverseRecentQuery[];
 }
 
@@ -397,6 +406,22 @@ export async function buildUniverse(deps: UniverseDeps): Promise<UniversePayload
 
   const edges = buildEdges(laidOut.map((c, i) => ({ slug: c.slug, vector: vectors[i]! })));
 
+  // M10 관계선: core가 스코프 격리를 이미 강제하지만, 페이로드 계약("양 끝은 docs에
+  // 존재")을 위해 이 뷰의 문서 집합으로 한 번 더 거른다. 미가용 core는 조용히 빈 배열.
+  let links: UniverseLink[] = [];
+  const graphLinksFn = deps.core.graphLinks?.bind(deps.core);
+  if (graphLinksFn) {
+    try {
+      const docIds = new Set(docNodes.map((d) => d.doc_id));
+      const pairs = await graphLinksFn(deps.ownerScope);
+      links = pairs
+        .filter((p) => docIds.has(p.src_doc_id) && docIds.has(p.dst_doc_id))
+        .map((p) => ({ src: p.src_doc_id, dst: p.dst_doc_id, rel_type: p.rel_type }));
+    } catch {
+      links = [];
+    }
+  }
+
   const dataDir = deps.dataDir ?? defaultDataDir();
   const recentQueries = await loadRecentQueries(dataDir);
   const now = deps.now ? deps.now() : new Date();
@@ -406,6 +431,7 @@ export async function buildUniverse(deps: UniverseDeps): Promise<UniversePayload
     clusters: clusterNodes,
     docs: docNodes,
     edges,
+    links,
     recent_queries: recentQueries,
   };
 }

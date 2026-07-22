@@ -42,6 +42,24 @@ impl Engine {
         Ok(GraphDocResponse { doc_id: doc_id.to_string(), outbound, inbound })
     }
 
+    /// `GET /graph/links` — 스코프 안에서 양 끝이 모두 노출 가능한 해석 링크 쌍
+    /// 전량(관계선 시각화용). 한쪽 끝이라도 스코프 밖(개인)·브랜치면 쌍째 제외.
+    pub fn graph_links(&self, owner_scope: Option<&str>) -> Result<GraphLinksResponse> {
+        let scope = OwnerScope::parse(owner_scope);
+        let pairs = self.store.resolved_link_pairs()?;
+        let links = pairs
+            .into_iter()
+            .filter(|(_, _, _, src_owner, src_branch, dst_owner, dst_branch)| {
+                src_branch.is_none()
+                    && dst_branch.is_none()
+                    && scope.allows(src_owner.as_deref())
+                    && scope.allows(dst_owner.as_deref())
+            })
+            .map(|(src, dst, rel_type, ..)| GraphLinkPair { src_doc_id: src, dst_doc_id: dst, rel_type })
+            .collect();
+        Ok(GraphLinksResponse { links })
+    }
+
     /// `POST /graph/neighbors` — 입력 문서들의 1-hop 이웃(스코프·브랜치 격리,
     /// limit 상한, 첫 청크 스니펫 동봉). mind의 fast 그래프 확장이 쓴다.
     pub fn graph_neighbors(&self, req: &GraphNeighborsRequest) -> Result<Vec<GraphNeighborDoc>> {

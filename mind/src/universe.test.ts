@@ -244,6 +244,37 @@ test("buildUniverse는 클러스터/문서 좌표를 계산하고 recent_queries
     assert.deepEqual(q1.skipped, ["robotics"]);
 
     assert.ok(payload.generated_at);
+
+    // M10: graphLinks 미구현 core(구버전·fake)에서는 links가 조용히 빈 배열이어야 한다.
+    assert.deepEqual(payload.links, []);
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("buildUniverse는 graphLinks에 ownerScope를 전달하고 뷰 밖 문서가 낀 쌍을 거른다", async () => {
+  const dataDir = await makeTempDataDir();
+  try {
+    const docs: DocSummary[] = [
+      { doc_id: "d1", origin: "o://a.md", source_type: "manual", title: "A", n_chunks: 1, ingested_at: "2026-01-01T00:00:00Z", cluster_slug: null, fit: null },
+      { doc_id: "d2", origin: "o://b.md", source_type: "manual", title: "B", n_chunks: 1, ingested_at: "2026-01-01T00:00:00Z", cluster_slug: null, fit: null },
+    ];
+    const seen: { ownerScope?: string } = {};
+    const core = new MockCoreClient([], [], docs) as unknown as CoreClient & {
+      graphLinks(ownerScope?: string): Promise<{ src_doc_id: string; dst_doc_id: string; rel_type: string }[]>;
+    };
+    core.graphLinks = async (ownerScope?: string) => {
+      seen.ownerScope = ownerScope;
+      return [
+        { src_doc_id: "d1", dst_doc_id: "d2", rel_type: "links" },
+        // 뷰(docs 목록)에 없는 문서가 낀 쌍 — 페이로드 계약상 걸러져야 한다.
+        { src_doc_id: "d1", dst_doc_id: "ghost", rel_type: "up" },
+      ];
+    };
+
+    const payload = await buildUniverse({ core, dataDir, ownerScope: "shared+admin" });
+    assert.equal(seen.ownerScope, "shared+admin");
+    assert.deepEqual(payload.links, [{ src: "d1", dst: "d2", rel_type: "links" }]);
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }

@@ -563,5 +563,32 @@
         "infra-cloudflare"
       ]
     }
+  ],
+  "links": [
+    {
+      "src": "llm-agent-pipeline-doc-01",
+      "dst": "llm-agent-pipeline-doc-02",
+      "rel_type": "links"
+    },
+    {
+      "src": "llm-agent-pipeline-doc-03",
+      "dst": "llm-agent-pipeline-doc-01",
+      "rel_type": "up"
+    },
+    {
+      "src": "llm-agent-pipeline-doc-04",
+      "dst": "llm-agent-pipeline-doc-02",
+      "rel_type": "related"
+    },
+    {
+      "src": "game-engine-tikron-doc-02",
+      "dst": "llm-agent-pipeline-doc-05",
+      "rel_type": "links"
+    },
+    {
+      "src": "personal-admin-doc-01",
+      "dst": "llm-agent-pipeline-doc-07",
+      "rel_type": "links"
+    }
   ]
 }

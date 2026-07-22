@@ -581,6 +581,83 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   docHitProxy.userData.kind = 'doc-hit-proxy';
   scene.add(docHitProxy);
 
+  // 잠금 소등 상태의 잔광 비율 — 회색 성운이 식별되도록 완전 암전보다 밝게.
+  // (관계선 색 계산도 참조하므로 선 레이어보다 먼저 선언한다.)
+  const LOCK_LIGHT = 0.35;
+  const DOC_LOCK_LIGHT = 0.45;
+
+  // ---- M10 관계선: 문서 점 사이의 [[링크]]를 은은한 선으로(가산 블렌딩) ----
+  // 위치는 매 프레임 docCurrentPos(공전 단일 진실 원천)에서 복사하므로 점과 선이
+  // 절대 어긋나지 않는다. 색은 상태 변화 시에만 재계산(기본/선택 강조/잠금 회색).
+  const LINK_BASE = 0.16;   // 상시 표시 강도(가산이라 겹칠수록 밝아짐)
+  const LINK_FOCUS = 0.9;   // 선택 문서에 닿은 선
+  const LINK_FADE = 0.05;   // 선택 중 나머지 선
+  const docIndexById = new Map(docs.map((d, i) => [d.doc_id, i]));
+  const docLinks = (data.links ?? [])
+    .map((l) => ({ a: docIndexById.get(l.src), b: docIndexById.get(l.dst), rel_type: l.rel_type }))
+    .filter((l) => l.a !== undefined && l.b !== undefined && l.a !== l.b);
+  const linkPositions = new Float32Array(docLinks.length * 6);
+  const linkColors = new Float32Array(docLinks.length * 6);
+  const linkGeom = new THREE.BufferGeometry();
+  linkGeom.setAttribute('position', new THREE.BufferAttribute(linkPositions, 3));
+  linkGeom.setAttribute('color', new THREE.BufferAttribute(linkColors, 3));
+  const linkMat = new THREE.LineBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const linkLines = new THREE.LineSegments(linkGeom, linkMat);
+  linkLines.frustumCulled = false; // 공전으로 절대좌표가 계속 변함 — 문서 점과 같은 이유
+  linkLines.raycast = () => {}; // 피킹 무시(가는 선 오클릭 방지)
+  linkLines.userData.kind = 'doc-links';
+  let linksEnabled = true; // 표시 옵션 토글
+  let linkFocusIndex = null; // 선택된 문서 index(그 문서의 선만 강조), null=전체 기본
+  linkLines.visible = docLinks.length > 0;
+  scene.add(linkLines);
+
+  function writeLinkEndColor(offset, docIdx, intensity) {
+    let r = docBaseColors[docIdx * 3 + 0];
+    let g = docBaseColors[docIdx * 3 + 1];
+    let b = docBaseColors[docIdx * 3 + 2];
+    // 잠금 소등 클러스터에 속한 끝점은 문서 점과 같은 규칙으로 회색 잔광.
+    const entry = docClusterEntry[docIdx];
+    if (entry && entry.lightsOut) {
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b) * DOC_LOCK_LIGHT;
+      r = lum; g = lum; b = lum;
+    }
+    linkColors[offset + 0] = r * intensity;
+    linkColors[offset + 1] = g * intensity;
+    linkColors[offset + 2] = b * intensity;
+  }
+
+  function refreshLinkColors() {
+    for (let li = 0; li < docLinks.length; li++) {
+      const { a, b, rel_type } = docLinks[li];
+      let k = LINK_BASE;
+      if (linkFocusIndex !== null) {
+        k = a === linkFocusIndex || b === linkFocusIndex ? LINK_FOCUS : LINK_FADE;
+      }
+      if (rel_type === 'up') k *= 1.35; // 계층 관계는 살짝 또렷하게
+      writeLinkEndColor(li * 6 + 0, a, k);
+      writeLinkEndColor(li * 6 + 3, b, k);
+    }
+    if (docLinks.length) linkGeom.attributes.color.needsUpdate = true;
+  }
+  refreshLinkColors();
+
+  function setLinksVisible(on) {
+    linksEnabled = !!on;
+    linkLines.visible = linksEnabled && docLinks.length > 0;
+  }
+  function getLinksVisible() {
+    return linksEnabled;
+  }
+  function setLinkFocus(index) {
+    linkFocusIndex = typeof index === 'number' && index >= 0 ? index : null;
+    refreshLinkColors();
+  }
+
   const raycastTargets = [...clusterEntries.map((c) => c.core), docHitProxy];
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
@@ -609,10 +686,6 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     }
     return null;
   }
-
-  // 잠금 소등 상태의 잔광 비율 — 회색 성운이 식별되도록 완전 암전보다 밝게.
-  const LOCK_LIGHT = 0.35;
-  const DOC_LOCK_LIGHT = 0.45;
 
   function lightFactor(entry) {
     return entry.lightsOut ? LOCK_LIGHT : 1;
@@ -770,6 +843,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     animateValue(docMat.uniforms.uHighlightFade.value, 1, 220, (v) => {
       docMat.uniforms.uHighlightFade.value = v;
     });
+    setLinkFocus(index); // 선택 문서의 관계선 강조(나머지는 어둡게)
   }
   function clearDocHighlight() {
     animateValue(docMat.uniforms.uHighlightFade.value, 0, 380, (v) => {
@@ -777,6 +851,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     }, () => {
       docMat.uniforms.uHighlightIndex.value = -1;
     });
+    setLinkFocus(null);
   }
 
   function focusOn(posArr, distanceHint = 60) {
@@ -870,6 +945,20 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     }
     docGeom.attributes.position.needsUpdate = true;
     docHitProxy.instanceMatrix.needsUpdate = true;
+    // 관계선 양 끝을 문서 점과 같은 프레임 값(docCurrentPos)으로 갱신 — 어긋남 원천 차단.
+    if (linkLines.visible) {
+      for (let li = 0; li < docLinks.length; li++) {
+        const pa = docCurrentPos[docLinks[li].a];
+        const pb = docCurrentPos[docLinks[li].b];
+        linkPositions[li * 6 + 0] = pa.x;
+        linkPositions[li * 6 + 1] = pa.y;
+        linkPositions[li * 6 + 2] = pa.z;
+        linkPositions[li * 6 + 3] = pb.x;
+        linkPositions[li * 6 + 4] = pb.y;
+        linkPositions[li * 6 + 5] = pb.z;
+      }
+      if (docLinks.length) linkGeom.attributes.position.needsUpdate = true;
+    }
     docMat.uniforms.uTime.value = elapsed;
     controls.update();
     renderer.render(scene, camera);
@@ -937,6 +1026,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
       }
     }
     if (indices.length) docGeom.attributes.color.needsUpdate = true;
+    refreshLinkColors(); // 소등 클러스터에 걸친 관계선도 같은 규칙으로 회색화
   }
 
   function getClusterLight(slug) {
@@ -957,6 +1047,10 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     getClusterMotion,
     setClusterLight,
     getClusterLight,
+    setLinksVisible,
+    getLinksVisible,
+    setLinkFocus,
+    linkCount: docLinks.length,
     setClusterDim,
     restoreCluster,
     flashCluster,

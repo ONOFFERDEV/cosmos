@@ -342,6 +342,19 @@ pub struct GraphNeighborDoc {
     pub snippet: String,
 }
 
+/// `GET /graph/links` 응답 항목 — 양 끝이 모두 스코프 안인 해석 링크(관계선 시각화용).
+#[derive(Debug, Clone, Serialize)]
+pub struct GraphLinkPair {
+    pub src_doc_id: String,
+    pub dst_doc_id: String,
+    pub rel_type: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct GraphLinksResponse {
+    pub links: Vec<GraphLinkPair>,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 #[serde(default)]
 pub struct BootstrapRequest {

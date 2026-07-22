@@ -127,6 +127,32 @@ impl Store {
         Ok(rows)
     }
 
+    /// 해석된 링크 쌍 전량(+양끝 문서의 owner/branch — 스코프 판정은 engine 몫).
+    /// 관계선 시각화용이라 dangling(target NULL)은 제외한다.
+    pub fn resolved_link_pairs(
+        &self,
+    ) -> Result<Vec<(String, String, String, Option<String>, Option<String>, Option<String>, Option<String>)>> {
+        let conn = self.conn.lock().expect("sqlite mutex poisoned");
+        let mut stmt = conn
+            .prepare(
+                "SELECT l.src_doc_id, l.target_doc_id, l.rel_type,
+                        s.owner, s.branch_id, t.owner, t.branch_id
+                 FROM doc_links l
+                 JOIN docs s ON s.id = l.src_doc_id
+                 JOIN docs t ON t.id = l.target_doc_id
+                 ORDER BY l.src_doc_id, l.rel_type, l.target_name",
+            )
+            .context("preparing link pairs query")?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?, row.get(6)?))
+            })
+            .context("querying link pairs")?
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .context("collecting link pairs")?;
+        Ok(rows)
+    }
+
     /// 이웃 응답용 문서 메타(스코프 판정용 owner/branch 포함).
     pub fn docs_meta_by_ids(
         &self,

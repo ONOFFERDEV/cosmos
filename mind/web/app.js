@@ -196,6 +196,7 @@ function setupMotionControls(sceneApi) {
 // CSS filter로 캔버스 전체(성운·별·문서점)를 균일 조광 — 라벨 레이어는
 // 별도 DOM이라 텍스트 가독성은 유지된다. 값은 localStorage에 저장.
 const BRIGHTNESS_KEY = 'cosmos-brightness';
+const LINKS_KEY = 'cosmos-links'; // M10 관계선 토글 기억
 
 function setupDisplayOptions(sceneApi) {
   const slider = document.getElementById('brightness-slider');
@@ -222,6 +223,30 @@ function setupDisplayOptions(sceneApi) {
       localStorage.setItem(BRIGHTNESS_KEY, String(p));
     } catch { /* 저장 실패 무시 */ }
   });
+
+  // M10 관계선 토글(기본 켬, localStorage 기억). 링크 0건이면 행 자체를 숨긴다.
+  const linksToggle = document.getElementById('links-toggle');
+  const linksCount = document.getElementById('links-count');
+  if (linksToggle) {
+    if (!sceneApi.linkCount) {
+      const row = linksToggle.closest('label');
+      if (row) row.style.display = 'none';
+    } else {
+      if (linksCount) linksCount.textContent = `${sceneApi.linkCount}개`;
+      let on = true;
+      try {
+        on = localStorage.getItem(LINKS_KEY) !== 'off';
+      } catch { /* 접근 불가 시 기본 켬 */ }
+      linksToggle.checked = on;
+      sceneApi.setLinksVisible(on);
+      linksToggle.addEventListener('change', () => {
+        sceneApi.setLinksVisible(linksToggle.checked);
+        try {
+          localStorage.setItem(LINKS_KEY, linksToggle.checked ? 'on' : 'off');
+        } catch { /* 저장 실패 무시 */ }
+      });
+    }
+  }
 }
 
 async function main() {
@@ -238,7 +263,7 @@ async function main() {
     sceneApi = createUniverseScene({
       mountEl: els.canvasMount,
       labelMountEl: els.labelLayer,
-      data: { clusters: data.clusters ?? [], docs: data.docs ?? [], edges: data.edges ?? [] },
+      data: { clusters: data.clusters ?? [], docs: data.docs ?? [], edges: data.edges ?? [], links: data.links ?? [] },
     });
   } catch (err) {
     showError(`3D 장면을 초기화하지 못했습니다. WebGL을 지원하는 브라우저인지 확인해 주세요. (${err.message ?? err})`);

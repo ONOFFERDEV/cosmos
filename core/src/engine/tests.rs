@@ -1585,3 +1585,34 @@ fn graph_neighbors_expand_one_hop_with_scope() {
 
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// M10 관계선: /graph/links는 해석된 쌍만 내고, 한쪽 끝이라도 스코프 밖이면
+/// 쌍째 제외한다(dangling도 정의상 제외 — target 미해석).
+#[test]
+fn graph_links_pairs_exclude_out_of_scope_endpoints() {
+    let (engine, dir) = temp_engine();
+    engine.store.insert_doc("a", "manual", "origin://n/a.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.insert_doc("b", "manual", "origin://n/b.md", Some("B"), "h2", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    engine.store.insert_doc("p", "manual", "origin://n/p.md", Some("P"), "h3", 10, "2026-01-01T00:00:00Z", None, Some("alice")).unwrap();
+    // a→b(공용-공용), a→p(공용-개인), a→x(dangling), p→b(개인-공용)
+    engine.store.replace_doc_links("a", &[
+        ("links".into(), "b".into()),
+        ("related".into(), "p".into()),
+        ("links".into(), "x".into()),
+    ]).unwrap();
+    engine.store.replace_doc_links("p", &[("up".into(), "b".into())]).unwrap();
+
+    // 공통 스코프: a→b 하나만(개인이 낀 쌍·dangling 전부 제외).
+    let shared = engine.graph_links(None).unwrap();
+    assert_eq!(shared.links.len(), 1, "공통 스코프 쌍 수: {:?}", shared.links);
+    assert_eq!(shared.links[0].src_doc_id, "a");
+    assert_eq!(shared.links[0].dst_doc_id, "b");
+    assert_eq!(shared.links[0].rel_type, "links");
+
+    // alice 스코프: a→b, a→p, p→b 셋 다(dangling만 제외).
+    let alice = engine.graph_links(Some("shared+alice")).unwrap();
+    assert_eq!(alice.links.len(), 3, "alice 스코프 쌍 수: {:?}", alice.links);
+    assert!(alice.links.iter().any(|l| l.src_doc_id == "p" && l.dst_doc_id == "b" && l.rel_type == "up"));
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

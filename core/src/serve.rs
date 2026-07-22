@@ -19,7 +19,8 @@ use crate::engine::{
     BirthClusterRequest, BootstrapRequest, BootstrapResponse, Branch, CentroidEntry, ClusterDigest, ClusterSummary,
     CreateBranchRequest, DocSummary, Engine, EngineError, Entity, Health, IngestRequest, IngestResponse, IngestedDoc,
     JournalResponse, LifecycleProposalsQuery, LifecycleProposalsResponse, MergeBranchRequest, MergeBranchResponse,
-    GraphDocResponse, GraphNeighborDoc, GraphNeighborsRequest, MergeClustersRequest, MisfitDoc, RollbackRequest,
+    GraphDocResponse, GraphLinksResponse, GraphNeighborDoc, GraphNeighborsRequest, MergeClustersRequest, MisfitDoc,
+    RollbackRequest,
     RollbackResponse, RouteRequest, RouteResponse, SearchRequest, SearchResponse, TagBranchDocsResponse,
     UpdateClusterDigestRequest, UpdateClusterRequest,
 };
@@ -277,6 +278,14 @@ async fn graph_doc_handler(
     engine.graph_doc(&doc_id, q.owner_scope.as_deref()).map(Json).map_err(engine_error_to_app_error)
 }
 
+/// M10: `GET /graph/links?owner_scope=` — 스코프 안 해석 링크 쌍 전량(관계선 시각화용).
+async fn graph_links_handler(
+    State(engine): State<Arc<Engine>>,
+    Query(q): Query<OwnerScopeQuery>,
+) -> Result<Json<GraphLinksResponse>, AppError> {
+    Ok(Json(engine.graph_links(q.owner_scope.as_deref())?))
+}
+
 /// M10: `POST /graph/neighbors` — 1-hop 이웃(mind fast 그래프 확장용).
 async fn graph_neighbors_handler(
     State(engine): State<Arc<Engine>>,
@@ -346,6 +355,7 @@ fn build_router(engine: Arc<Engine>) -> Router {
         .route("/clusters/{cluster_id}/digest", put(update_cluster_digest_handler))
         .route("/entities", get(entities_handler))
         .route("/graph/docs/{doc_id}", get(graph_doc_handler))
+        .route("/graph/links", get(graph_links_handler))
         .route("/graph/neighbors", post(graph_neighbors_handler))
         .route("/rollback", post(rollback_handler))
         .route("/branches", get(list_branches_handler).post(create_branch_handler))
