@@ -1,4 +1,4 @@
-// three.js 장면 구성 + 렌더 루프. 데이터 페칭/DOM 패널 로직은 다루지 않는다 (관심사 분리: app.js/interactions.js/ask.js가 담당).
+// three.js scene setup + render loop. Does not handle data fetching/DOM panel logic (separation of concerns: app.js/interactions.js/ask.js handle that).
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from './vendor/CSS2DRenderer.js';
@@ -15,8 +15,8 @@ function animateValue(from, to, duration, onUpdate, onDone) {
   requestAnimationFrame(step);
 }
 
-// 클러스터 피킹/라벨앵커용 비가시 히트 프록시. 성운 파티클 자체는 raycast를 받지 않으므로
-// 클릭 판정 범위를 구체 하나로 안정화한다 (기존 코어 메시가 하던 raycastTargets/label anchor 역할 승계).
+// Invisible hit proxy for cluster picking/label anchor. Since the nebula particles themselves
+// don't receive raycasts, this stabilizes the click hit area to a single sphere (inherits the raycastTargets/label anchor role the old core mesh used to handle).
 function buildClusterHitProxy(c) {
   const geom = new THREE.SphereGeometry(Math.max(c.radius * 0.85, 3), 12, 8);
   const mat = new THREE.MeshBasicMaterial({ visible: false });
@@ -24,8 +24,8 @@ function buildClusterHitProxy(c) {
   return mesh;
 }
 
-// 성운 파티클 셰이더: 원형 스프라이트 대신 각도에 따라 굴곡진 블롭 경계를 절차적으로 그려
-// (텍스처 없이) 낱개 입자부터 경계가 또렷하지 않은 가스 덩어리로 읽히게 한다.
+// Nebula particle shader: instead of a circular sprite, procedurally draws an angle-dependent
+// wobbly blob edge (no texture) so individual particles read as a gas cloud with an indistinct boundary.
 const NEBULA_VERTEX_SHADER = `
   attribute float aSize;
   attribute float aAlpha;
@@ -39,20 +39,21 @@ const NEBULA_VERTEX_SHADER = `
   uniform float uDim;
   uniform float uBreath;
   uniform float uTime;
-  // 선택 펄스: 클릭으로 선택된 클러스터일 때만 코어 파티클(aIsCore=1)에 곱해지고
-  // 나머지 파티클·비선택 상태에서는 mix()가 1.0을 반환해 완전 무영향(uBoost/uDim/
-  // uBreath와 독립된 별도 승수라 기존 flashCluster·setClusterDim과 간섭하지 않는다).
+  // Select pulse: multiplied only into the core particles (aIsCore=1) of the cluster selected
+  // by click; for other particles/unselected state, mix() returns 1.0 for zero effect (a separate
+  // multiplier independent of uBoost/uDim/uBreath, so it doesn't interfere with existing flashCluster/setClusterDim).
   uniform float uSelectPulse;
   void main() {
     vColor = color;
     vAlpha = aAlpha * uDim * uBreath * mix(1.0, uSelectPulse, aIsCore);
     vSeed = aSeed;
 
-    // 파티클별 개별 공전: 시드로 뽑은 축(aOrbitAxis) 둘레로 시간에 따라 회전시켜
-    // 각자 다른 궤도 평면·속도로 성운 중심(로컬 원점)을 돌게 한다 — 로드리게스
-    // 회전 공식은 항등적으로 반경을 보존하므로 별도 궤도 반경 값 없이 기존
-    // position의 중심 거리 자체가 그대로 궤도 반경이 된다. CPU는 uTime 스칼라
-    // 하나만 매 프레임 올리고 실제 위치 계산은 전부 GPU 정점 단계에서 수행.
+    // Per-particle individual orbit: rotates over time around a seed-derived axis (aOrbitAxis)
+    // so each particle orbits the nebula center (local origin) with its own orbital plane and
+    // speed — since the Rodrigues rotation formula preserves radius identically, the existing
+    // position's distance from center becomes the orbit radius directly, with no separate radius
+    // value needed. The CPU only uploads a single uTime scalar per frame; all actual position
+    // computation happens in the GPU vertex stage.
     vec3 axis = normalize(aOrbitAxis);
     float ang = uTime * aOrbitSpeed + aSeed * 6.2831853;
     float co = cos(ang);
@@ -70,7 +71,7 @@ const NEBULA_FRAGMENT_SHADER = `
   varying float vAlpha;
   varying float vSeed;
   uniform float uBoost;
-  // 잠금 소등 회색화: 1=원색, 0=무채색(휘도만). setClusterLight가 애니메이션한다.
+  // Lock dim-out desaturation: 1=original color, 0=achromatic (luminance only). setClusterLight animates this.
   uniform float uSaturation;
   void main() {
     vec2 uv = gl_PointCoord - vec2(0.5);
@@ -89,9 +90,10 @@ const NEBULA_FRAGMENT_SHADER = `
   }
 `;
 
-// 클러스터 하나를 부피감 있는 성운 파티클 구름으로 만든다. 중심핵(작고 밝음)과 본체(반경 안쪽으로
-// 밀도 편향 분포, 바깥으로 갈수록 성기고 옅음)를 한 Points 드로우콜로 그려 클러스터당 draw call을 아낀다.
-// 배치는 해시 시드 PRNG로 결정론적으로 고정된다(Math.random 미사용 — 새로고침/재실행해도 동일 모양).
+// Turns a single cluster into a voluminous nebula particle cloud. Draws a small bright core and
+// a body (density biased toward the center within the radius, sparser and dimmer toward the edge)
+// in one Points draw call to save a draw call per cluster.
+// Placement is deterministically fixed with a hash-seeded PRNG (no Math.random — same shape across reload/rerun).
 function buildNebulaCloud(c, hue, seedKey) {
   const rand = seededRandom(seedKey);
   const radius = Math.max(c.radius, 3);
@@ -117,7 +119,7 @@ function buildNebulaCloud(c, hue, seedKey) {
     const theta = rand() * Math.PI * 2;
     const phi = Math.acos(2 * rand() - 1);
     const spread = isCore ? 0.32 : 1.0;
-    const rr = radius * spread * Math.pow(rand(), 1.5); // 중심 밀도 편향(부피 채움, 표면 셸 아님)
+    const rr = radius * spread * Math.pow(rand(), 1.5); // Density biased toward center (volume fill, not a surface shell)
     const stretch = 0.85 + rand() * 0.3;
     positions[i * 3 + 0] = rr * Math.sin(phi) * Math.cos(theta) * stretch;
     positions[i * 3 + 1] = rr * Math.cos(phi) * stretch;
@@ -132,17 +134,17 @@ function buildNebulaCloud(c, hue, seedKey) {
       : clamp(0.5 - edgeFactor * 0.35 + rand() * 0.15, 0.05, 0.55);
     seeds[i] = rand();
 
-    // 공전 축·속도도 동일한 시드 스트림에서 결정론으로 파생(Math.random 미사용).
-    // 축을 위치 벡터와 무관하게 구면 균등 샘플링해서 파티클마다 서로 다른 궤도
-    // 평면을 갖게 한다 — 반경은 별도로 두지 않고 로드리게스 회전이 |position|을
-    // 그대로 보존하므로 이미 계산된 중심 거리(rr)가 곧 궤도 반경이 된다.
+    // Orbit axis/speed are also deterministically derived from the same seed stream (no Math.random).
+    // The axis is sampled uniformly on the sphere independent of the position vector, so each
+    // particle gets a different orbital plane — no separate radius is kept, since the Rodrigues
+    // rotation preserves |position| as-is, so the already-computed center distance (rr) becomes the orbit radius.
     const axTheta = rand() * Math.PI * 2;
     const axPhi = Math.acos(2 * rand() - 1);
     orbitAxes[i * 3 + 0] = Math.sin(axPhi) * Math.cos(axTheta);
     orbitAxes[i * 3 + 1] = Math.cos(axPhi);
     orbitAxes[i * 3 + 2] = Math.sin(axPhi) * Math.sin(axTheta);
     const orbitDir = rand() < 0.5 ? -1 : 1;
-    orbitSpeeds[i] = orbitDir * (0.025 + rand() * 0.09); // rad/s → 한 바퀴 약 40s~250s(천천히)
+    orbitSpeeds[i] = orbitDir * (0.025 + rand() * 0.09); // rad/s → roughly 40s~250s per revolution (slow)
 
     tmp.copy(baseColor).lerp(coreColor, isCore ? 0.55 + rand() * 0.35 : rand() * 0.25);
     colors[i * 3 + 0] = tmp.r;
@@ -190,7 +192,7 @@ function buildGlowSprite(hue, worldSize, opacity) {
   return sprite;
 }
 
-// M9: 개인 클러스터 구분 링 — 성운 바깥 궤도의 점선 링으로 개인 소유 공간임을 표시한다.
+// M9: Personal cluster ring — a dashed ring in orbit outside the nebula marks it as a personal-owned space.
 function buildPersonalRing(radius, hue) {
   const r = radius * 1.9;
   const pts = new THREE.EllipseCurve(0, 0, r, r).getPoints(96);
@@ -306,7 +308,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   const starField = createStarField();
   scene.add(starField.points);
 
-  // 관측소 코어 비콘 — 질의가 발사되는 원점을 상징. 평상시엔 은은하게, 질의 중엔 밝게.
+  // Observatory core beacon — symbolizes the origin point from which queries are launched. Subtle when idle, bright while a query is in flight.
   const beaconGroup = new THREE.Group();
   const beaconCore = new THREE.Mesh(
     new THREE.IcosahedronGeometry(2.2, 1),
@@ -352,10 +354,10 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
       clusterGroup.add(personalRing);
     }
 
-    // 은은한 개별 회전/맥동 주기 — 클러스터마다 다르게 결정론으로 뽑아 동조되어 보이지 않게 한다.
+    // Subtle individual rotation/pulse period — deterministically drawn differently per cluster so they don't appear synchronized.
     const motionRand = seededRandom(`${c.slug}:motion`);
-    const rotSpeed = (motionRand() < 0.5 ? -1 : 1) * (0.015 + motionRand() * 0.035); // rad/s, 2~7분에 한 바퀴
-    const breathSpeed = 0.7 + motionRand() * 0.9; // rad/s, 약 4~9초 주기
+    const rotSpeed = (motionRand() < 0.5 ? -1 : 1) * (0.015 + motionRand() * 0.035); // rad/s, one revolution per 2~7 min
+    const breathSpeed = 0.7 + motionRand() * 0.9; // rad/s, roughly a 4~9s period
     const breathPhase = motionRand() * Math.PI * 2;
 
     clusterGroup.add(core, nebula, glowNear, glowFar);
@@ -363,10 +365,10 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     const entry = {
       slug: c.slug, data: c, core, nebula, glowNear, glowFar, label, color: hue, personalRing,
       dimTweenId: 0, rotSpeed, breathSpeed, breathPhase,
-      // 클러스터별 동작 잠금: 자전·맥동·파티클 공전·소속 문서 궤도가 이 시계를
-      // 공유한다. 잠그면 시계가 멈추고, 해제하면 멈춘 지점부터 이어져 튐이 없다.
+      // Per-cluster motion lock: rotation, pulse, particle orbit, and member-document orbit all
+      // share this clock. Locking stops the clock; unlocking resumes from where it stopped, with no jump.
       motionEnabled: true, motionTime: 0,
-      // 잠금 시 소등: true면 성운·글로우·링·라벨·소속 문서가 잔광 수준으로 어두워진다.
+      // Dim-out on lock: if true, the nebula/glow/ring/label/member documents dim to an afterglow level.
       lightsOut: false,
     };
     clusterEntries.push(entry);
@@ -392,17 +394,19 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     edgeGroup.add(line);
   });
 
-  // 문서 입자 — 별처럼 보이는 점 광원(Points). 이전엔 InstancedMesh 구체였는데
-  // 3D 입체로 읽혀서(회전해도 부피감이 두드러짐) 점 하나짜리 별빛으로 교체한다.
-  // 성운(buildNebulaCloud)과 달리 각도 굴곡(blob wobble)을 넣지 않고 단단한 원형
-  // 코어 + 아주 짧은 가장자리 페이드만 써서 "덩어리"가 아니라 낱개 점으로 읽히게 한다.
-  // 클릭/호버 판정은 별도 비가시 InstancedMesh 프록시가 전담(Points의 레이캐스트
-  // threshold는 화면 투영 크기가 아니라 월드 단위라 줌 레벨마다 판정이 불안정해지므로,
-  // 클러스터 히트 프록시와 동일한 검증된 패턴을 재사용). 이 프록시는 vertexColors를
-  // 전혀 쓰지 않으므로 InstancedMesh+vertexColors 조합의 검정 렌더링 함정과 무관하다.
-  // aDocIndex: 문서 하나당 고유 정수(0..N-1)를 실어 두고, 선택된 문서 인덱스와
-  // 셰이더 안에서 비교(step)해 딱 한 점만 골라 펄스를 먹인다. 위치는 절대 바꾸지
-  // 않으므로(크기/밝기만 변화) docHitProxy의 정적 인스턴스 행렬과 어긋날 일이 없다.
+  // Document particles — point lights (Points) that look like stars. Used to be InstancedMesh
+  // spheres, but those read as 3D solids (volume becomes noticeable when rotating), so they're
+  // replaced with single-point starlight. Unlike the nebula (buildNebulaCloud), this doesn't add
+  // angular blob wobble — it just uses a solid circular core + a very short edge fade so it reads
+  // as individual points rather than a "clump". Click/hover hit-testing is handled entirely by a
+  // separate invisible InstancedMesh proxy (Points' raycast threshold is in world units rather
+  // than screen-projected size, which makes hit-testing unstable across zoom levels, so this
+  // reuses the same proven pattern as the cluster hit proxy). This proxy never uses vertexColors,
+  // so it's unaffected by the InstancedMesh+vertexColors black-rendering pitfall.
+  // aDocIndex: carries a unique integer (0..N-1) per document, compared (via step) against the
+  // selected document index inside the shader to pick out exactly one point for the pulse.
+  // Position is never altered here (only size/brightness change), so it can never drift from
+  // docHitProxy's static instance matrix.
   const DOC_POINT_VERTEX_SHADER = `
     attribute float aSize;
     attribute float aDocIndex;
@@ -415,24 +419,24 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     void main() {
       vColor = color;
       float isHi = step(abs(aDocIndex - uHighlightIndex), 0.5);
-      // 2초 주기(각속도 = 2π/2s = π rad/s) 사인 펄스, 0..1을 부드럽게 왕복 —
-      // 급격한 on/off 없이 서서히 밝아졌다 어두워진다. 선택 안 된 점은 isHi=0이라
-      // vGlow도 항상 0으로, 렌더링에 전혀 영향이 없다. uHighlightFade는 선택/해제
-      // 전환 자체를 부드럽게 감싸는 별도 승수(CPU에서 tween) — 펄스와 독립적으로
-      // 켜짐/꺼짐 전환의 급격함만 제거한다.
+      // A 2-second-period (angular velocity = 2π/2s = π rad/s) sine pulse, smoothly bouncing
+      // between 0..1 — brightens and dims gradually with no abrupt on/off. For unselected points
+      // isHi=0, so vGlow is always 0 too, with zero effect on rendering. uHighlightFade is a
+      // separate multiplier (tweened on the CPU) that smoothly wraps the select/deselect transition
+      // itself — independent of the pulse, it only removes the abruptness of the on/off transition.
       float pulse = 0.5 + 0.5 * sin(uTime * 3.14159265);
       vGlow = isHi * pulse * uHighlightFade;
 
-      // 미세 반짝임: aDocIndex/aSize를 해시해 파티클마다 다른 위상(과 살짝 다른 주파수)을
-      // 뽑는다 — Math.random 없이 GPU에서 순수 함수로 매 프레임 재계산되는 결정론 시드.
-      // 진폭은 ±15%(0.85~1.15)로 억제해 "미세하게" 떨리는 정도만 표현한다.
+      // Subtle twinkle: hashes aDocIndex/aSize to draw a different phase (and slightly different
+      // frequency) per particle — a deterministic seed recomputed each frame as a pure function on
+      // the GPU, no Math.random. Amplitude is kept to ±15% (0.85~1.15) to express only a "subtle" flicker.
       float seed = fract(sin(aDocIndex * 12.9898 + aSize * 78.233) * 43758.5453);
       vTwinkle = 1.0 + 0.15 * sin(uTime * (1.6 + seed * 0.8) + seed * 6.2831853);
 
       vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      // 십자 회절 스파이크가 뻗어나갈 여유 공간을 확보하기 위해 코어 크기를 1.8배
-      // 키운다 — docHitProxy(클릭 판정)는 별도 InstancedMesh 스케일(dummy.scale, JS
-      // 쪽 docScales 기반)을 쓰므로 이 값과 완전히 무관, 클릭 판정 크기는 불변이다.
+      // Scale the core size up by 1.8x to leave room for the cross diffraction spikes to extend
+      // into — docHitProxy (click hit-testing) uses a separate InstancedMesh scale (dummy.scale,
+      // based on docScales on the JS side), so it's entirely unaffected by this value; the click hit-test size stays unchanged.
       gl_PointSize = aSize * 1.8 * (1.0 + vGlow * 0.9) * (260.0 / -mvPosition.z);
       gl_Position = projectionMatrix * mvPosition;
     }
@@ -446,20 +450,20 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
       float d = length(uv);
       if (d > 0.5) discard;
 
-      // 코어: 중심 소구역을 흰색 쪽으로 끌어올린 고휘도 스팟(실제 별의 뜨거운 중심부를 흉내).
+      // Core: a high-luminance spot with the small central area pulled toward white (mimics the hot center of a real star).
       float core = smoothstep(0.16, 0.0, d);
       vec3 coreColor = mix(vColor, vec3(1.0), 0.82);
 
-      // halo: source_type 색이 그대로 실리는 지수 감쇠 글로우 — 코어 밖으로 퍼지며
-      // 옅어진다. 범례(session=teal/arxiv=purple/rss=orange/manual=off-white) 대조는
-      // 이 halo가 전담한다(코어는 흰색에 가까워 색 구분에 쓰지 않는다).
+      // halo: an exponentially decaying glow carrying the raw source_type color — it spreads out
+      // from the core and fades. The legend contrast (session=teal/arxiv=purple/rss=orange/
+      // manual=off-white) is handled entirely by this halo (the core is near-white so it isn't used for color distinction).
       float halo = exp(-d * 6.5);
 
-      // 십자 회절 스파이크: 두 축을 따라 가늘게 뻗는 빛줄기. pow()로 축을 벗어날수록
-      // 급격히 좁아지고 exp()로 축을 따라 멀어질수록 옅어진다 — 별 사진의 회절
-      // 아티팩트를 흉내낸 절차적 스파이크(텍스처 미사용, 은은하게 0.5 승수로 억제).
-      // 선택 펄스(vGlow) 중에는 축 방향 감쇠를 완만하게 풀어 스파이크가 살짝 더
-      // 길어지는 연출을 더한다.
+      // Cross diffraction spikes: thin light rays extending along two axes. pow() narrows them
+      // sharply off-axis, and exp() fades them the further along the axis they extend — procedural
+      // spikes mimicking the diffraction artifacts seen in star photos (no texture, kept subtle
+      // with a 0.5 multiplier). During the select pulse (vGlow), the axis-direction falloff is
+      // relaxed slightly so the spikes extend a bit further as part of the effect.
       float armFade = 4.5 - vGlow * 1.8;
       float armV = pow(clamp(1.0 - abs(uv.x) * 22.0, 0.0, 1.0), 1.8) * exp(-abs(uv.y) * armFade);
       float armH = pow(clamp(1.0 - abs(uv.y) * 22.0, 0.0, 1.0), 1.8) * exp(-abs(uv.x) * armFade);
@@ -467,12 +471,12 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
 
       vec3 starColor = mix(vColor * halo, coreColor, core);
       starColor += (vColor * 0.6 + vec3(0.4)) * spikes;
-      // 선택 펄스는 색까지 흰 쪽으로 더 끌어올려 또렷하게 밝아지는 인상을 준다(기존 동작 유지).
+      // The select pulse also pulls the color further toward white, giving a clearly brighter impression (existing behavior preserved).
       starColor = mix(starColor, vec3(1.0), vGlow * 0.6);
 
-      // R5~R6에서 확정한 "기본 반투명 0.55 / 선택 시 최대 1.0" 알파 규칙은 그대로 유지하되,
-      // 이제 그 알파가 적용되는 대상은 "별의 형태"(코어+halo+스파이크) 실루엣 전체다.
-      // vTwinkle(±15%)을 곱해 미세한 밝기 떨림을 더한다.
+      // The "default 0.55 translucent / max 1.0 when selected" alpha rule finalized in R5~R6 is
+      // kept as-is, except that alpha now applies to the entire "star shape" silhouette (core+halo+spikes).
+      // Multiplied by vTwinkle (±15%) to add a subtle brightness flicker.
       float shapeAlpha = clamp(max(core, halo) + spikes, 0.0, 1.0);
       float alpha = shapeAlpha * mix(0.55, 1.0, vGlow) * vTwinkle;
       if (alpha <= 0.0) discard;
@@ -485,11 +489,11 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   const docSizes = new Float32Array(docs.length);
   const docScales = new Float32Array(docs.length);
   const docIndices = new Float32Array(docs.length);
-  // 문서 점 공전 파라미터(CPU 계산, 단일 진실 원천). 클러스터 중심 기준
-  // 반경(XZ)·y오프셋은 원본 d.pos에서 고정 도출해 "적합도 낮을수록 바깥 궤도"
-  // 의미를 보존하고, 각도만 시간에 따라 회전시킨다. 성운(정점 셰이더 공전)과
-  // 달리 docHitProxy·getDocWorldPos가 참조할 수 있어야 하므로 매 프레임 CPU에서
-  // 갱신하고, 그 값을 위치 버퍼와 히트 프록시 행렬에 동일하게 흘려보낸다.
+  // Document point orbit parameters (CPU-computed, single source of truth). The radius (XZ) and
+  // y-offset relative to the cluster center are fixed-derived from the original d.pos to preserve
+  // the "lower fit = outer orbit" meaning, and only the angle rotates over time. Unlike the nebula
+  // (vertex-shader orbit), docHitProxy/getDocWorldPos need to be able to reference this, so it's
+  // updated on the CPU every frame, and that value is fed identically into both the position buffer and the hit proxy matrix.
   const docCenterX = new Float32Array(docs.length);
   const docCenterY = new Float32Array(docs.length);
   const docCenterZ = new Float32Array(docs.length);
@@ -515,7 +519,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     docColors[i * 3 + 2] = tmpColor.b;
 
     const clusterEntry = clusterBySlug.get(d.cluster_slug);
-    docClusterEntry[i] = clusterEntry ?? null; // 동작 잠금 시계 참조(무소속 문서는 전역 시계)
+    docClusterEntry[i] = clusterEntry ?? null; // Reference to the motion-lock clock (unaffiliated documents use the global clock)
     const center = clusterEntry ? clusterEntry.core.position : new THREE.Vector3(d.pos[0], d.pos[1], d.pos[2]);
     const dx = d.pos[0] - center.x;
     const dy = d.pos[1] - center.y;
@@ -528,12 +532,12 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     docBaseAngle[i] = Math.atan2(dz, dx);
     const orbitRand = seededRandom(`${d.doc_id}:orbit`);
     const orbitDir = orbitRand() < 0.5 ? -1 : 1;
-    // rad/s — 한 바퀴 약 2~5분(성운의 40~250s보다 느리게: 문서는 차분히 읽히도록).
+    // rad/s — roughly 2~5 min per revolution (slower than the nebula's 40~250s, so documents read calmly).
     docOrbitSpeed[i] = orbitDir * (0.021 + orbitRand() * 0.031);
     docCurrentPos[i] = new THREE.Vector3(d.pos[0], d.pos[1], d.pos[2]);
   });
 
-  // 소등 복원용 원본 색 + 클러스터별 소속 문서 인덱스(잠금 시 문서 점도 함께 어두워진다).
+  // Original colors for restoring after dim-out, plus per-cluster document index (when locked, the doc points darken too).
   const docBaseColors = docColors.slice();
   const docIndicesBySlug = new Map();
   docs.forEach((d, i) => {
@@ -558,10 +562,10 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     fragmentShader: DOC_POINT_FRAGMENT_SHADER,
   });
   const docPoints = new THREE.Points(docGeom, docMat);
-  docPoints.raycast = () => {}; // 피킹은 docHitProxy가 전담
+  docPoints.raycast = () => {}; // Picking is handled entirely by docHitProxy
   docPoints.userData.kind = 'doc-points';
-  // 공전 중엔 절대좌표가 계속 바뀌므로 최초 바운딩 스피어로 프러스텀 컬링하면
-  // 화면 밖에 있다고 잘못 판단해 안 보이는 카메라 각도가 생길 수 있다 — 비활성화.
+  // While orbiting, the absolute coordinates keep changing, so frustum culling against the initial bounding sphere
+  // could wrongly judge them off-screen and make them invisible at certain camera angles — disabled.
   docPoints.frustumCulled = false;
   scene.add(docPoints);
 
@@ -569,11 +573,11 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   const docHitGeom = new THREE.SphereGeometry(1, 8, 6);
   const docHitMat = new THREE.MeshBasicMaterial({ visible: false });
   const docHitProxy = new THREE.InstancedMesh(docHitGeom, docHitMat, Math.max(docs.length, 1));
-  // 문서 점이 매 프레임 공전하므로 히트 프록시 행렬도 매 프레임 갱신된다 — 정적 → 동적.
+  // Since the doc points orbit every frame, the hit-proxy matrices are also updated every frame — static → dynamic.
   docHitProxy.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   docs.forEach((d, i) => {
     dummy.position.set(d.pos[0], d.pos[1], d.pos[2]);
-    dummy.scale.setScalar(Math.max(docScales[i] * 1.8, 1.4)); // 점보다 살짝 넉넉하게 — 클릭 여유 확보
+    dummy.scale.setScalar(Math.max(docScales[i] * 1.8, 1.4)); // Slightly larger than the point itself — gives extra margin for clicking
     dummy.updateMatrix();
     docHitProxy.setMatrixAt(i, dummy.matrix);
   });
@@ -581,17 +585,17 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   docHitProxy.userData.kind = 'doc-hit-proxy';
   scene.add(docHitProxy);
 
-  // 잠금 소등 상태의 잔광 비율 — 회색 성운이 식별되도록 완전 암전보다 밝게.
-  // (관계선 색 계산도 참조하므로 선 레이어보다 먼저 선언한다.)
+  // Afterglow ratio for the locked dim-out state — brighter than full blackout so the gray nebula stays identifiable.
+  // (Declared before the line layer since the relationship-line color calc also references it.)
   const LOCK_LIGHT = 0.35;
   const DOC_LOCK_LIGHT = 0.45;
 
-  // ---- M10 관계선: 문서 점 사이의 [[링크]]를 은은한 선으로(가산 블렌딩) ----
-  // 위치는 매 프레임 docCurrentPos(공전 단일 진실 원천)에서 복사하므로 점과 선이
-  // 절대 어긋나지 않는다. 색은 상태 변화 시에만 재계산(기본/선택 강조/잠금 회색).
-  const LINK_BASE = 0.16;   // 상시 표시 강도(가산이라 겹칠수록 밝아짐)
-  const LINK_FOCUS = 0.9;   // 선택 문서에 닿은 선
-  const LINK_FADE = 0.05;   // 선택 중 나머지 선
+  // ---- M10 relationship lines: renders [[links]] between doc points as subtle lines (additive blending) ----
+  // Positions are copied each frame from docCurrentPos (the single source of truth for orbiting), so points and lines
+  // never drift apart. Color is only recomputed on state changes (default/selection-highlight/lock-grayscale).
+  const LINK_BASE = 0.16;   // Always-on display intensity (additive, so overlaps get brighter)
+  const LINK_FOCUS = 0.9;   // Lines touching the selected document
+  const LINK_FADE = 0.05;   // Remaining lines while something is selected
   const docIndexById = new Map(docs.map((d, i) => [d.doc_id, i]));
   const docLinks = (data.links ?? [])
     .map((l) => ({ a: docIndexById.get(l.src), b: docIndexById.get(l.dst), rel_type: l.rel_type }))
@@ -608,11 +612,11 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     depthWrite: false,
   });
   const linkLines = new THREE.LineSegments(linkGeom, linkMat);
-  linkLines.frustumCulled = false; // 공전으로 절대좌표가 계속 변함 — 문서 점과 같은 이유
-  linkLines.raycast = () => {}; // 피킹 무시(가는 선 오클릭 방지)
+  linkLines.frustumCulled = false; // Absolute coordinates keep changing due to orbiting — same reason as the doc points
+  linkLines.raycast = () => {}; // Ignored for picking (prevents accidental clicks on thin lines)
   linkLines.userData.kind = 'doc-links';
-  let linksEnabled = false; // 표시 옵션 토글 — 기본 꺼짐(사용자 결정 2026-07-22), app.js가 저장값을 적용
-  let linkFocusIndex = null; // 선택된 문서 index(그 문서의 선만 강조), null=전체 기본
+  let linksEnabled = false; // Display option toggle — off by default (user decision 2026-07-22), app.js applies the stored value
+  let linkFocusIndex = null; // Selected document index (only that document's lines are highlighted), null=default for all
   linkLines.visible = false;
   scene.add(linkLines);
 
@@ -620,7 +624,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     let r = docBaseColors[docIdx * 3 + 0];
     let g = docBaseColors[docIdx * 3 + 1];
     let b = docBaseColors[docIdx * 3 + 2];
-    // 잠금 소등 클러스터에 속한 끝점은 문서 점과 같은 규칙으로 회색 잔광.
+    // Endpoints belonging to a locked/dimmed cluster get the same gray-afterglow rule as the doc points.
     const entry = docClusterEntry[docIdx];
     if (entry && entry.lightsOut) {
       const lum = (0.299 * r + 0.587 * g + 0.114 * b) * DOC_LOCK_LIGHT;
@@ -638,7 +642,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
       if (linkFocusIndex !== null) {
         k = a === linkFocusIndex || b === linkFocusIndex ? LINK_FOCUS : LINK_FADE;
       }
-      if (rel_type === 'up') k *= 1.35; // 계층 관계는 살짝 또렷하게
+      if (rel_type === 'up') k *= 1.35; // Hierarchical relations are made slightly more distinct
       writeLinkEndColor(li * 6 + 0, a, k);
       writeLinkEndColor(li * 6 + 3, b, k);
     }
@@ -669,12 +673,12 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     raycaster.setFromCamera(ndc, camera);
     const hits = raycaster.intersectObjects(raycastTargets, false);
     if (hits.length === 0) return null;
-    // 문서는 항상 소속 클러스터 프록시 구(반경 c.radius*0.85) 안쪽에 위치하므로, 단순
-    // "레이 상 가장 가까운 히트" 우선순위로는 그 구의 표면이 문서보다 먼저 걸려 개별
-    // 문서를 절대 클릭할 수 없다(레이가 구 내부의 한 점에 닿으려면 반드시 그 전에 구
-    // 표면을 통과해야 하므로 항상 더 가까움). 더 구체적인 타겟인 문서 히트가 있으면
-    // 그것을 클러스터보다 우선한다 — 클러스터 프록시는 문서가 없는 빈 영역 클릭에만
-    // 쓰인다.
+    // Documents always sit inside their cluster's proxy sphere (radius c.radius*0.85), so a naive
+    // "closest hit along the ray" priority would always hit the sphere's surface before the document,
+    // making individual documents impossible to click (a ray reaching a point inside the sphere must
+    // always pass through the sphere's surface first, so the surface is always closer). When a more
+    // specific doc hit exists, it takes priority over the cluster — the cluster proxy is only used
+    // for clicks on empty areas with no document.
     const docHit = hits.find((h) => h.object === docHitProxy);
     const hit = docHit || hits[0];
     if (hit.object === docHitProxy) {
@@ -691,7 +695,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     return entry.lightsOut ? LOCK_LIGHT : 1;
   }
 
-  // 잠금 소등용 회색 글로우 텍스처(전 클러스터 공유, 최초 1회 생성).
+  // Gray glow texture for the locked dim-out state (shared across all clusters, created once).
   let grayGlowTex = null;
   function getGrayGlowTex() {
     if (!grayGlowTex) {
@@ -812,11 +816,11 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     });
   }
 
-  // 클릭 선택 표시 — 이전엔 회전하는 토러스 고리였는데, 요청에 따라 고리를 걷어내고
-  // 선택된 대상 자체(성운 코어 파티클 또는 문서 점)가 ~2초 주기로 은은하게 밝아졌다
-  // 어두워지는 사인 펄스로 대체한다. 실제 밝기 계산은 GPU 셰이더(uSelectPulse /
-  // uHighlightIndex+uHighlightFade)가 담당하고, 여기서는 "지금 무엇이 선택됐는가"
-  // 상태만 들고 tick()과 fade 트윈을 통해 그 우니폼을 부드럽게 켜고 끈다.
+  // Click-selection indicator — used to be a rotating torus ring, but per request the ring was
+  // removed and replaced with a sine pulse where the selected target itself (nebula core particles
+  // or a doc point) gently brightens and dims on a ~2s cycle. The actual brightness calc is handled
+  // by the GPU shader (uSelectPulse / uHighlightIndex+uHighlightFade); here we just hold the state
+  // of "what's currently selected" and smoothly turn that uniform on/off via tick() and the fade tween.
   let selectedClusterSlug = null;
   function restoreSelectPulse(slug) {
     const entry = clusterBySlug.get(slug);
@@ -843,7 +847,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     animateValue(docMat.uniforms.uHighlightFade.value, 1, 220, (v) => {
       docMat.uniforms.uHighlightFade.value = v;
     });
-    setLinkFocus(index); // 선택 문서의 관계선 강조(나머지는 어둡게)
+    setLinkFocus(index); // Highlights the selected document's relationship lines (dims the rest)
   }
   function clearDocHighlight() {
     animateValue(docMat.uniforms.uHighlightFade.value, 0, 380, (v) => {
@@ -880,8 +884,8 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     return entry ? entry.core.position.clone() : new THREE.Vector3(0, 0, 0);
   }
   function getDocWorldPos(index) {
-    // 공전 중인 현재 위치를 반환한다(정지 좌표 d.pos가 아니라 tick()이 매 프레임
-    // 갱신하는 docCurrentPos) — 출처 인용 클릭이 빈 옛 위치로 카메라를 보내지 않도록.
+    // Returns the current orbiting position (docCurrentPos, updated every frame by tick(),
+    // not the static coordinate d.pos) — so citation clicks don't send the camera to an empty old spot.
     const v = docCurrentPos[index];
     return v ? v.clone() : new THREE.Vector3(0, 0, 0);
   }
@@ -908,26 +912,26 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     starField.material.uniforms.uTime.value = elapsed;
     beaconGroup.rotation.y = elapsed * 0.15;
     clusterEntries.forEach((entry) => {
-      // 동작 잠금: 잠긴 클러스터는 자기 모션 시계가 멈춰 그 자리에 정지하고,
-      // 해제하면 멈춘 위상부터 이어진다(elapsed 직접 사용 시 점프 발생 — 금지).
+      // Motion lock: a locked cluster's own motion clock stops, freezing it in place,
+      // and unlocking resumes from the paused phase (using elapsed directly would cause a jump — forbidden).
       if (entry.motionEnabled) entry.motionTime += dt;
       const mt = entry.motionTime;
       entry.nebula.rotation.y = mt * entry.rotSpeed;
       entry.nebula.material.uniforms.uBreath.value = 0.94 + 0.06 * Math.sin(mt * entry.breathSpeed + entry.breathPhase);
-      entry.nebula.material.uniforms.uTime.value = mt; // 파티클별 공전 위상(정점 셰이더에서 계산)
-      // 선택된 클러스터만 살아있는 동안 매 프레임 사인값을 우니폼에 밀어넣는다(2초
-      // 주기, 각속도 π rad/s). 선택 해제는 clearClusterHighlight()의 animateValue
-      // 트윈이 담당하므로 여기서는 선택되지 않은 클러스터를 절대 건드리지 않는다 —
-      // uBoost(flashCluster)·uDim(setClusterDim/restoreCluster)과는 완전히 별개 경로.
-      // 선택 펄스는 상호작용 피드백이라 동작 잠금과 무관하게 전역 시계를 쓴다.
+      entry.nebula.material.uniforms.uTime.value = mt; // Per-particle orbital phase (computed in the vertex shader)
+      // Only while the selected cluster is alive do we push a sine value into the uniform every frame
+      // (2s period, angular velocity π rad/s). Deselection is handled by clearClusterHighlight()'s
+      // animateValue tween, so this never touches an unselected cluster —
+      // it's a completely separate path from uBoost(flashCluster) / uDim(setClusterDim/restoreCluster).
+      // The select pulse is interaction feedback, so it uses the global clock regardless of motion lock.
       if (selectedClusterSlug === entry.slug) {
         entry.nebula.material.uniforms.uSelectPulse.value = 0.6 + 0.6 * Math.sin(elapsed * Math.PI);
       }
     });
-    // 문서 점 공전(CPU 계산) — 위치 버퍼와 히트 프록시 행렬을 같은 계산값 하나로
-    // 갱신해 시각 위치와 클릭 판정이 절대 어긋나지 않게 한다(단일 진실 원천).
-    // raycastAtClient()의 자식-우선 로직은 이 갱신과 무관하게 그대로 유지된다.
-    // 문서 궤도는 소속 클러스터의 모션 시계를 따른다(잠금 시 문서도 정지).
+    // Doc point orbit (CPU-computed) — the position buffer and the hit-proxy matrix are updated
+    // from the same single computed value, so the visual position and click hit-testing never
+    // drift apart (single source of truth). raycastAtClient()'s child-first logic remains
+    // unaffected by this update. A document's orbit follows its cluster's motion clock (also frozen when locked).
     for (let i = 0; i < docs.length; i++) {
       const clockSrc = docClusterEntry[i] ? docClusterEntry[i].motionTime : elapsed;
       const angle = docBaseAngle[i] + clockSrc * docOrbitSpeed[i];
@@ -945,7 +949,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     }
     docGeom.attributes.position.needsUpdate = true;
     docHitProxy.instanceMatrix.needsUpdate = true;
-    // 관계선 양 끝을 문서 점과 같은 프레임 값(docCurrentPos)으로 갱신 — 어긋남 원천 차단.
+    // Updates both ends of each relationship line with the same per-frame value (docCurrentPos) as the doc points — eliminates any chance of drift.
     if (linkLines.visible) {
       for (let li = 0; li < docLinks.length; li++) {
         const pa = docCurrentPos[docLinks[li].a];
@@ -973,7 +977,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
     renderer.dispose();
   }
 
-  /** M9.5: 클러스터 동작 잠금/해제 — 좌상단 체크박스 UI가 호출한다. */
+  /** M9.5: Cluster motion lock/unlock — called by the top-left checkbox UI. */
   function setClusterMotion(slug, enabled) {
     const entry = clusterBySlug.get(slug);
     if (!entry) return;
@@ -986,10 +990,11 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
   }
 
   /**
-   * 잠금 소등 = 회색화: off면 성운이 무채색(uSaturation→0)+잔광(LOCK_LIGHT)으로,
-   * 글로우는 회색 텍스처로, 개인 링·소속 문서 점·라벨도 회색으로 변한다.
-   * on이면 전부 원색 복귀. 검색 하이라이트의 dim/restore와는 lightFactor
-   * 곱으로 합성되므로 어느 경로가 나중에 실행돼도 소등 상태가 유지된다.
+   * Locked dim-out = grayscale: when off, the nebula goes desaturated (uSaturation→0) with an
+   * afterglow (LOCK_LIGHT), the glow switches to a gray texture, and the personal ring, member
+   * doc points, and label all turn gray too. When on, everything reverts to its original color.
+   * This composes with the search highlight's dim/restore via a lightFactor multiplication, so
+   * the dim-out state stays in effect regardless of which path runs last.
    */
   function setClusterLight(slug, on) {
     const entry = clusterBySlug.get(slug);
@@ -1018,7 +1023,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
         docColors[i * 3 + 1] = g;
         docColors[i * 3 + 2] = b;
       } else {
-        // 회색화: 휘도 하나로 3채널 통일 + 잔광 배율
+        // Grayscale: unify all 3 channels to a single luminance value, times the afterglow factor
         const lum = (0.299 * r + 0.587 * g + 0.114 * b) * DOC_LOCK_LIGHT;
         docColors[i * 3 + 0] = lum;
         docColors[i * 3 + 1] = lum;
@@ -1026,7 +1031,7 @@ export function createUniverseScene({ mountEl, labelMountEl, data }) {
       }
     }
     if (indices.length) docGeom.attributes.color.needsUpdate = true;
-    refreshLinkColors(); // 소등 클러스터에 걸친 관계선도 같은 규칙으로 회색화
+    refreshLinkColors(); // Relationship lines touching a dimmed cluster get grayscaled under the same rule
   }
 
   function getClusterLight(slug) {

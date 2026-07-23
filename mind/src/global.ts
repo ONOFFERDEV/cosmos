@@ -1,6 +1,7 @@
-// global 파이프라인: "전체/전수 나열" 질문 전용. 완전성이 필요한 답은 유사도 검색이 아니라
-// 완전성을 보장하는 구조(레지스트리 전수 + 클러스터 다이제스트)에서 나와야 한다는 M7 원칙.
-// CONTRACT.md "# M7 확장" 절 참고. search()는 보조 근거로만 병합한다.
+// global pipeline: for "full/complete enumeration" questions only. Answers that require
+// completeness must come from a completeness-guaranteeing structure (full registry +
+// cluster digests), not similarity search — the M7 principle.
+// See CONTRACT.md "# M7 확장" section. search() is merged only as supplementary evidence.
 
 import type { Entity, ClusterDigest } from "./core-client.js";
 import type { NumberedChunk, Sentence, AskEnvelope, TraceEntry } from "./envelope.js";
@@ -56,8 +57,9 @@ export async function runGlobalAsk(question: string, deps: AskDeps): Promise<Ask
   const startedAt = now();
   let llmCalls = 0;
 
-  // 세 요청을 즉시 동시에 시작하되(원래의 전체 병렬 성능 특성 보존), 진행 상황 단계는
-  // registry -> digests -> search 계약 순서를 보장하도록 개별 await 후 즉시 onProgress를 호출한다.
+  // Start all three requests immediately/concurrently (preserving the original full-parallel
+  // performance characteristics), but await each individually and fire onProgress right after
+  // to guarantee the contractual registry -> digests -> search stage ordering.
   const entitiesPromise = deps.core.listEntities(undefined, deps.ownerScope);
   const digestsPromise = deps.core.listClusterDigests(deps.ownerScope);
   const searchPromise = deps.core.search({ query: question, k: SEARCH_K, owner_scope: deps.ownerScope });

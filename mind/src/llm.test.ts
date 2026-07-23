@@ -11,7 +11,7 @@ import {
 const SONNET_ENV = "COSMOS_LLM_TIMEOUT_SONNET_MS";
 const OPUS_ENV = "COSMOS_LLM_TIMEOUT_OPUS_MS";
 
-/** resolveClaudeExePath에 주입할 탐색 대역을 만든다. calls는 (command, args) 호출 기록. */
+/** Builds a fake probe to inject into resolveClaudeExePath. calls records each (command, args) invocation. */
 function fakeProbe(
   stdout: string | null,
   status: number | null,
@@ -124,8 +124,8 @@ test("비-win32 분기: which 실행 자체가 안 되어도(status null, 컨테
 test("PATH 위임된 claude 리터럴이 실제로 없으면 spawn ENOENT를 한국어 '찾을 수 없음' 에러로 변환한다", async () => {
   __resetClaudeExePathCacheForTest();
   try {
-    // which/where.exe가 성공했다고 응답하지만, 그 결과가 실제로는 존재하지 않는
-    // 실행파일이라고 가정 — 실제 spawn 시점에 ENOENT가 나야 한다.
+    // Assume which/where.exe reports success, but the resolved path is actually a
+    // nonexistent executable — ENOENT should surface at the real spawn point.
     resolveClaudeExePath(process.platform, fakeProbe("cosmos-definitely-missing-claude-binary-xyz", 0));
     const client = new ClaudeCliLlmClient();
     await assert.rejects(

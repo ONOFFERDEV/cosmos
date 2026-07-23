@@ -1,7 +1,8 @@
-// 서버 레벨 /ask mode 강제 테스트. mode:"global"/"point"가 classifyIntent 추정을
-// 덮어쓰는지 확인한다. 두 케이스 모두 core 응답을 비워 LLM 호출 없이 short-circuit되도록
-// 설계해 실제 LLM 목킹 없이도 mode 분기 자체만 검증한다.
-// CONTRACT.md "# M7 확장" 절 참고.
+// Server-level /ask mode override test. Confirms mode:"global"/"point" overrides
+// the classifyIntent guess. Both cases leave the core response empty so the request
+// short-circuits without an LLM call, letting us verify the mode branch alone without
+// actually mocking the LLM.
+// See CONTRACT.md "# M7 확장" section.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -65,8 +66,9 @@ async function withServer(deps: ServerDeps, fn: (port: number) => Promise<void>)
   }
 }
 
-// M8: COSMOS_TOKEN을 임시로 설정해 토큰 기반 role 분기를 강제하고, 종료 시 원복한다.
-// 기존 두 mode 테스트는 COSMOS_TOKEN 미설정(전부 admin) 상태에 의존하므로 절대 건드리지 않는다.
+// M8: temporarily set COSMOS_TOKEN to force token-based role branching, restoring
+// it on exit. Never touch this for the two existing mode tests, since they rely on
+// COSMOS_TOKEN being unset (everyone is admin).
 async function withAuthServer(
   deps: ServerDeps,
   token: string,
@@ -163,8 +165,8 @@ test("mode:point는 global 형태 질문에도 fast 파이프라인을 강제한
   });
 });
 
-// --- M8: 사용자·역할, 브랜치 프록시, inbox 410 폐기 ---
-// CONTRACT.md "# M8 확장" 절 "## mind: 사용자·역할" 참고.
+// --- M8: users/roles, branch proxying, inbox 410 deprecation ---
+// See CONTRACT.md "# M8 확장" section "## mind: 사용자·역할".
 
 test("GET /me: COSMOS_TOKEN 미설정 시 토큰 없이도 부트스트랩 admin으로 응답한다", async () => {
   const core = makeBranchFakeCore();
@@ -341,7 +343,7 @@ test("POST /ingest: member는 branch_id 없으면 403, branch_id 있으면 200. 
       });
       assert.equal(memberNoBranch.status, 403);
       const memberNoBranchBody = await memberNoBranch.json() as { message: string };
-      // M9: branch_id 또는 owner=본인 중 하나 필수로 규칙이 확장되며 메시지도 갱신됐다(CONTRACT.md "# M9 확장" mind 절).
+      // M9: the rule was extended to require either branch_id or owner=self, and the message was updated accordingly (see CONTRACT.md "# M9 확장" mind section).
       assert.equal(memberNoBranchBody.message, "팀원 업로드는 브랜치를 지정하거나 owner=본인으로 개인 공간에 업로드해야 합니다");
 
       const memberWithBranch = await fetch(`http://127.0.0.1:${port}/ingest`, {

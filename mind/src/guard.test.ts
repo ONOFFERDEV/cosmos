@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { shouldSkipLlmCall, evaluateInsufficient, BLOCK_MESSAGE } from "./guard.js";
 import type { CitedSentence } from "./guard.js";
 
-// 트리거 (c): rerank_score < 0.0 이거나 검색 결과가 없으면(null) LLM 호출을 생략한다.
+// Trigger (c): skip the LLM call if rerank_score < 0.0 or there are no search results (null).
 test("트리거 (c): 검색 결과가 없으면(null) LLM 호출을 생략한다", () => {
   assert.equal(shouldSkipLlmCall(null), true);
 });
@@ -21,13 +21,13 @@ test("트리거 (c): rerank_score가 양수면 호출을 생략하지 않는다"
   assert.equal(shouldSkipLlmCall(0.5), false);
 });
 
-// 트리거 (a): LLM이 스스로 insufficient라고 선언
+// Trigger (a): LLM itself declares insufficient
 test("트리거 (a): LLM이 insufficient=true를 선언하면 인용이 있어도 insufficient", () => {
   const sentences: CitedSentence[] = [{ text: "답변", cites: [1] }];
   assert.equal(evaluateInsufficient(true, sentences), true);
 });
 
-// 트리거 (b): 문장이 없거나, 모든 문장의 cites가 빈 배열
+// Trigger (b): no sentences, or every sentence's cites is an empty array
 test("트리거 (b): 문장이 하나도 없으면 insufficient", () => {
   assert.equal(evaluateInsufficient(false, []), true);
 });

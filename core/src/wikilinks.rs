@@ -1,7 +1,7 @@
-//! M10: 결정론 문서 링크 추출 — LLM 무사용, 저자가 명시한 관계만 읽는다.
-//! 본문 `[[이름]]`/`[[이름|표시]]` → rel_type "links",
+//! M10: deterministic document link extraction — no LLM, reads only relationships the author explicitly stated.
+//! Body `[[name]]`/`[[name|display]]` → rel_type "links",
 //! frontmatter `metadata.up` → "up", `metadata.related` → "related".
-//! 파싱 실패는 어떤 경우에도 panic 없이 빈 결과로 수렴한다(ingest 경로에서 호출됨).
+//! Parse failures always resolve to an empty result without panicking (called from the ingest path).
 
 use serde_yaml::Value;
 
@@ -9,20 +9,20 @@ use serde_yaml::Value;
 pub struct ExtractedLink {
     /// "links" | "up" | "related"
     pub rel_type: String,
-    /// 정규화된 대상 이름(별칭 제거·trim·소문자)
+    /// Normalized target name (alias stripped, trimmed, lowercased)
     pub target_name: String,
 }
 
-/// 문서의 "이름" = origin 마지막 경로 세그먼트의 스템(.md 제거), 소문자.
+/// A document's "name" = the stem (with .md removed) of the last path segment of its origin, lowercased.
 /// `C:\...\pvec-vectorizer.md` → `pvec-vectorizer`,
-/// `knowledge://철수/폴더/노트.md` → `노트`, URL 등 비파일 origin도 마지막 세그먼트로 수렴.
+/// `knowledge://john/folder/note.md` → `note`; non-file origins like URLs also resolve to their last segment.
 pub fn doc_name_from_origin(origin: &str) -> String {
     let last = origin.rsplit(['/', '\\']).next().unwrap_or(origin);
     let stem = last.strip_suffix(".md").or_else(|| last.strip_suffix(".MD")).unwrap_or(last);
     stem.trim().to_lowercase()
 }
 
-/// `[[name]]`/`[[name|alias]]` 내부 이름 또는 일반 문자열을 링크 대상 이름으로 정규화.
+/// Normalizes the inner name of `[[name]]`/`[[name|alias]]`, or a plain string, into a link target name.
 fn normalize_target(raw: &str) -> Option<String> {
     let mut s = raw.trim();
     if let Some(inner) = s.strip_prefix("[[").and_then(|x| x.strip_suffix("]]")) {
@@ -35,7 +35,7 @@ fn normalize_target(raw: &str) -> Option<String> {
     Some(name.to_lowercase())
 }
 
-/// 본문에서 `[[...]]` 전부 추출(코드펜스 구분 없이 — 위키 관례상 링크는 링크다).
+/// Extracts all `[[...]]` from the body (no code-fence distinction — by wiki convention, a link is a link).
 fn extract_body_links(text: &str) -> Vec<String> {
     let mut out = Vec::new();
     let bytes = text.as_bytes();
@@ -44,7 +44,7 @@ fn extract_body_links(text: &str) -> Vec<String> {
         if bytes[i] == b'[' && bytes[i + 1] == b'[' {
             if let Some(end) = text[i + 2..].find("]]") {
                 let inner = &text[i + 2..i + 2 + end];
-                // 링크 내부에 개행이 있으면 위키링크가 아니라고 본다(대괄호 우연 일치 방어).
+                // Treat it as not a wikilink if there's a newline inside (guards against accidental bracket matches).
                 if !inner.contains('\n') {
                     if let Some(name) = normalize_target(inner) {
                         out.push(name);
@@ -59,8 +59,8 @@ fn extract_body_links(text: &str) -> Vec<String> {
     out
 }
 
-/// frontmatter의 metadata.up(스칼라) / metadata.related(리스트|스칼라)를 읽는다.
-/// 최상위 up/related도 허용(위키·메모리 양식 편차 흡수).
+/// Reads frontmatter's metadata.up (scalar) / metadata.related (list|scalar).
+/// Also allows top-level up/related (absorbs formatting variance between wiki and memory).
 fn extract_frontmatter_relations(text: &str) -> (Vec<String>, Vec<String>) {
     let mut ups = Vec::new();
     let mut relateds = Vec::new();
@@ -120,13 +120,13 @@ fn extract_block(text: &str) -> Option<String> {
     Some(rest[..end].to_string())
 }
 
-/// 문서 전체에서 링크를 추출한다. (rel_type, target) 단위 dedup, 자기 자신(doc_name) 제외.
+/// Extracts links across the whole document. Dedups by (rel_type, target), excludes self (doc_name).
 pub fn extract_links(text: &str, doc_name: &str) -> Vec<ExtractedLink> {
     let mut seen = std::collections::HashSet::new();
     let mut out = Vec::new();
     let mut push = |rel_type: &str, name: String| {
         if name == doc_name {
-            return; // 자기링크 제외
+            return; // exclude self-link
         }
         let link = ExtractedLink { rel_type: rel_type.to_string(), target_name: name };
         if seen.insert(link.clone()) {
@@ -141,14 +141,14 @@ pub fn extract_links(text: &str, doc_name: &str) -> Vec<ExtractedLink> {
     for n in relateds {
         push("related", n);
     }
-    // 본문 스캔은 frontmatter 블록을 제외한다 — up/related가 links로 이중 추출되는 것 방지.
+    // The body scan excludes the frontmatter block — prevents up/related from being double-extracted as links.
     for n in extract_body_links(body_after_frontmatter(text)) {
         push("links", n);
     }
     out
 }
 
-/// frontmatter 블록이 있으면 그 닫는 `---` 이후의 본문만 돌려준다.
+/// If a frontmatter block exists, returns only the body after its closing `---`.
 fn body_after_frontmatter(text: &str) -> &str {
     let stripped = text.strip_prefix('\u{feff}').unwrap_or(text);
     let Some(rest) = stripped.strip_prefix("---\n").or_else(|| stripped.strip_prefix("---\r\n")) else {
@@ -193,7 +193,7 @@ mod tests {
     #[test]
     fn malformed_inputs_never_panic() {
         assert!(extract_links("[[unclosed", "x").is_empty());
-        // a[[0]]과 [[0]]은 같은 대상 "0"으로 dedup되어 1건, 개행 포함 [[a\nb]]는 제외.
+        // a[[0]] and [[0]] dedup to the same target "0" as one match; the newline-containing [[a\nb]] is excluded.
         assert_eq!(extract_links("배열 인덱스 a[[0]] 같은 코드도 [[0]]으로 잡히지만 개행 [[a\nb]]는 제외", "x").len(), 1);
         assert!(extract_links("", "x").is_empty());
     }

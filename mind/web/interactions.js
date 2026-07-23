@@ -1,4 +1,4 @@
-// 포인터 호버/클릭 -> 툴팁 + 우측 상세 패널. three.js 장면 구성/렌더는 scene.js가 담당.
+// Pointer hover/click -> tooltip + right-side detail panel. three.js scene construction/render is handled by scene.js.
 import { authHeaders } from './ask.js';
 import { escapeHtml, formatOrigin, hexToCss } from './utils.js';
 
@@ -115,13 +115,13 @@ export function setupInteractions({ sceneApi, canvasEl, els }) {
     if (back && cluster) back.addEventListener('click', () => openClusterPanel(cluster));
     sceneApi.clearClusterHighlight();
     sceneApi.highlightDocByIndex(index);
-    // doc.pos는 정지 좌표(픽스처 원본) — 공전 중엔 getDocWorldPos()로 현재 위치를 써야
-    // 카메라가 빈 옛 자리로 가지 않는다(ask.js 출처 인용 클릭과 동일한 방식).
+    // doc.pos is the static coordinate (original fixture) — while orbiting, we must use getDocWorldPos()
+    // for the current position so the camera doesn't fly off to an empty old spot (same approach as ask.js's citation-click).
     sceneApi.focusOn(sceneApi.getDocWorldPos(index).toArray(), 26);
     void appendGraphLinks(doc);
   }
 
-  // M10: 문서의 관계(들어옴/나감)를 패널 하단에 비동기로 붙인다. 그래프 미가용이면 조용히 생략.
+  // M10: Asynchronously appends the document's relationships (inbound/outbound) to the bottom of the panel. Silently skipped if the graph is unavailable.
   async function appendGraphLinks(doc) {
     if (!doc.doc_id) return;
     let data;
@@ -132,7 +132,7 @@ export function setupInteractions({ sceneApi, canvasEl, els }) {
     } catch {
       return;
     }
-    if (panelTitle.textContent !== doc.title) return; // 그 사이 다른 패널로 이동함
+    if (panelTitle.textContent !== doc.title) return; // moved to a different panel in the meantime
     const total = (data.outbound?.length ?? 0) + (data.inbound?.length ?? 0);
     if (total === 0) return;
 

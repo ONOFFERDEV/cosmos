@@ -1,9 +1,9 @@
-// M10 문서 관계 그래프(doc_links) 저장 계층: 링크 교체(멱등)·dangling 역해석·
-// in/out 조회·1-hop 이웃. 스코프 판정은 engine 몫 — 여기서는 owner를 실어 나른다.
+// M10 document relationship graph (doc_links) storage layer: link replacement (idempotent), dangling
+// reverse-resolution, in/out queries, 1-hop neighbors. Scope decisions are engine's job — here we just carry the owner along.
 
 use super::*;
 
-/// 그래프 조회용 행 — 링크 + (해석됐다면) 상대 문서의 최소 메타.
+/// A row for graph queries — the link plus (if resolved) minimal metadata of the other document.
 #[derive(Debug, Clone)]
 pub struct DocLinkRow {
     pub rel_type: String,
@@ -16,8 +16,8 @@ pub struct DocLinkRow {
 }
 
 impl Store {
-    /// 문서의 링크 전체를 교체한다(재인제스트 멱등). 삽입 시 target_name과
-    /// 일치하는 doc_name을 가진 문서가 있으면 즉시 해석(target_doc_id)한다.
+    /// Replaces all of a document's links (idempotent on re-ingest). On insert,
+    /// if a document with a doc_name matching target_name exists, resolves it immediately (target_doc_id).
     pub fn replace_doc_links(&self, src_doc_id: &str, links: &[(String, String)]) -> Result<()> {
         let conn = self.conn.lock().expect("sqlite mutex poisoned");
         conn.execute("DELETE FROM doc_links WHERE src_doc_id = ?1", params![src_doc_id])
@@ -41,8 +41,8 @@ impl Store {
         Ok(())
     }
 
-    /// self-heal: 새 문서(doc_name)가 들어오면 그 이름을 기다리던 dangling
-    /// 링크들을 해석한다. 반환값 = 해석된 링크 수.
+    /// self-heal: when a new document (doc_name) arrives, resolves the dangling
+    /// links that were waiting on that name. Return value = number of links resolved.
     pub fn resolve_dangling_links(&self, doc_name: &str, doc_id: &str) -> Result<usize> {
         let conn = self.conn.lock().expect("sqlite mutex poisoned");
         let n = conn
@@ -55,7 +55,7 @@ impl Store {
         Ok(n)
     }
 
-    /// 나가는 링크(+해석된 상대 문서 메타).
+    /// Outgoing links (+ resolved metadata of the other document).
     pub fn links_out(&self, doc_id: &str) -> Result<Vec<DocLinkRow>> {
         self.query_links(
             "SELECT l.rel_type, l.target_name, d.id, d.origin, d.title, d.owner, d.branch_id
@@ -65,7 +65,7 @@ impl Store {
         )
     }
 
-    /// 들어오는 링크(출발 문서 메타 동봉). dangling은 정의상 존재하지 않는다.
+    /// Incoming links (with source document metadata attached). Dangling links don't exist here by definition.
     pub fn links_in(&self, doc_id: &str) -> Result<Vec<DocLinkRow>> {
         self.query_links(
             "SELECT l.rel_type, d.doc_name, d.id, d.origin, d.title, d.owner, d.branch_id
@@ -96,7 +96,7 @@ impl Store {
         Ok(rows)
     }
 
-    /// 1-hop 이웃 doc_id들(방향 무관, 입력 집합 제외, 중복 제거).
+    /// 1-hop neighbor doc_ids (direction-agnostic, excludes the input set, deduplicated).
     pub fn neighbor_doc_ids(&self, doc_ids: &[String]) -> Result<Vec<String>> {
         if doc_ids.is_empty() {
             return Ok(Vec::new());
@@ -127,8 +127,8 @@ impl Store {
         Ok(rows)
     }
 
-    /// 해석된 링크 쌍 전량(+양끝 문서의 owner/branch — 스코프 판정은 engine 몫).
-    /// 관계선 시각화용이라 dangling(target NULL)은 제외한다.
+    /// All resolved link pairs (+ owner/branch of both endpoint documents — scope decisions are engine's job).
+    /// Meant for relationship-graph visualization, so dangling links (target NULL) are excluded.
     pub fn resolved_link_pairs(
         &self,
     ) -> Result<Vec<(String, String, String, Option<String>, Option<String>, Option<String>, Option<String>)>> {
@@ -153,7 +153,7 @@ impl Store {
         Ok(rows)
     }
 
-    /// 이웃 응답용 문서 메타(스코프 판정용 owner/branch 포함).
+    /// Document metadata for neighbor responses (includes owner/branch for scope decisions).
     pub fn docs_meta_by_ids(
         &self,
         ids: &[String],

@@ -1,9 +1,10 @@
-// 클러스터 생명주기 데몬: core GET /lifecycle/proposals의 탄생/병합 후보를 처리한다.
-// CONTRACT.md "# M4 확장" 절 "lifecycle" 참고.
-// - 탄생 후보: bootstrap.ts와 동일한 방식으로 LLM 라벨링(slug/name/description) 후 POST /clusters/birth.
-//   후보 하나의 라벨링 실패는 그 후보만 건너뛰고 나머지는 정상 진행한다(격리).
-// - 병합 후보: 같은 쌍이 "연속 2회" 관측되어야만 실제 POST /clusters/merge를 호출한다(히스테리시스).
-//   관측 상태는 data/lifecycle.state.json에 저장. --dry-run은 상태 파일에 쓰지 않는다(부작용 없음).
+// Cluster lifecycle daemon: processes birth/merge candidates from core GET /lifecycle/proposals.
+// See CONTRACT.md "# M4 확장" section "lifecycle".
+// - Birth candidates: LLM-labeled (slug/name/description) the same way as bootstrap.ts, then POST /clusters/birth.
+//   A labeling failure on one candidate skips only that candidate; the rest proceed normally (isolation).
+// - Merge candidates: only calls the actual POST /clusters/merge once the same pair has been observed
+//   "연속 2회" (two consecutive times) (hysteresis).
+//   Observation state is stored in data/lifecycle.state.json. --dry-run does not write to the state file (no side effects).
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -67,7 +68,7 @@ interface LifecycleLlmLabelResponse {
   description?: unknown;
 }
 
-/** 병합 후보 쌍의 순서에 무관하게 동일한 키를 만든다(core가 a/b 순서를 매 호출 보장하지 않을 수 있음). */
+/** Builds the same key regardless of the merge candidate pair's order (core may not guarantee a/b order across calls). */
 function mergeKey(aId: string, bId: string): string {
   return [aId, bId].sort().join("::");
 }
@@ -154,7 +155,7 @@ async function processBirths(
         status: "created",
       });
     } catch (err) {
-      // 라벨링/탄생 실패는 이 후보만 건너뛴다 — 나머지 후보는 계속 진행(격리).
+      // A labeling/birth failure skips only this candidate — the rest proceed (isolation).
       outcomes.push({
         doc_ids: proposal.doc_ids,
         slug: null,
@@ -189,7 +190,7 @@ async function processMerges(
       } else {
         await deps.core.mergeClusters({ src_id: proposal.a_id, dst_id: proposal.b_id });
         outcomes.push({ ...proposal, streak, status: "merged" });
-        nextStreaks[key] = 0; // 병합 완료 — 잔여 스트릭이 다음 실행에 남지 않게 초기화
+        nextStreaks[key] = 0; // merge done — reset so the streak doesn't carry over into the next run
       }
     } else {
       outcomes.push({ ...proposal, streak, status: "observed" });

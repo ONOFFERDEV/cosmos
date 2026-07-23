@@ -1,4 +1,4 @@
-// store 단위 테스트 — 원 store.rs의 #[cfg(test)] mod tests 본문 그대로 이동.
+// store unit tests — moved verbatim from the #[cfg(test)] mod tests body of the original store.rs.
 
     use super::*;
 

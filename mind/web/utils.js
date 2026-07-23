@@ -1,4 +1,4 @@
-// 공용 헬퍼: 색상/텍스처/기하 계산. three.js 인스턴스에 의존하지 않는 순수 함수만 둔다.
+// Shared helpers: color/texture/geometry math. Pure functions only — no dependency on three.js instances.
 
 export const SOURCE_COLORS = {
   session: 0x2dd4bf,
@@ -13,7 +13,7 @@ export function sourceColor(sourceType) {
   return SOURCE_COLORS[sourceType] ?? FALLBACK_SOURCE_COLOR;
 }
 
-// 클러스터 개수에 관계없이 시각적으로 고르게 퍼지는 색상을 만들기 위한 골든 앵글 회전.
+// Golden-angle rotation to produce visually even color spread regardless of cluster count.
 export function clusterHue(index) {
   const hue = (index * 137.508) % 360;
   return hslToHex(hue, 0.62, 0.56);
@@ -48,7 +48,7 @@ export function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-// 문자열을 32비트 정수로 접는 결정론 해시(FNV-1a 변형). Math.random 대신 이 시드로 위치/크기를 재현 가능하게 뽑기 위함.
+// Deterministic hash (FNV-1a variant) that folds a string into a 32-bit integer. Used as a seed instead of Math.random so position/size can be derived reproducibly.
 export function hashSeed(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
@@ -58,7 +58,7 @@ export function hashSeed(str) {
   return h >>> 0;
 }
 
-// mulberry32 PRNG — hashSeed로 얻은 정수를 시드로 받아 [0,1) 결정론 난수열을 생성한다.
+// mulberry32 PRNG — takes the integer from hashSeed as a seed and generates a deterministic [0,1) random sequence.
 export function mulberry32(seed) {
   let a = seed >>> 0;
   return function rand() {
@@ -70,12 +70,12 @@ export function mulberry32(seed) {
   };
 }
 
-// 문자열 시드로 바로 결정론 난수 함수를 얻는 편의 헬퍼 (예: seededRandom(cluster.slug)).
+// Convenience helper to get a deterministic random function directly from a string seed (e.g. seededRandom(cluster.slug)).
 export function seededRandom(seedStr) {
   return mulberry32(hashSeed(seedStr));
 }
 
-// 두 점 사이를 완만하게 부풀린 아치형 곡선의 중간 제어점을 만든다 (three.QuadraticBezierCurve3 용).
+// Builds the midpoint control point of a gently bulging arc between two points (for three.QuadraticBezierCurve3).
 export function arcMidpoint(a, b, bulge = 0.16) {
   const mx = (a[0] + b[0]) / 2;
   const my = (a[1] + b[1]) / 2;
@@ -84,7 +84,7 @@ export function arcMidpoint(a, b, bulge = 0.16) {
   const dy = b[1] - a[1];
   const dz = b[2] - a[2];
   const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
-  // 임의의 축과 외적하여 선분에 수직인 방향을 하나 얻는다.
+  // Cross with an arbitrary axis to get a direction perpendicular to the segment.
   let px = dy * 1 - dz * 0;
   let py = dz * 0 - dx * 1;
   let pz = dx * 0 - dy * 0;
@@ -97,7 +97,7 @@ export function arcMidpoint(a, b, bulge = 0.16) {
   return [mx + px * scale, my + py * scale, mz + pz * scale];
 }
 
-// 런타임에 방사형 그라디언트 캔버스 텍스처를 만들어 스프라이트 글로우에 쓴다 (외부 이미지 요청 없음).
+// Builds a radial-gradient canvas texture at runtime for use as a sprite glow (no external image requests).
 export function makeGlowCanvas(hexColor, size = 128) {
   const canvas = document.createElement('canvas');
   canvas.width = size;

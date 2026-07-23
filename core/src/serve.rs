@@ -269,7 +269,7 @@ async fn branch_docs_handler(
     engine.branch_docs(&branch_id).map(Json).map_err(engine_error_to_app_error)
 }
 
-/// M10: `GET /graph/docs/{doc_id}?owner_scope=` — 문서의 in/out 관계(스코프 격리).
+/// M10: `GET /graph/docs/{doc_id}?owner_scope=` — a doc's in/out relations (scope-isolated).
 async fn graph_doc_handler(
     State(engine): State<Arc<Engine>>,
     Path(doc_id): Path<String>,
@@ -278,7 +278,7 @@ async fn graph_doc_handler(
     engine.graph_doc(&doc_id, q.owner_scope.as_deref()).map(Json).map_err(engine_error_to_app_error)
 }
 
-/// M10: `GET /graph/links?owner_scope=` — 스코프 안 해석 링크 쌍 전량(관계선 시각화용).
+/// M10: `GET /graph/links?owner_scope=` — all resolved link pairs within scope (for relation-line visualization).
 async fn graph_links_handler(
     State(engine): State<Arc<Engine>>,
     Query(q): Query<OwnerScopeQuery>,
@@ -286,7 +286,7 @@ async fn graph_links_handler(
     Ok(Json(engine.graph_links(q.owner_scope.as_deref())?))
 }
 
-/// M10: `POST /graph/neighbors` — 1-hop 이웃(mind fast 그래프 확장용).
+/// M10: `POST /graph/neighbors` — 1-hop neighbors (for mind's fast graph expansion).
 async fn graph_neighbors_handler(
     State(engine): State<Arc<Engine>>,
     Json(req): Json<GraphNeighborsRequest>,

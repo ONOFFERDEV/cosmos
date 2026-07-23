@@ -1,7 +1,7 @@
-// GET /universe 페이로드 조립. CONTRACT.md "# M4 확장" 절 "GET /universe" 참고.
-// core의 클러스터/centroid/문서 목록 + 로컬 data/queries.jsonl을 모아 3D 좌표를 계산한다.
-// 좌표 산출은 전부 결정론(Math.random 금지) — 고전 MDS는 거듭제곱법(power iteration)+디플레이션으로
-// 직접 구현한다(외부 선형대수 라이브러리 없이, zero-dependency 제약).
+// Assembles the GET /universe payload. See CONTRACT.md "# M4 확장" section "GET /universe".
+// Gathers core's cluster/centroid/doc lists + the local data/queries.jsonl to compute 3D coordinates.
+// Coordinate derivation is fully deterministic (no Math.random) — classical MDS is implemented
+// directly via power iteration + deflation (no external linear-algebra library, zero-dependency constraint).
 
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -18,7 +18,7 @@ export interface UniverseClusterNode {
   name: string | null;
   description: string | null;
   status: "active" | "dormant" | "merged";
-  /** M9: 개인 클러스터 소유자(null=공통) — 웹이 "개인 · " 라벨·링 구분에 사용. */
+  /** M9: personal cluster owner (null=shared) — used by the web UI to distinguish the "개인 · " label/ring. */
   owner: string | null;
   n_docs: number;
   n_chunks: number;
@@ -42,7 +42,7 @@ export interface UniverseEdge {
   weight: number;
 }
 
-/** M10 관계선: 문서 점 사이에 그릴 링크(양 끝 doc_id는 docs에 존재 보장). */
+/** M10 relationship lines: links to draw between doc points (both endpoint doc_ids are guaranteed to exist in docs). */
 export interface UniverseLink {
   src: string;
   dst: string;
@@ -62,14 +62,14 @@ export interface UniversePayload {
   clusters: UniverseClusterNode[];
   docs: UniverseDocNode[];
   edges: UniverseEdge[];
-  /** M10 관계선. core /graph/links 미가용(구버전·테스트 fake)이면 빈 배열. */
+  /** M10 relationship lines. Empty array if core /graph/links is unavailable (older version or test fake). */
   links: UniverseLink[];
   recent_queries: UniverseRecentQuery[];
 }
 
-// ---------- 벡터/유사도 ----------
+// ---------- Vectors/similarity ----------
 
-/** base64로 인코딩된 f32le(little-endian float32) 바이트열을 숫자 배열로 디코드한다. */
+/** Decodes a base64-encoded f32le (little-endian float32) byte sequence into a number array. */
 export function decodeCentroid(base64: string): number[] {
   const buf = Buffer.from(base64, "base64");
   const out: number[] = [];
@@ -93,7 +93,7 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   return dot / (Math.sqrt(na) * Math.sqrt(nb));
 }
 
-// ---------- 고전 MDS (결정론) ----------
+// ---------- Classical MDS (deterministic) ----------
 
 function matVec(m: number[][], v: number[]): number[] {
   const n = m.length;
@@ -120,9 +120,10 @@ function normalize(v: number[]): number[] {
 }
 
 /**
- * 대칭 행렬 m에 대해 결정론적 초기 벡터(Math.random 미사용)로 거듭제곱법을 수행,
- * 최대 절대값 고유벡터에 수렴시킨다. 초기 벡터는 sin() 기반 고정 패턴 — 올-1 벡터나
- * 단순 램프보다 임의 대칭행렬의 지배 고유벡터와 직교할 위험이 낮다.
+ * Runs power iteration on symmetric matrix m with a deterministic initial vector (no Math.random),
+ * converging to the eigenvector with the largest absolute eigenvalue. The initial vector is a fixed
+ * sin()-based pattern — lower risk of being orthogonal to an arbitrary symmetric matrix's dominant
+ * eigenvector than an all-1s vector or a simple ramp.
  */
 function powerIterationDominant(m: number[][], n: number, iterations = 200): number[] {
   let v = normalize(Array.from({ length: n }, (_, i) => Math.sin(i + 1) + 2));
@@ -136,10 +137,11 @@ function powerIterationDominant(m: number[][], n: number, iterations = 200): num
 }
 
 /**
- * 대칭 행렬 b의 상위 k개 고유값/고유벡터를 결정론적으로 구한다.
- * b가 음의 고유값을 가질 수 있어(비유클리드 거리 유래) 거듭제곱법이 최대 "절대값"
- * 고유값에 수렴하는 문제를, Gershgorin 상계로 b를 양의 방향으로 shift한 행렬에서
- * 거듭제곱법을 돌려 우회한다(고유벡터는 shift로 안 바뀌고, 고유값은 shift만큼 이동).
+ * Deterministically computes the top k eigenvalues/eigenvectors of symmetric matrix b.
+ * Since b can have negative eigenvalues (arising from non-Euclidean distances), power iteration
+ * would converge to the largest-absolute-value eigenvalue — this is worked around by running
+ * power iteration on a matrix shifted positive by the Gershgorin upper bound (eigenvectors are
+ * unchanged by the shift, and eigenvalues shift by that amount).
  */
 function topEigenpairs(b: number[][], n: number, k: number): { values: number[]; vectors: number[][] } {
   const values: number[] = [];
@@ -161,7 +163,7 @@ function topEigenpairs(b: number[][], n: number, k: number): { values: number[];
     const lambda = dot(v, wv);
     values.push(lambda);
     vectors.push(v);
-    // 디플레이션: work -= lambda * v vT
+    // Deflation: work -= lambda * v vT
     work = work.map((row, i) => row.map((x, j) => x - lambda * v[i]! * v[j]!));
   }
   return { values, vectors };
@@ -190,9 +192,9 @@ function doubleCenter(d2: number[][], n: number): number[][] {
 }
 
 /**
- * 코사인 거리(1-코사인유사도) 기반 고전 MDS로 벡터 목록을 3D 좌표로 투영한다.
- * 결정론: 동일 입력은 항상 동일 좌표. 좌표는 [-100,100] 균일 스케일로 정규화한다
- * (상대 거리/모양 보존을 위해 축마다 따로 스케일하지 않는다).
+ * Projects a list of vectors into 3D coordinates via classical MDS based on cosine distance (1-cosine similarity).
+ * Deterministic: identical input always yields identical coordinates. Coordinates are normalized to a
+ * uniform [-100,100] scale (not scaled per-axis separately, to preserve relative distances/shape).
  */
 export function classicalMds3D(vectors: number[][]): Vec3[] {
   const n = vectors.length;
@@ -229,15 +231,15 @@ export function classicalMds3D(vectors: number[][]): Vec3[] {
   return raw.map((p) => [p[0]! * scaleFactor, p[1]! * scaleFactor, p[2]! * scaleFactor] as Vec3);
 }
 
-// ---------- 클러스터 반경 / 문서 위치 ----------
+// ---------- Cluster radius / doc position ----------
 
-/** radius ∝ sqrt(n_chunks), 최소 6, 최대 40 (CONTRACT.md). */
+/** radius ∝ sqrt(n_chunks), min 6, max 40 (CONTRACT.md). */
 export function clusterRadius(nChunks: number): number {
   const r = Math.sqrt(Math.max(0, nChunks)) * 2;
   return Math.min(40, Math.max(6, r));
 }
 
-/** doc_id의 sha256으로 결정론적 구면 단위 방향 벡터를 만든다 (Math.random 미사용). */
+/** Builds a deterministic unit direction vector on a sphere from doc_id's sha256 (no Math.random). */
 export function hashDirection(docId: string): Vec3 {
   const digest = createHash("sha256").update(docId).digest();
   const a = digest.readUInt32BE(0) / 0xffffffff;
@@ -250,7 +252,7 @@ export function hashDirection(docId: string): Vec3 {
   return [x, y, z];
 }
 
-/** doc pos = 소속 클러스터 pos + hash(doc_id) 방향 × (1-fit)·radius·0.9 (fit null → 0.55). */
+/** doc pos = parent cluster pos + hash(doc_id) direction × (1-fit)·radius·0.9 (fit null → 0.55). */
 export function docPosition(clusterPos: Vec3, radius: number, docId: string, fit: number | null | undefined): Vec3 {
   const f = fit ?? 0.55;
   const dist = (1 - f) * radius * 0.9;
@@ -258,11 +260,11 @@ export function docPosition(clusterPos: Vec3, radius: number, docId: string, fit
   return [clusterPos[0] + dx * dist, clusterPos[1] + dy * dist, clusterPos[2] + dz * dist];
 }
 
-// ---------- 엣지 ----------
+// ---------- Edges ----------
 
 const EDGE_SIM_THRESHOLD = 0.3;
 
-/** 클러스터 centroid 코사인 유사도 ≥0.3 쌍만 엣지로 만든다. i<j만 순회하므로 자동으로 대칭/중복없음. */
+/** Only cluster centroid pairs with cosine similarity ≥0.3 become edges. Iterates i<j only, so automatically symmetric/no duplicates. */
 export function buildEdges(clusters: { slug: string; vector: number[] }[]): UniverseEdge[] {
   const edges: UniverseEdge[] = [];
   for (let i = 0; i < clusters.length; i++) {
@@ -276,7 +278,7 @@ export function buildEdges(clusters: { slug: string; vector: number[] }[]): Univ
   return edges;
 }
 
-// ---------- recent_queries (data/queries.jsonl 마지막 20건) ----------
+// ---------- recent_queries (last 20 entries from data/queries.jsonl) ----------
 
 interface QueryLogLine {
   question: string;
@@ -308,7 +310,7 @@ async function loadRecentQueries(dataDir: string): Promise<UniverseRecentQuery[]
     try {
       out.push(toRecentQuery(JSON.parse(line) as QueryLogLine));
     } catch {
-      // 손상된 라인은 건너뛴다
+      // Skip corrupted lines
     }
   }
   return out;
@@ -319,13 +321,13 @@ function defaultDataDir(): string {
   return path.resolve(here, "..", "..", "data");
 }
 
-// ---------- 조립 ----------
+// ---------- Assembly ----------
 
 export interface UniverseDeps {
   core: CoreClient;
   dataDir?: string;
   now?: () => Date;
-  /** M9: 지식 소유권 스코프. 미지정=shared(공개 뷰). */
+  /** M9: knowledge ownership scope. Unspecified=shared (public view). */
   ownerScope?: string;
 }
 
@@ -367,8 +369,8 @@ export async function buildUniverse(deps: UniverseDeps): Promise<UniversePayload
     };
   });
 
-  // centroid가 아직 없는 active 클러스터(방금 탄생 등)도 원점 배치로 목록엔 포함시켜 universe가
-  // core의 재계산 지연과 무관하게 항상 완전한 클러스터 목록을 내도록 한다.
+  // Active clusters that don't have a centroid yet (e.g. just created) are still included in the
+  // list at the origin, so universe always emits a complete cluster list regardless of core's recompute lag.
   for (const c of activeClusters) {
     if (centroidById.has(c.id)) continue;
     const radius = clusterRadius(c.n_chunks);
@@ -406,8 +408,8 @@ export async function buildUniverse(deps: UniverseDeps): Promise<UniversePayload
 
   const edges = buildEdges(laidOut.map((c, i) => ({ slug: c.slug, vector: vectors[i]! })));
 
-  // M10 관계선: core가 스코프 격리를 이미 강제하지만, 페이로드 계약("양 끝은 docs에
-  // 존재")을 위해 이 뷰의 문서 집합으로 한 번 더 거른다. 미가용 core는 조용히 빈 배열.
+  // M10 relationship lines: core already enforces scope isolation, but we filter once more against
+  // this view's doc set to satisfy the payload contract ("both endpoints exist in docs"). Unavailable core → silently empty array.
   let links: UniverseLink[] = [];
   const graphLinksFn = deps.core.graphLinks?.bind(deps.core);
   if (graphLinksFn) {

@@ -185,16 +185,16 @@ test("n_docs가 변하면 재생성하고 변화 없으면 스킵한다", async 
     const core = new MockCoreClient([cluster], [], []);
     const llm = new MockLlmClient(() => "새 다이제스트");
 
-    // 첫 실행: 다이제스트가 아직 없으므로 생성(스냅샷 기준선 확보).
+    // First run: no digest exists yet, so it's generated (establishes the snapshot baseline).
     const first = await generateDigests({ core, llm, dataDir }, {});
     assert.equal(first.generated, 1);
 
-    // 두 번째 실행: n_docs 변화 없음 -> 스킵.
+    // Second run: no change in n_docs -> skip.
     const second = await generateDigests({ core, llm, dataDir }, {});
     assert.equal(second.generated, 0);
     assert.equal(second.skipped, 1);
 
-    // n_docs 변경 후 재실행: 재생성.
+    // Rerun after n_docs changes: regenerated.
     core.clusters = [{ ...cluster, n_docs: 8 }];
     const third = await generateDigests({ core, llm, dataDir }, {});
     assert.equal(third.generated, 1);

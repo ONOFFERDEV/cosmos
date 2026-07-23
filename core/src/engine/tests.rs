@@ -1,4 +1,4 @@
-// engine 통합 테스트 — 원 engine.rs의 #[cfg(test)] mod tests 본문 그대로 이동.
+// engine integration tests — moved verbatim from the original engine.rs's #[cfg(test)] mod tests body.
 
     use super::*;
 
@@ -108,7 +108,7 @@
 
     /// M3: bootstrap-assigned docs get `cluster_slug` from chunk
     /// `cluster_ids` but never `fit` (`/clusters/bootstrap` never writes
-    /// `meta_json`) — confirms "부트스트랩 배정 문서는 null 정상" is exactly
+    /// `meta_json`) — confirms "null is expected for bootstrap-assigned docs" is exactly
     /// what the aggregation produces.
     #[test]
     fn doc_summary_slug_without_fit_for_bootstrap_only_assignment() {
@@ -1414,7 +1414,7 @@
         let _ = std::fs::remove_dir_all(&dir);
     }
 
-    /// M9 A2 gate 4 (승격 왕복): personal doc → tag → merge lands it shared
+    /// M9 A2 gate 4 (promotion round-trip): personal doc → tag → merge lands it shared
     /// (`owner = NULL`, `branch_id = NULL`) — then rollback restores both the
     /// branch tag and the prior owner, losslessly.
     #[test]
@@ -1445,7 +1445,7 @@
         let reopened = engine.list_branches(Some("open")).expect("list_branches open");
         assert_eq!(reopened.len(), 1, "rollback must reopen the branch");
 
-        // 왕복 반복: merge again lands it shared again.
+        // Round-trip repeat: merge again lands it shared again.
         engine.merge_branch(&branch.id, &MergeBranchRequest::default()).expect("re-merge");
         let (owner, _) = engine.store.doc_owner_and_branch("p1").unwrap().expect("doc exists");
         assert_eq!(owner, None);
@@ -1510,14 +1510,14 @@
         let _ = std::fs::remove_dir_all(&dir);
     }
 
-/// M10: 관계 그래프 — dangling 저장→새 문서 인제스트 시 역해석(self-heal),
-/// in/out 조회, 그리고 **스코프 격리**(타인 개인 문서는 관계 항목째 비노출).
-/// insert_doc이 doc_name(origin 스템)을 저장하므로 store 시딩만으로 검증 가능.
+/// M10: relationship graph — dangling links are stored, then re-resolved (self-heal) when a
+/// new doc is ingested; in/out lookup; and **scope isolation** (other users' personal docs are
+/// excluded from relations entirely). insert_doc stores doc_name (the origin stem), so seeding the store alone is enough to verify this.
 #[test]
 fn graph_links_resolve_and_respect_owner_scope() {
     let (engine, dir) = temp_engine();
 
-    // 공통 문서 a가 아직 없는 b와 타인 개인 문서 p를 가리킨다.
+    // Shared doc a points to b (not created yet) and to another user's personal doc p.
     engine.store.insert_doc("a", "session", "origin://notes/a.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
     engine.store.insert_doc("p", "session", "origin://notes/p.md", Some("P"), "h2", 10, "2026-01-01T00:00:00Z", None, Some("alice")).unwrap();
     engine.store.replace_doc_links("a", &[
@@ -1525,35 +1525,35 @@ fn graph_links_resolve_and_respect_owner_scope() {
         ("related".to_string(), "p".to_string()),
     ]).unwrap();
 
-    // b가 없을 땐 dangling.
+    // Dangling while b doesn't exist.
     let g = engine.graph_doc("a", None).unwrap();
     let b_link = g.outbound.iter().find(|l| l.target_name == "b").expect("b 링크 존재");
     assert!(b_link.doc.is_none(), "미해석(dangling)이어야 함");
-    // 공통 스코프에서 alice 개인 문서 p는 항목째 제외(이름도 유출 금지).
+    // In the shared scope, alice's personal doc p is excluded entirely (not even the name may leak).
     assert!(!g.outbound.iter().any(|l| l.target_name == "p"), "타인 개인 링크 비노출: {:?}", g.outbound);
 
-    // b 인제스트 → a의 dangling이 역해석돼야 한다(resolve_dangling_links).
+    // Ingesting b → a's dangling link must get re-resolved (resolve_dangling_links).
     engine.store.insert_doc("b", "session", "origin://notes/b.md", Some("B"), "h3", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
     engine.store.resolve_dangling_links("b", "b").unwrap();
     let g2 = engine.graph_doc("a", None).unwrap();
     let b_link2 = g2.outbound.iter().find(|l| l.target_name == "b").unwrap();
     assert_eq!(b_link2.doc.as_ref().map(|d| d.doc_id.as_str()), Some("b"), "self-heal 해석");
 
-    // inbound: b 입장에서 a가 들어온다.
+    // inbound: from b's perspective, a comes in.
     let gb = engine.graph_doc("b", None).unwrap();
     assert!(gb.inbound.iter().any(|l| l.doc.as_ref().map(|d| d.doc_id.as_str()) == Some("a")));
 
-    // alice 스코프에선 p 링크가 보인다.
+    // In alice's scope, the p link is visible.
     let ga = engine.graph_doc("a", Some("shared+alice")).unwrap();
     assert!(ga.outbound.iter().any(|l| l.target_name == "p" && l.doc.is_some()));
 
-    // 타인 개인 문서 자체 조회는 공통 스코프에서 404 동급.
+    // Looking up another user's personal doc directly is equivalent to a 404 in the shared scope.
     assert!(matches!(engine.graph_doc("p", None), Err(EngineError::DocNotFound(_))));
 
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// M10: 1-hop 이웃 확장 — 방향 무관 수집, 입력 제외, 스코프 격리, limit 상한.
+/// M10: 1-hop neighbor expansion — direction-agnostic collection, excludes the input itself, scope isolation, limit cap.
 #[test]
 fn graph_neighbors_expand_one_hop_with_scope() {
     let (engine, dir) = temp_engine();
@@ -1561,7 +1561,7 @@ fn graph_neighbors_expand_one_hop_with_scope() {
     engine.store.insert_doc("b", "manual", "origin://n/b.md", Some("B"), "h2", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
     engine.store.insert_doc("c", "manual", "origin://n/c.md", Some("C"), "h3", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
     engine.store.insert_doc("p", "manual", "origin://n/p.md", Some("P"), "h4", 10, "2026-01-01T00:00:00Z", None, Some("alice")).unwrap();
-    // a→b, c→a, a→p (p는 alice 개인)
+    // a→b, c→a, a→p (p is alice's personal doc)
     engine.store.replace_doc_links("a", &[("links".into(), "b".into()), ("links".into(), "p".into())]).unwrap();
     engine.store.replace_doc_links("c", &[("links".into(), "a".into())]).unwrap();
 
@@ -1586,15 +1586,15 @@ fn graph_neighbors_expand_one_hop_with_scope() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// P4: origin 접두 일괄 삭제 — chunks·entity·나가는 링크 동반 삭제,
-/// 들어오는 링크는 dangling(NULL) 복귀(새 origin 재인제스트 시 역해석 self-heal).
+/// P4: bulk delete by origin prefix — chunks, entities, and outgoing links are deleted together,
+/// while incoming links revert to dangling (NULL) (re-resolved via self-heal when the new origin is re-ingested).
 #[test]
 fn delete_docs_by_origin_prefix_redangles_inbound_links() {
     let (engine, dir) = temp_engine();
     engine.store.insert_doc("w1", "session", "C:\\hub\\wiki\\alpha.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, Some("admin")).unwrap();
     engine.store.insert_doc("w2", "session", "C:\\hub\\wiki\\beta.md", Some("B"), "h2", 10, "2026-01-01T00:00:00Z", None, Some("admin")).unwrap();
     engine.store.insert_doc("keep", "manual", "origin://keep.md", Some("K"), "h3", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
-    // keep→alpha (삭제 후 dangling 복귀 대상), w1→beta (동반 삭제 대상)
+    // keep→alpha (reverts to dangling after deletion), w1→beta (deleted along with it)
     engine.store.replace_doc_links("keep", &[("links".into(), "alpha".into())]).unwrap();
     engine.store.replace_doc_links("w1", &[("links".into(), "beta".into())]).unwrap();
 
@@ -1606,7 +1606,7 @@ fn delete_docs_by_origin_prefix_redangles_inbound_links() {
     assert!(engine.store.find_doc_by_origin("C:\\hub\\wiki\\alpha.md").unwrap().is_none(), "삭제 확인");
     assert!(engine.store.find_doc_by_origin("origin://keep.md").unwrap().is_some(), "비대상 보존");
 
-    // keep→alpha는 dangling으로 복귀했다가, alpha가 새 origin으로 들어오면 역해석.
+    // keep→alpha reverts to dangling, then gets re-resolved once alpha comes in under a new origin.
     let g = engine.graph_doc("keep", None).unwrap();
     let link = g.outbound.iter().find(|l| l.target_name == "alpha").expect("링크 유지");
     assert!(link.doc.is_none(), "dangling 복귀");
@@ -1619,15 +1619,15 @@ fn delete_docs_by_origin_prefix_redangles_inbound_links() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// M10 관계선: /graph/links는 해석된 쌍만 내고, 한쪽 끝이라도 스코프 밖이면
-/// 쌍째 제외한다(dangling도 정의상 제외 — target 미해석).
+/// M10 relations: /graph/links only emits resolved pairs — if either endpoint is out of scope,
+/// the whole pair is excluded (dangling links are excluded by definition too — the target is unresolved).
 #[test]
 fn graph_links_pairs_exclude_out_of_scope_endpoints() {
     let (engine, dir) = temp_engine();
     engine.store.insert_doc("a", "manual", "origin://n/a.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
     engine.store.insert_doc("b", "manual", "origin://n/b.md", Some("B"), "h2", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
     engine.store.insert_doc("p", "manual", "origin://n/p.md", Some("P"), "h3", 10, "2026-01-01T00:00:00Z", None, Some("alice")).unwrap();
-    // a→b(공용-공용), a→p(공용-개인), a→x(dangling), p→b(개인-공용)
+    // a→b (shared-shared), a→p (shared-personal), a→x (dangling), p→b (personal-shared)
     engine.store.replace_doc_links("a", &[
         ("links".into(), "b".into()),
         ("related".into(), "p".into()),
@@ -1635,14 +1635,14 @@ fn graph_links_pairs_exclude_out_of_scope_endpoints() {
     ]).unwrap();
     engine.store.replace_doc_links("p", &[("up".into(), "b".into())]).unwrap();
 
-    // 공통 스코프: a→b 하나만(개인이 낀 쌍·dangling 전부 제외).
+    // Shared scope: only a→b (pairs involving a personal doc, and all dangling ones, are excluded).
     let shared = engine.graph_links(None).unwrap();
     assert_eq!(shared.links.len(), 1, "공통 스코프 쌍 수: {:?}", shared.links);
     assert_eq!(shared.links[0].src_doc_id, "a");
     assert_eq!(shared.links[0].dst_doc_id, "b");
     assert_eq!(shared.links[0].rel_type, "links");
 
-    // alice 스코프: a→b, a→p, p→b 셋 다(dangling만 제외).
+    // alice's scope: all three of a→b, a→p, p→b (only dangling is excluded).
     let alice = engine.graph_links(Some("shared+alice")).unwrap();
     assert_eq!(alice.links.len(), 3, "alice 스코프 쌍 수: {:?}", alice.links);
     assert!(alice.links.iter().any(|l| l.src_doc_id == "p" && l.dst_doc_id == "b" && l.rel_type == "up"));

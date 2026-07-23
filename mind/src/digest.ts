@@ -1,8 +1,8 @@
-// 클러스터 다이제스트 생성기: 클러스터별 요약을 LLM으로 생성해 core에 저장한다.
-// CONTRACT.md "mind: 다이제스트 생성" 절 참고.
-// 재생성 조건: 다이제스트 부재 / 멤버 n_docs가 마지막 생성 시점과 다름 / opts.all=true(강제 전체).
-// n_docs 스냅샷은 data/digest.state.json에 저장한다(core 스키마 변경 없이 mind 측에서 추적).
-// LLM 호출 하나의 실패는 그 클러스터만 건너뛰고 나머지는 계속 진행한다(격리, lifecycle.ts의 후보 처리와 동일 패턴).
+// Cluster digest generator: generates a per-cluster summary via LLM and stores it in core.
+// See CONTRACT.md "mind: 다이제스트 생성" section.
+// Regeneration conditions: digest absent / member n_docs differs from last generation / opts.all=true (force all).
+// The n_docs snapshot is stored in data/digest.state.json (tracked on the mind side without a core schema change).
+// A single LLM call failure skips only that cluster and the rest continue (isolation, same pattern as lifecycle.ts's candidate handling).
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -15,7 +15,7 @@ export interface DigestDeps {
   core: CoreClient;
   llm: LlmClient;
   dataDir?: string;
-  /** M9: 순회할 소유권 스코프 목록. 기본 ["shared", "shared+admin"]. */
+  /** M9: list of ownership scopes to iterate. Defaults to ["shared", "shared+admin"]. */
   scopes?: string[];
 }
 
@@ -59,8 +59,8 @@ function needsRegeneration(
 ): boolean {
   if (all) return true;
   if (!hasDigest) return true;
-  // 다이제스트는 있지만 스냅샷이 없다(예: 상태 파일 소실) -> 변경 여부를 알 수 없으니
-  // 보수적으로 유지한다(불필요한 재생성으로 LLM 호출을 낭비하지 않는다).
+  // A digest exists but there's no snapshot (e.g. state file lost) -> we can't tell if it changed,
+  // so we conservatively keep it (avoids wasting an LLM call on an unnecessary regeneration).
   if (lastNDocs === undefined) return false;
   return lastNDocs !== currentNDocs;
 }
@@ -93,7 +93,7 @@ export async function generateDigests(deps: DigestDeps, opts: { all?: boolean } 
   const dataDir = deps.dataDir ?? defaultDataDir();
   const state = await loadState(dataDir);
 
-  // M9: 스코프별로 클러스터·다이제스트·문서를 모아 순회한다(개인 클러스터는 소유자 스코프에서만 보임).
+  // M9: gathers and iterates clusters/digests/docs per scope (personal clusters are only visible in the owner's scope).
   const scopes = deps.scopes ?? ["shared", "shared+admin"];
   const perScope = await Promise.all(
     scopes.map((scope) =>
@@ -143,7 +143,7 @@ export async function generateDigests(deps: DigestDeps, opts: { all?: boolean } 
       outcomes.push({ cluster_id: cluster.id, slug: cluster.slug, status: "generated" });
       generated++;
     } catch (err) {
-      // LLM/저장 실패는 이 클러스터만 건너뛴다 — 나머지 클러스터는 계속 진행(격리).
+      // LLM/save failure skips only this cluster — the rest continue (isolation).
       outcomes.push({ cluster_id: cluster.id, slug: cluster.slug, status: "failed", error: (err as Error).message });
       failed++;
     }

@@ -1,6 +1,8 @@
-// 개인 지식 레포 커넥터: 각자의 GitHub 레포(.md 노트)가 정본, mind가 서버에서 pull해
-// owner=본인 개인 공간으로 ingest한다. CONTRACT.md "개인 지식 레포 커넥터 (M9.6)" 참고.
-// GitHub 접근은 API 2콜(head sha → tarball)뿐이며 tar.gz는 무의존 파서로 푼다(mind 런타임 의존성 0 유지).
+// Personal knowledge repo connector: each person's GitHub repo (.md notes) is the source of
+// truth; mind pulls from the server and ingests it as owner=that person's own space. See
+// CONTRACT.md "개인 지식 레포 커넥터 (M9.6)".
+// GitHub access is just 2 API calls (head sha → tarball), and tar.gz is unpacked with a
+// dependency-free parser (keeps mind's runtime dependency count at 0).
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { request as httpsRequest } from "node:https";
@@ -11,16 +13,17 @@ import { defaultDataDir } from "./config.js";
 import type { CoreClient, IngestRequest } from "./core-client.js";
 
 export interface RepoEntry {
-  /** 개인 공간 소유자(users.json의 이름, admin은 "admin").
-   *  P4 공용 레포는 예약 키 "@shared/<레포이름>" — 사용자명에 '/'가 없어 충돌 불가. */
+  /** Owner of the personal space (name from users.json; admin gets "admin").
+   *  P4 shared repos use the reserved key "@shared/<repo-name>" — usernames can't
+   *  contain '/', so there's no collision. */
   owner: string;
-  /** P4: true면 공용 레포 — owner 없이 shared 스코프로 ingest된다(admin만 등록). */
+  /** P4: true for a shared repo — ingested under the shared scope with no owner (admin-only). */
   shared?: boolean;
-  /** "owner/name" 형식 */
+  /** "owner/name" format */
   repo: string;
-  /** 생략 시 GitHub 기본 브랜치 */
+  /** GitHub's default branch when omitted */
   branch?: string;
-  /** 개인 계정 레포용 토큰(선택). 없으면 env GITHUB_KNOWLEDGE_TOKEN 폴백. */
+  /** Token for a personal-account repo (optional). Falls back to env GITHUB_KNOWLEDGE_TOKEN. */
   token?: string;
   last_sha?: string;
   last_synced?: string;
@@ -64,7 +67,7 @@ export async function saveRepos(entries: RepoEntry[], dataDir = defaultDataDir()
   await writeFile(reposPath(dataDir), JSON.stringify(entries, null, 2), "utf8");
 }
 
-/** owner당 1레포(v1): 있으면 교체, 없으면 추가. repo 형식 검증 포함. */
+/** One repo per owner (v1): replaces if present, adds if not. Includes repo format validation. */
 export async function upsertRepo(
   entry: Pick<RepoEntry, "owner" | "repo" | "branch" | "token">,
   dataDir = defaultDataDir()
@@ -86,7 +89,7 @@ export async function upsertRepo(
   return next;
 }
 
-/** P4: 공용 레포 등록(admin 전용 라우트가 호출). 레포당 1항목 — 키는 "@shared/<이름>". */
+/** P4: register a shared repo (called by the admin-only route). One entry per repo — key is "@shared/<name>". */
 export async function upsertSharedRepo(
   entry: { repo: string; branch?: string; token?: string },
   dataDir = defaultDataDir()
@@ -110,7 +113,7 @@ export async function upsertSharedRepo(
   return next;
 }
 
-/** undici "fetch failed"는 원인이 cause 체인에 숨는다 — 진단 가능하게 펼친다. */
+/** undici's "fetch failed" hides the real cause in the cause chain — unwrap it here so it's diagnosable. */
 export function errorWithCause(err: unknown): string {
   const parts: string[] = [];
   let cur: unknown = err;
@@ -132,9 +135,9 @@ function authHeaders(entry: RepoEntry): Record<string, string> {
 }
 
 /**
- * tar 스트림에서 파일 경로→내용을 추출한다(512B 헤더 블록 규격).
- * GNU longname('L')과 pax 확장 헤더('x')의 path= 오버라이드를 지원해
- * 100자 초과 경로도 안전하게 읽는다. 그 외 타입은 건너뛴다.
+ * Extracts file path → content from a tar stream (512B header block format).
+ * Supports the path= override from GNU longname ('L') and pax extended headers
+ * ('x'), so paths over 100 chars are read safely too. Other types are skipped.
  */
 export function extractTarFiles(tarBuf: Buffer): Map<string, Buffer> {
   const files = new Map<string, Buffer>();
@@ -144,7 +147,7 @@ export function extractTarFiles(tarBuf: Buffer): Map<string, Buffer> {
 
   while (off + 512 <= tarBuf.length) {
     const header = tarBuf.subarray(off, off + 512);
-    if (header.every((b) => b === 0)) break; // 종료 블록
+    if (header.every((b) => b === 0)) break; // terminator block
 
     const rawName = header.subarray(0, 100).toString("utf8").replace(/\0.*$/, "");
     const sizeOctal = header.subarray(124, 136).toString("ascii").replace(/[^0-7]/g, "");
@@ -159,7 +162,7 @@ export function extractTarFiles(tarBuf: Buffer): Map<string, Buffer> {
       continue;
     }
     if (typeflag === "x" || typeflag === "g") {
-      // pax: "NN path=값\n" 레코드 나열
+      // pax: "NN path=value\n" record format
       const text = body.toString("utf8");
       const m = /(^|\n)\d+ path=([^\n]+)\n/.exec(text);
       if (typeflag === "x" && m) pendingPaxPath = m[2];
@@ -176,12 +179,15 @@ export function extractTarFiles(tarBuf: Buffer): Map<string, Buffer> {
 }
 
 /**
- * 프로덕션 GitHub 호출은 node:https 직접(리다이렉트 수동 추적, 60s 타임아웃).
- * 실측(2026-07-23, Rocky mind 컨테이너): 같은 프로세스에서 Slack fetch는 정상인데
- * GitHub만 undici가 UND_ERR_SOCKET/ECONNREFUSED/행 — docker exec의 새 node에선
- * 매번 성공. 원인 미규명이라 M3 전례(장시간 LLM 호출 node:http 직접)대로 우회.
- * 크로스 호스트 리다이렉트(tarball→codeload)에선 Authorization을 떼고 따라간다
- * (fetch의 표준 동작과 동일 — codeload URL은 사전 서명이라 무인증 동작).
+ * Production GitHub calls go straight through node:https (manual redirect
+ * tracking, 60s timeout). Measured (2026-07-23, Rocky mind container): in the
+ * same process, Slack fetch works fine, but GitHub alone hits undici
+ * UND_ERR_SOCKET/ECONNREFUSED/hangs — while a fresh node from docker exec
+ * succeeds every time. Root cause unidentified, so we work around it the same
+ * way as the M3 precedent (long-running LLM calls going straight through
+ * node:http). On a cross-host redirect (tarball→codeload) we strip
+ * Authorization before following it (same as fetch's standard behavior —
+ * the codeload URL is pre-signed, so it works unauthenticated).
  */
 function httpsGet(
   url: string,
@@ -212,7 +218,7 @@ function httpsGet(
   });
 }
 
-/** 테스트는 fetchImpl 주입 경로, 프로덕션(미주입)은 node:https 직접. */
+/** Tests go through the injected fetchImpl path; production (none injected) goes straight through node:https. */
 async function githubGet(
   url: string,
   entry: RepoEntry,
@@ -233,9 +239,9 @@ async function githubJson(url: string, entry: RepoEntry, fetchImpl: typeof fetch
   return JSON.parse(res.body.toString("utf8"));
 }
 
-/** head sha가 last_sha와 같으면 no-op. 변경 시 tarball→.md 추출→owner ingest. */
+/** No-op if head sha matches last_sha. On change: tarball→extract .md→owner ingest. */
 export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSyncResult> {
-  const fetchImpl = deps.fetchImpl; // 미주입(프로덕션)이면 githubGet이 node:https 직접 경로를 쓴다
+  const fetchImpl = deps.fetchImpl; // if none injected (production), githubGet takes the node:https direct path
   const now = deps.now ?? (() => new Date());
   const base = `https://api.github.com/repos/${entry.repo}`;
   const result: RepoSyncResult = { repo: entry.repo, owner: entry.owner, changed: false, ingested: 0, duplicate: 0 };
@@ -249,19 +255,19 @@ export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSy
   const head = (await githubJson(`${base}/commits/${encodeURIComponent(branch)}`, entry, fetchImpl)) as { sha?: string };
   if (!head.sha) throw new Error(`head sha를 얻지 못했습니다: ${entry.repo}@${branch}`);
   result.sha = head.sha;
-  if (head.sha === entry.last_sha) return result; // 무변경
+  if (head.sha === entry.last_sha) return result; // unchanged
 
   const tarRes = await githubGet(`${base}/tarball/${encodeURIComponent(branch)}`, entry, fetchImpl);
   if (tarRes.status < 200 || tarRes.status >= 300) throw new Error(`tarball ${tarRes.status}`);
   const files = extractTarFiles(gunzipSync(tarRes.body));
 
-  // P4: 공용 레포는 owner 없이(shared 스코프) "knowledge://shared/<레포이름>/" 네임스페이스로.
+  // P4: shared repos get no owner (shared scope) — namespaced as "knowledge://shared/<repo-name>/".
   const originBase = entry.shared ? `knowledge://shared/${entry.repo.split("/")[1]}` : `knowledge://${entry.owner}`;
 
   const docs: IngestRequest["docs"] = [];
   for (const [name, buf] of files) {
     if (!name.toLowerCase().endsWith(".md")) continue;
-    // GitHub tarball 경로는 "<repo>-<sha>/..." 접두 — 첫 세그먼트를 벗긴다.
+    // GitHub tarball paths are prefixed with "<repo>-<sha>/..." — strip the first segment.
     const rel = name.split("/").slice(1).join("/");
     if (!rel || rel.includes("node_modules/") || rel.split("/").some((seg) => seg.startsWith("."))) continue;
     const text = buf.toString("utf8");
@@ -293,7 +299,7 @@ export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSy
   return result;
 }
 
-/** 전체 레포 순회(cron·수동 공용). 실패는 항목에 기록하고 계속 진행한다. */
+/** Walks all repos (shared by cron and manual sync). Failures are recorded on the entry and syncing continues. */
 export async function syncAllRepos(deps: RepoDeps): Promise<RepoSyncResult[]> {
   const dataDir = deps.dataDir ?? defaultDataDir();
   const entries = await loadRepos(dataDir);
@@ -311,7 +317,7 @@ export async function syncAllRepos(deps: RepoDeps): Promise<RepoSyncResult[]> {
   return results;
 }
 
-/** 본인 것 1건만 즉시 동기화(웹 "지금 동기화"). */
+/** Immediately syncs just the caller's own entry (web's "지금 동기화" button). */
 export async function syncOwnerRepo(owner: string, deps: RepoDeps): Promise<RepoSyncResult | null> {
   const dataDir = deps.dataDir ?? defaultDataDir();
   const entries = await loadRepos(dataDir);
@@ -329,7 +335,7 @@ export async function syncOwnerRepo(owner: string, deps: RepoDeps): Promise<Repo
   }
 }
 
-/** 응답용: 토큰은 절대 밖으로 내보내지 않는다. */
+/** For responses: the token is never sent out. */
 export function publicRepoView(entry: RepoEntry): Omit<RepoEntry, "token"> & { has_token: boolean } {
   const { token, ...rest } = entry;
   return { ...rest, has_token: Boolean(token || process.env.GITHUB_KNOWLEDGE_TOKEN) };

@@ -1,5 +1,5 @@
-// 생명주기 판정(lifecycle_proposals): 스코프 순회(공통+문서 보유 owner 전부)로
-// 탄생/병합 후보 제안 — 스코프 교차 제안 금지. 실행·주기는 mind 데몬 몫.
+// Lifecycle evaluation (lifecycle_proposals): iterates scopes (shared + every owner holding docs) to
+// propose birth/merge candidates — no cross-scope proposals. Execution and scheduling are the mind daemon's job.
 
 use super::*;
 

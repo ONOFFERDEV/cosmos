@@ -1,4 +1,4 @@
-// chunks 테이블: 삽입/조회/임베딩 + scoped_chunk_ids(브랜치·owner exclusion-set의 심장).
+// chunks table: insert/lookup/embedding + scoped_chunk_ids (the heart of the branch/owner exclusion-set).
 
 use super::*;
 

@@ -1,4 +1,4 @@
-// clusters 테이블: 생성/조회/갱신/삭제 — 스코프 국소 연산(count/delete/reset _for_owner_scope) 포함.
+// clusters table: create/lookup/update/delete — includes scope-local operations (count/delete/reset _for_owner_scope).
 
 use super::*;
 

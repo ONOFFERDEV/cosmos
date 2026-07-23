@@ -25,7 +25,7 @@ test("resolveIdentity는 first_used_at을 write-once로 기록한다(2회 인증
     const afterSecond = await loadUsers(dataDir);
     assert.equal(afterSecond[0].first_used_at, firstStamp, "재인증 시 first_used_at이 갱신되면 안 된다(write-once)");
 
-    // 부트스트랩 admin(env COSMOS_TOKEN) 인증은 기록 대상이 아니다 — users.json에 admin 레코드가 생기지 않는다.
+    // Bootstrap admin (env COSMOS_TOKEN) auth is not tracked -- no admin record gets created in users.json.
     const adminIdentity = await resolveIdentity("bootstrap-secret-for-test", dataDir);
     assert.equal(adminIdentity?.name, "admin");
     const afterAdmin = await loadUsers(dataDir);

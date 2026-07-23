@@ -1,4 +1,4 @@
-// events(저널): append/list/get + rollback_* 역연산(생명주기 되돌리기의 저장 계층).
+// events (journal): append/list/get + rollback_* inverse operations (the storage layer for undoing lifecycle changes).
 
 use super::*;
 

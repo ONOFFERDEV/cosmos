@@ -81,7 +81,7 @@ pub struct IngestDoc {
 pub struct IngestRequest {
     pub docs: Vec<IngestDoc>,
     /// M8: when set, every doc in this batch is tagged into the given branch
-    /// (지식 PR) instead of landing on main.
+    /// (knowledge PR) instead of landing on main.
     #[serde(default)]
     pub branch_id: Option<String>,
     /// M9: when set, every doc in this batch is ingested into that member's
@@ -300,7 +300,7 @@ pub struct TagBranchDocsResponse {
 }
 
 // ---------------------------------------------------------------------
-// M10 관계 그래프 API 타입 (contract "관계 그래프 (M10 v1)")
+// M10 relationship graph API types (see contract "관계 그래프 (M10 v1)")
 // ---------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize)]
@@ -314,7 +314,7 @@ pub struct GraphDocRef {
 pub struct GraphLinkItem {
     pub rel_type: String,
     pub target_name: String,
-    /// 해석된 상대 문서(스코프 안일 때만). None = dangling(코퍼스 밖 이름).
+    /// The resolved target document (only when within scope). None = dangling (a name outside the corpus).
     pub doc: Option<GraphDocRef>,
 }
 
@@ -342,7 +342,7 @@ pub struct GraphNeighborDoc {
     pub snippet: String,
 }
 
-/// `GET /graph/links` 응답 항목 — 양 끝이 모두 스코프 안인 해석 링크(관계선 시각화용).
+/// `GET /graph/links` response item — a resolved link where both endpoints are within scope (for relationship-line visualization).
 #[derive(Debug, Clone, Serialize)]
 pub struct GraphLinkPair {
     pub src_doc_id: String,
@@ -925,7 +925,7 @@ pub struct CreateBranchRequest {
     pub created_by: Option<String>,
 }
 
-/// M8: a branch (지식 PR) — see `contract/openapi.yaml`'s `Branch` schema.
+/// M8: a branch (knowledge PR) — see `contract/openapi.yaml`'s `Branch` schema.
 #[derive(Debug, Clone, Serialize)]
 pub struct Branch {
     pub id: String,
@@ -1109,17 +1109,17 @@ impl Engine {
 }
 
 // ---------------------------------------------------------------------
-// 관심사별 impl 분할 — 파일명이 곧 지도다. 타입·공유 헬퍼·Engine 구조체는
-// 이 파일(mod.rs)에 있고, 각 자식 모듈은 use super::*로 접근한다.
+// Split into impls by concern — the filenames are the map. Types, shared helpers, and the Engine struct
+// live in this file (mod.rs), and each child module accesses them via use super::*.
 // ---------------------------------------------------------------------
-mod branches; // 지식 PR: 브랜치·승격·병합·폐기
-mod clusters; // bootstrap·birth·merge·메타 갱신
-mod graph; // M10 관계 그래프 조회
-mod ingest; // 데이터 유입
-mod lifecycle; // 탄생/병합 후보 판정
-mod listing; // 읽기 목록 API
-mod rollback; // 저널 inverse 적용
-mod search; // 하이브리드 검색·라우팅·misfits
+mod branches; // knowledge PR: branch · promote · merge · discard
+mod clusters; // bootstrap · birth · merge · metadata refresh
+mod graph; // M10 relationship graph lookup
+mod ingest; // data ingestion
+mod lifecycle; // birth/merge candidate determination
+mod listing; // read-only listing API
+mod rollback; // applying journal inverse ops
+mod search; // hybrid search · routing · misfits
 
 #[cfg(test)]
 mod tests;

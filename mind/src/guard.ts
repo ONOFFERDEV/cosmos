@@ -1,9 +1,9 @@
-// 안티할루시네이션 3중 가드 (CONTRACT.md M1 확장 절).
-// insufficient=true가 되는 3가지 독립 트리거:
-//  (a) LLM 스스로 insufficient라고 선언
-//  (b) 모든 문장이 인용([n]) 없음
-//  (c) 최상위 검색 결과의 rerank_score < 0.0 — 이 경우 LLM을 아예 호출하지 않고 단락(short-circuit)
-// (c)는 LLM 호출 전에 검사해야 하므로 별도 함수로 분리한다.
+// Anti-hallucination triple guard (CONTRACT.md M1 확장 section).
+// Three independent triggers that make insufficient=true:
+//  (a) LLM declares insufficient itself
+//  (b) no sentence has any citation ([n])
+//  (c) the top search result's rerank_score < 0.0 — in this case, skip calling the LLM entirely and short-circuit
+// (c) must be checked before the LLM call, so it's split into a separate function.
 
 export interface CitedSentence {
   text: string;
@@ -14,17 +14,17 @@ export const BLOCK_MESSAGE =
   "제공된 자료만으로는 이 질문에 답할 근거가 충분하지 않습니다.";
 
 /**
- * 트리거 (c): 최상위 검색 결과의 rerank_score가 0.0 미만이면 근거가 없다고 보고
- * LLM 호출 자체를 생략해야 한다. 검색 결과가 아예 없어도 동일하게 처리한다.
+ * Trigger (c): if the top search result's rerank_score is below 0.0, treat it as
+ * having no grounding and skip the LLM call entirely. Handled the same way when there are no search results at all.
  */
 export function shouldSkipLlmCall(topRerankScore: number | null): boolean {
   return topRerankScore === null || topRerankScore < 0.0;
 }
 
 /**
- * 트리거 (a)/(b): LLM 응답을 받은 뒤 적용한다.
- * - llmInsufficient가 true면 그대로 insufficient.
- * - 문장이 하나도 없거나, 모든 문장이 cites가 빈 배열이면 insufficient.
+ * Triggers (a)/(b): applied after receiving the LLM response.
+ * - If llmInsufficient is true, it's insufficient as-is.
+ * - insufficient if there are no sentences at all, or every sentence has an empty cites array.
  */
 export function evaluateInsufficient(
   llmInsufficient: boolean,

@@ -1,6 +1,6 @@
-// 데이터 유입(ingest_doc): 정규화·해시 dedup·청킹·임베딩·색인 + argmax 클러스터 배정.
-// 개인 문서(owner)는 owner 일치 클러스터에만, 첫 개인 문서는 personal-<owner> 자동 탄생.
-// CONTRACT.md "현재 계약 스냅샷" 유입 절 참고.
+// Data ingestion (ingest_doc): normalize · hash dedup · chunk · embed · index + argmax cluster assignment.
+// Personal docs (owner) go only into clusters matching that owner; the first personal doc auto-births personal-<owner>.
+// See the ingestion section of CONTRACT.md "현재 계약 스냅샷".
 
 use super::*;
 
@@ -9,7 +9,7 @@ impl Engine {
     /// self-verify anchor invariants, embed, persist (sqlite + bm25),
     /// journal.
     /// `branch_id`: `None` ingests onto main; `Some(id)` tags the doc into
-    /// that branch (지식 PR), 404-ing via `EngineError::BranchNotFound` if it
+    /// that branch (knowledge PR), 404-ing via `EngineError::BranchNotFound` if it
     /// doesn't exist. Checked unconditionally up front so a bad branch_id
     /// 404s regardless of duplicate-doc status below.
     /// `owner`: `None` ingests as shared/common; `Some(name)` scopes the doc
@@ -41,7 +41,7 @@ impl Engine {
         // duplicate-return path and the new/replaced path below, so daily
         // rescans self-heal the registry without a backfill command.
         let entity_fields = frontmatter::parse(text);
-        // M10: 결정론 관계 추출도 양 경로에서 교체(멱등) — 일일 재스캔이 곧 그래프 백필.
+        // M10: deterministic relation extraction is also replaced on both paths (idempotent) — the daily rescan is effectively the graph backfill.
         let doc_name = wikilinks::doc_name_from_origin(origin);
         let doc_links = wikilinks::extract_links(text, &doc_name);
         let link_pairs: Vec<(String, String)> =
@@ -91,7 +91,7 @@ impl Engine {
         if let Some(fields) = &entity_fields {
             self.store.upsert_entity(&doc_id, fields)?;
         }
-        // M10: 이 문서의 링크 저장 + 이 문서의 이름을 기다리던 dangling 링크 역해석(self-heal).
+        // M10: store this doc's links + resolve any dangling links that were waiting on this doc's name (self-heal).
         self.store.replace_doc_links(&doc_id, &link_pairs)?;
         self.store.resolve_dangling_links(&doc_name, &doc_id)?;
 

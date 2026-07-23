@@ -1,5 +1,5 @@
-// classifyIntent 결정론적 분류 테스트. LLM 호출 없이 오탐 없이 동작해야 한다.
-// CONTRACT.md "# M7 확장" 절 참고 — 애매하면 point 쪽으로 기운다.
+// Deterministic classification tests for classifyIntent. Must work without LLM calls and without false positives.
+// See CONTRACT.md "# M7 확장" section — leans toward point when ambiguous.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

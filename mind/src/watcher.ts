@@ -1,6 +1,6 @@
-// 폴링 스캐너(session/repo 경로): 설정된 소스의 .md 파일을 core /ingest에 벌크 전송한다.
-// fs.watch 미사용(Windows 신뢰성). CONTRACT.md M2 확장 절 "워처" 참고.
-// M6a: config.sources(session|repo, include_meta/docs_only)를 지원. 없으면 기존 dirs 폴백.
+// Polling scanner (session/repo paths): bulk-sends .md files from configured sources to core /ingest.
+// Does not use fs.watch (Windows reliability). See CONTRACT.md M2 extension section "워처".
+// M6a: supports config.sources (session|repo, include_meta/docs_only). Falls back to legacy dirs if absent.
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
@@ -11,7 +11,7 @@ import type { SourceConfig, WatcherConfig } from "./config.js";
 const EXCLUDED_FILENAMES = new Set(["MEMORY.md", "dashboard.md", "index.md", "log.md"]);
 const EXCLUDED_DIR_NAMES = new Set(["_templates"]);
 
-// M6a: 모드(session/repo) 무관하게 항상 제외한다.
+// M6a: always excluded regardless of mode (session/repo).
 const GLOBAL_EXCLUDED_FILENAMES = new Set(["RESULTS.md"]);
 const GLOBAL_EXCLUDED_DIR_NAMES = new Set(["node_modules", "target", "dist", ".git", ".omc", "data", "models", "vendor"]);
 
@@ -42,8 +42,9 @@ export async function listMarkdownFiles(dir: string, opts: { includeMeta?: boole
   return results;
 }
 
-// M6a: 레포 모드(docs_only)에서만 쓰는 화이트리스트 스캐너. 루트의 PLAN*.md/DESIGN*.md/README.md와
-// docs/·design/·contract/ 하위(재귀 *.md)만 수집한다. 그 외 루트 하위 디렉터리는 내려가지 않는다.
+// M6a: whitelist scanner used only in repo mode (docs_only). Collects only root-level
+// PLAN*.md/DESIGN*.md/README.md plus recursive *.md under docs/, design/, contract/.
+// Does not descend into any other root-level subdirectory.
 const DOCS_ONLY_ROOT_PATTERN = /^(plan|design)[^/\\]*\.md$/i;
 const DOCS_ONLY_SUBDIRS = new Set(["docs", "design", "contract"]);
 
@@ -94,7 +95,7 @@ export interface ScanSummary {
 
 export interface WatcherDeps {
   core: CoreClient;
-  // 테스트에서 원격 mind /ingest 호출을 mock하기 위한 주입 지점(collect.ts의 fetchImpl 패턴과 동일).
+  // Injection point for mocking the remote mind /ingest call in tests (same fetchImpl pattern as collect.ts).
   fetchImpl?: typeof fetch;
 }
 
@@ -102,7 +103,7 @@ export async function scanOnce(config: WatcherConfig, deps: WatcherDeps): Promis
   const summary: ScanSummary = { scanned: 0, ingested: 0, duplicate: 0, replaced: 0, failed: [] };
   const docs: IngestDoc[] = [];
 
-  // M6a: sources가 없거나 비어있으면 기존 dirs(session)를 소스로 취급해 폴백한다.
+  // M6a: if sources is missing or empty, falls back to treating the legacy dirs (session) as the source.
   const sources: SourceConfig[] =
     config.sources && config.sources.length > 0
       ? config.sources
@@ -136,16 +137,18 @@ export async function scanOnce(config: WatcherConfig, deps: WatcherDeps): Promis
     return summary;
   }
 
-  // M9: session 소스(메모리·위키)는 관리자 개인 지식, repo 소스(프로젝트 정본)는 공통 —
-  // owner가 다르므로 배치를 분리해 전송한다(0건 배치는 콜 생략).
+  // M9: session sources (memory/wiki) are the admin's personal knowledge, while repo sources
+  // (project canon) are shared — since the owner differs, batches are sent separately
+  // (a batch with 0 items skips the call).
   const sessionDocs = docs.filter((d) => d.source_type === "session");
   const repoDocs = docs.filter((d) => d.source_type !== "session");
   const batches: Array<{ docs: IngestDoc[]; owner?: string }> = [];
   if (sessionDocs.length > 0) batches.push({ docs: sessionDocs, owner: "admin" });
   if (repoDocs.length > 0) batches.push({ docs: repoDocs });
 
-  // COSMOS_MIND_URL이 설정돼 있으면 core를 직접 부르지 않고 mind 자신의 /ingest 프록시로 보낸다
-  // (컨테이너 분리 배포 등에서 core에 직접 네트워크 경로가 없는 워처를 위함). 미설정 시 기존 동작 그대로.
+  // If COSMOS_MIND_URL is set, sends to mind's own /ingest proxy instead of calling core directly
+  // (for watchers that have no direct network path to core, e.g. in split-container deployments).
+  // Falls back to the existing behavior if unset.
   const mindUrl = process.env.COSMOS_MIND_URL;
   for (const batch of batches) {
     const body = batch.owner ? { docs: batch.docs, owner: batch.owner } : { docs: batch.docs };

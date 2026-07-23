@@ -1,5 +1,6 @@
-// 승인 인박스: pending 목록 로드/표 렌더, approve(core /ingest 호출 후 approved/ 이동), reject(rejected/ 이동).
-// CONTRACT.md M2 확장 절 "승인 게이트" 참고. approve 이전에는 core /ingest를 절대 호출하지 않는다.
+// Approval inbox: loads/renders the pending list, approve (calls core /ingest then moves to
+// approved/), reject (moves to rejected/). See CONTRACT.md M2 extension section's "approval gate".
+// Never calls core /ingest before approve.
 
 import { readdir, readFile, writeFile, unlink, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -40,7 +41,7 @@ export async function listPending(dataDir?: string): Promise<PendingCandidate[]>
       const raw = await readFile(path.join(dir, f), "utf8");
       items.push(JSON.parse(raw) as PendingCandidate);
     } catch {
-      // 손상된 파일은 건너뛴다.
+      // Skip corrupted files.
     }
   }
   return items;

@@ -1,4 +1,4 @@
-// arXiv/RSS 수집기. CONTRACT.md M2 확장 절 "수집기" 참고. LLM 무사용 — 전 과정 결정론.
+// arXiv/RSS collector. See CONTRACT.md M2 extension section "수집기". No LLM use — fully deterministic end to end.
 
 import { readdir, readFile, writeFile, mkdir, unlink } from "node:fs/promises";
 import path from "node:path";
@@ -27,7 +27,7 @@ export interface CollectState {
   rss: Record<string, string>;
 }
 
-// ---- 순수 헬퍼 (유닛 테스트 대상, 네트워크·fs 무접촉) ----
+// ---- Pure helpers (unit-test targets, no network/fs access) ----
 
 const ENTITY_MAP: Record<string, string> = {
   amp: "&",
@@ -220,7 +220,7 @@ export function advanceCursor(
   return { ...state, [kind]: { ...state[kind], [key]: newestId } };
 }
 
-// ---- 오케스트레이션 (네트워크+fs, 유닛 테스트 대상 아님 — 스모크 테스트로만 검증) ----
+// ---- Orchestration (network+fs, not a unit-test target — verified only via smoke tests) ----
 
 export interface CollectSummary {
   written: number;
@@ -243,7 +243,7 @@ function inboxDir(dataDir: string, sub: "pending" | "approved" | "rejected" | "m
   return path.join(dataDir, "inbox", sub);
 }
 
-/** 이름이 충돌(409)하면 -2, -3, ... 접미사를 붙여 새 브랜치를 만든다(수집 실행마다 별도 브랜치). */
+/** If the name conflicts (409), appends a -2, -3, ... suffix to create a new branch (a separate branch per collection run). */
 async function createBranchWithSuffix(core: CoreClient, baseName: string, createdBy?: string): Promise<BranchSummary> {
   let attempt = 1;
   let name = baseName;
@@ -261,7 +261,7 @@ async function createBranchWithSuffix(core: CoreClient, baseName: string, create
   }
 }
 
-/** 이름이 이미 존재하면(409) 그 브랜치를 재사용하고, 없으면 새로 만든다(레거시 이전용 — 매번 새 브랜치를 만들지 않는다). */
+/** If the name already exists (409), reuses that branch; otherwise creates a new one (for legacy migration — avoids creating a new branch every time). */
 async function getOrCreateBranchByName(core: CoreClient, name: string, createdBy?: string): Promise<BranchSummary> {
   try {
     return await core.createBranch({ name, created_by: createdBy });
@@ -433,9 +433,9 @@ export interface MigrationResult {
 }
 
 /**
- * data/inbox/pending의 레거시 대기 항목을 브랜치(inbox-legacy)로 일회성 이전한다.
- * 대상이 없으면 아무 것도 하지 않는다(migrated=0). 이전 성공한 파일은 data/inbox/migrated로 옮긴다.
- * cli.ts의 serve 커맨드에서 서버 기동 후 1회 호출한다.
+ * One-time migration of legacy pending items in data/inbox/pending to a branch (inbox-legacy).
+ * Does nothing if there's nothing to migrate (migrated=0). Successfully migrated files are moved to data/inbox/migrated.
+ * Called once by cli.ts's serve command after the server starts.
  */
 export async function migrateLegacyInbox(deps: { core: CoreClient; dataDir?: string }): Promise<MigrationResult> {
   const dataDir = deps.dataDir ?? defaultDataDir();

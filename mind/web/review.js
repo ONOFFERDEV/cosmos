@@ -1,5 +1,5 @@
-// 지식 PR 검토 화면 — open 브랜치 목록/문서 열람 + 병합/거부(admin) + 오버레이 미리보기 검색.
-// app.js와 독립적으로 자체 초기화한다(무수정 연결). 인증 헤더/401 재시도 패턴은 ask.js와 동일하게 재구현.
+// Knowledge PR review screen — browse the open-branch list/documents + merge/reject (admin) + overlay preview search.
+// Initializes itself independently of app.js (a zero-modification connection). The auth-header/401-retry pattern is reimplemented identically to ask.js.
 
 const POLL_INTERVAL_MS = 60000;
 
@@ -16,7 +16,7 @@ let branches = [];
 let activeBranch = null;
 let activeDocs = [];
 
-// ---- 인증 헤더 + 401 재시도 (ask.js와 동일 패턴) ----
+// ---- Auth header + 401 retry (same pattern as ask.js) ----
 
 function authHeaders() {
   const token = localStorage.getItem('cosmos_token');
@@ -51,7 +51,7 @@ async function fetchJson(path, options) {
   return res.json();
 }
 
-// ---- DOM 헬퍼 ----
+// ---- DOM helpers ----
 
 function clear(node) {
   while (node.firstChild) node.removeChild(node.firstChild);
@@ -75,7 +75,7 @@ function formatDate(ts) {
   }
 }
 
-// ---- 데이터 로드 ----
+// ---- Data loading ----
 
 async function loadMe() {
   try {
@@ -97,14 +97,14 @@ async function refreshBadge() {
     branches = [];
   }
   const total = sumOpenDocs(branches);
-  // M8.6: 이 코드는 관리자에게만 초기화된다. 검토거리가 없어도 초대 등
-  // 관리 기능 진입로가 필요하므로 뱃지는 상시 노출("관리" 라벨로 전환).
+  // M8.6: this code only initializes for admins. Even with nothing pending review, the invite
+  // and other admin entry points are still needed, so the badge is always shown (switches to the "Manage" label).
   els.badgeBtn.hidden = false;
   els.badgeBtn.textContent = total > 0 ? `검토 ${total}` : '관리';
   els.badgeBtn.classList.toggle('review-badge-idle', total === 0);
 }
 
-// ---- 브랜치 목록 ----
+// ---- Branch list ----
 
 function renderBranchList() {
   activeBranch = null;
@@ -132,7 +132,7 @@ function renderBranchList() {
   els.panelBody.appendChild(buildInviteSection());
 }
 
-// ---- 팀원 초대 (admin 전용 패널 — M8.6) ----
+// ---- Invite a teammate (admin-only panel — M8.6) ----
 
 function buildInviteSection() {
   const container = el('div', { className: 'review-invite' });
@@ -240,7 +240,7 @@ function buildInviteSection() {
   return container;
 }
 
-// ---- 문서 테이블 ----
+// ---- Document table ----
 
 async function openBranch(branch) {
   activeBranch = branch;
@@ -373,7 +373,7 @@ async function doDiscard() {
   }
 }
 
-// ---- 미리보기 검색 (오버레이 /search) ----
+// ---- Preview search (overlay /search) ----
 
 function renderPreviewSearch() {
   const container = el('div', { className: 'review-preview' });
@@ -439,7 +439,7 @@ function renderPreviewResults(resultsEl, results) {
   }
 }
 
-// ---- 패널 토글 + 초기화 ----
+// ---- Panel toggle + initialization ----
 
 function togglePanel(forceOpen) {
   const shouldOpen = forceOpen ?? els.panel.hidden;
@@ -459,7 +459,7 @@ async function init() {
 
   await loadMe();
   if (role !== 'admin') {
-    // M8.6: 관리 콘솔은 admin 전용 — 멤버는 뱃지·패널을 아예 초기화하지 않는다(관리 요소 0).
+    // M8.6: the admin console is admin-only — members never initialize the badge/panel at all (zero admin elements).
     els.badgeBtn.hidden = true;
     return;
   }
@@ -478,7 +478,7 @@ init().catch((err) => {
   console.error('[cosmos] 검토 패널 초기화 실패', err);
 });
 
-// 질문 중 토큰을 새로 입력하면(ask.js 프롬프트) 새로고침 없이 관리 콘솔 재판정 (M8.6).
+// If a new token is entered mid-question (ask.js prompt), the admin console re-evaluates without a reload (M8.6).
 window.addEventListener('cosmos-token-updated', () => {
   init().catch(() => {});
 });

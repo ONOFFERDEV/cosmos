@@ -1,4 +1,4 @@
-// docs 테이블: 삽입/조회/삭제 + M9 소유권(owner 갱신·마이그레이션·소유자 열거).
+// docs table: insert/lookup/delete + M9 ownership (owner update · migration · owner enumeration).
 
 use super::*;
 
@@ -30,11 +30,11 @@ impl Store {
         Ok(())
     }
 
-    /// origin 접두로 문서를 일괄 삭제한다(P4 공용지식 이관 전환용).
-    /// chunks·entity·나가는 링크는 함께 삭제, 들어오는 링크는 dangling(NULL)으로
-    /// 되돌려 같은 이름의 문서가 새 origin으로 들어오면 역해석되게 한다.
-    /// tantivy 잔존 항목은 무해(검색이 scoped_chunk_ids로 SQLite와 교차 검증).
-    /// 반환 = 삭제된 doc_id 목록(dry-run은 호출부에서 이 목록만 쓰고 중단).
+    /// Bulk-deletes docs by origin prefix (for the P4 shared-knowledge migration cutover).
+    /// Deletes chunks/entity/outgoing links along with it; incoming links are reset to dangling (NULL)
+    /// so they get re-resolved if a doc with the same name comes back in under a new origin.
+    /// Leftover tantivy entries are harmless (search cross-checks against SQLite via scoped_chunk_ids).
+    /// Returns the deleted doc_id list (dry-run callers just use this list and stop there).
     pub fn docs_ids_by_origin_prefix(&self, prefix: &str) -> Result<Vec<String>> {
         let conn = self.conn.lock().expect("sqlite mutex poisoned");
         let like = format!("{}%", prefix.replace('\\', "\\\\").replace('%', "\\%").replace('_', "\\_"));
@@ -77,7 +77,7 @@ impl Store {
         owner: Option<&str>,
     ) -> Result<()> {
         let conn = self.conn.lock().expect("sqlite mutex poisoned");
-        // M10: doc_name(origin 스템)은 관계 그래프의 링크 해석 키 — 삽입 시 항상 계산해 둔다.
+        // M10: doc_name (the origin stem) is the link-resolution key for the relation graph — always compute it at insert time.
         let doc_name = crate::wikilinks::doc_name_from_origin(origin);
         conn.execute(
             "INSERT INTO docs(id, source_type, origin, title, hash, n_chars, ingested_at, meta_json, branch_id, owner, doc_name)

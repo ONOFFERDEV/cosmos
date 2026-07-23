@@ -214,7 +214,7 @@ fn main() -> Result<()> {
     }
 }
 
-/// P4: origin 접두 일괄 삭제(공용지식 네임스페이스 전환). Store 직접 오픈(모델 불요).
+/// P4: bulk delete by origin prefix (shared-knowledge namespace switchover). Opens the Store directly (no model needed).
 fn cmd_delete_origin(out: PathBuf, prefix: String, dry_run: bool) -> Result<()> {
     let db_path = out.join("cosmos.sqlite3");
     let store = cosmos_core::store::Store::open(&db_path).context("opening store")?;

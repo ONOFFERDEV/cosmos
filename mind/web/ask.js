@@ -1,10 +1,10 @@
-// 채팅 UI: /ask/stream SSE 소비 + 진행 단계/타자기 렌더링 + 출처·트레이스 표시.
+// Chat UI: consumes /ask/stream SSE + renders progress stages/typewriter effect + shows sources/trace.
 import { formatOrigin } from './utils.js';
 
 const INSUFFICIENT_TRIGGER = '코퍼스 밖';
 const TYPEWRITER_MAX_MS = 2800;
 
-// ---- 소형 DOM 헬퍼 (모든 동적 텍스트는 textContent로만 삽입, innerHTML 사용 안 함) ----
+// ---- Small DOM helpers (all dynamic text is inserted via textContent only, no innerHTML) ----
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -20,7 +20,7 @@ function displayOrigin(origin) {
   return formatOrigin(origin);
 }
 
-// ---- 단계 라벨 ----
+// ---- Stage labels ----
 
 const STAGE_LABELS = {
   route: (detail) => `클러스터 라우팅${detail ? ` (${detail})` : ''}`,
@@ -42,10 +42,10 @@ function formatStageLabel(stage, detail) {
   return detail ? `${stage} (${detail})` : String(stage);
 }
 
-// ---- 인증 헤더 + 401 재시도 ----
+// ---- Auth header + 401 retry ----
 
-// 초대 링크(#token=...) 처리: 첫 접속 시 토큰을 자동 저장하고 주소창에서 즉시 제거한다.
-// fragment는 서버로 전송되지 않아 접근 로그에도 남지 않는다. (M8 온보딩)
+// Handles invite links (#token=...): on first visit, auto-saves the token and immediately strips it from the address bar.
+// The fragment is never sent to the server, so it doesn't show up in access logs either. (M8 onboarding)
 (function adoptInviteToken() {
   const m = /[#&]token=([0-9a-fA-F]{16,})/.exec(window.location.hash);
   if (!m) return;
@@ -58,9 +58,9 @@ export function authHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ---- 내 지식 연결(개인 레포 커넥터, M9.6) ----
-// 정본은 각자의 GitHub 레포 — 서버가 주기적으로 pull해 내 개인 공간으로 넣는다.
-// 이 패널은 연결 상태 확인·레포 등록·즉시 동기화만 담당한다(PC측 설치물 0).
+// ---- My knowledge connector (personal repo connector, M9.6) ----
+// The source of truth is each person's own GitHub repo — the server periodically pulls it into my personal space.
+// This panel only handles checking connection status, registering the repo, and triggering an immediate sync (zero client-side install).
 function setupMyKnowledgeButton() {
   const btn = document.getElementById('my-knowledge-btn');
   if (!btn) return;
@@ -208,7 +208,7 @@ async function retryWithPromptedToken(doFetch) {
   const token = window.prompt('인증이 필요합니다. 토큰을 입력해 주세요.');
   if (!token) return null;
   localStorage.setItem('cosmos_token', token);
-  // 관리자 토큰이면 관리 콘솔(review.js)이 새로고침 없이 바로 나타나도록 알린다 (M8.6).
+  // If it's an admin token, notify so the admin console (review.js) appears immediately without a reload (M8.6).
   window.dispatchEvent(new CustomEvent('cosmos-token-updated'));
   try {
     return await doFetch();
@@ -217,7 +217,7 @@ async function retryWithPromptedToken(doFetch) {
   }
 }
 
-// ---- 요청 모드 매핑 (AUTO=필드 생략, FAST="point", DEEP="deep") ----
+// ---- Request mode mapping (AUTO=field omitted, FAST="point", DEEP="deep") ----
 
 function requestModeField(uiMode) {
   if (uiMode === 'fast') return 'point';
@@ -225,7 +225,7 @@ function requestModeField(uiMode) {
   return undefined;
 }
 
-// ---- SSE 스트리밍 경로 ----
+// ---- SSE streaming path ----
 
 async function openStreamResponse(question, modeField) {
   const body = { question };
@@ -287,7 +287,7 @@ async function streamAsk(question, modeField, { onStage } = {}) {
           const payload = JSON.parse(dataLine);
           onStage?.(payload.stage, payload.detail);
         } catch {
-          // 형식이 어긋난 status 프레임은 진행 표시만 건너뛴다.
+          // A malformed status frame just skips the progress display update.
         }
       } else if (ev === 'envelope') {
         try {
@@ -312,7 +312,7 @@ async function streamAsk(question, modeField, { onStage } = {}) {
   throw e;
 }
 
-// ---- 비스트리밍 폴백 경로 (/ask) ----
+// ---- Non-streaming fallback path (/ask) ----
 
 async function postAskPlain(question, modeField) {
   const body = { question };
@@ -340,7 +340,7 @@ async function postAskPlain(question, modeField) {
   return res.json();
 }
 
-// ---- fixture 모드 (?fixture=1) — 서버 없이 자체 완결 시뮬레이션 ----
+// ---- Fixture mode (?fixture=1) — self-contained simulation, no server needed ----
 
 function buildFixtureEnvelope(question, uiMode) {
   const insufficient = question.includes(INSUFFICIENT_TRIGGER);
@@ -394,7 +394,7 @@ async function fixtureFlow(question, uiMode, { onStage } = {}) {
   return buildFixtureEnvelope(question, uiMode);
 }
 
-// ---- 진행 단계 목록 관리 ----
+// ---- Progress stage list management ----
 
 function setStageState(row, state) {
   row.classList.remove('stage-active', 'stage-done');
@@ -437,7 +437,7 @@ function createStageManager(listEl) {
   return { upsert, finishAll };
 }
 
-// ---- 경과 시간 타이머 ----
+// ---- Elapsed time timer ----
 
 function startElapsedTimer(timerEl) {
   const t0 = Date.now();
@@ -448,7 +448,7 @@ function startElapsedTimer(timerEl) {
   return () => clearInterval(id);
 }
 
-// ---- 타자기 효과 (최대 TYPEWRITER_MAX_MS 안에 완료 보장) ----
+// ---- Typewriter effect (guaranteed to finish within TYPEWRITER_MAX_MS) ----
 
 function typewriter(container, text) {
   return new Promise((resolve) => {
@@ -493,7 +493,7 @@ function renderAnswerWithCitations(container, envelope) {
   });
 }
 
-// ---- mode 뱃지 / 출처 / 트레이스 렌더 ----
+// ---- Renders the mode badge / sources / trace ----
 
 function buildModeBadge(envelope) {
   if (envelope.insufficient) {
@@ -575,7 +575,7 @@ function renderErrorBubble(bubble, message) {
   bubble.appendChild(el('div', 'answer-text', message));
 }
 
-// ---- 메시지 DOM 조립 ----
+// ---- Message DOM assembly ----
 
 function appendUserMessage(threadEl, text) {
   const msg = document.createElement('div');
@@ -600,7 +600,7 @@ function appendPendingCosmosMessage(threadEl) {
   return { bubble, stageList, timer };
 }
 
-// ---- 요청 오케스트레이션 (SSE → 실패 시 /ask 폴백, fixture 모드는 별도 경로) ----
+// ---- Request orchestration (SSE → falls back to /ask on failure; fixture mode uses a separate path) ----
 
 async function askFlow({ question, uiMode, isFixtureMode, stageManager, timerEl }) {
   const stopTimer = startElapsedTimer(timerEl);
@@ -634,7 +634,7 @@ async function askFlow({ question, uiMode, isFixtureMode, stageManager, timerEl 
   }
 }
 
-// ---- 공개 진입점 ----
+// ---- Public entry point ----
 
 export function setupAsk({ els, isFixtureMode }) {
   let currentMode = 'auto';

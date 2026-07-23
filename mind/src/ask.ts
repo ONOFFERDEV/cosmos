@@ -1,6 +1,6 @@
-// fast Q&A 파이프라인: 질문 → 라우팅 → core /search(스코프 검색) → LLM 1회 호출(근거 인용) →
-// 안티할루시네이션 3중 가드 → 응답 봉투 조립 → data/queries.jsonl 로깅.
-// CONTRACT.md M1 확장 절 "/ask" 참고.
+// fast Q&A pipeline: question -> routing -> core /search (scoped search) -> one LLM call
+// (cited evidence) -> triple anti-hallucination guard -> assemble response envelope ->
+// log to data/queries.jsonl. See CONTRACT.md M1 extension section "/ask".
 
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -20,13 +20,13 @@ const SEARCH_K = 8;
 export interface AskDeps {
   core: CoreClient;
   llm: LlmClient;
-  /** data/queries.jsonl을 둘 디렉터리. 기본값은 mind/ 상위의 cosmos/data. */
+  /** Directory to place data/queries.jsonl in. Defaults to cosmos/data, one level above mind/. */
   dataDir?: string;
-  /** 소요시간 측정용 시계. 테스트에서 주입 가능. */
+  /** Clock for measuring elapsed time. Can be injected in tests. */
   now?: () => number;
-  /** SSE 진행 상황 훅. 미지정 시 동작 변화 없음(no-op). CONTRACT.md "# M7.5 확장" 참고. */
+  /** SSE progress hook. No behavior change (no-op) if unset. See CONTRACT.md "# M7.5 확장". */
   onProgress?: (stage: string, detail?: string) => void;
-  /** M9: 지식 소유권 스코프("shared" | "shared+<name>"). 미지정=shared(기존 동작). */
+  /** M9: knowledge ownership scope ("shared" | "shared+<name>"). Unset = shared (existing behavior). */
   ownerScope?: string;
 }
 
@@ -56,7 +56,7 @@ ${chunkText || "(근거 자료 없음)"}
 {"sentences": [{"text": "문장 내용", "cites": [1, 2]}], "insufficient": false}`;
 }
 
-/** LLM이 돌려준 sentences 배열을 방어적으로 정제한다 (형식이 어긋난 항목은 버림). */
+/** Defensively normalizes the sentences array returned by the LLM (drops malformed items). */
 export function normalizeSentences(raw: unknown, maxCiteNumber: number): Sentence[] {
   if (!Array.isArray(raw)) {
     return [];
@@ -79,7 +79,7 @@ export function normalizeSentences(raw: unknown, maxCiteNumber: number): Sentenc
 
 function defaultDataDir(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  // 컴파일 결과는 mind/dist/ask.js이므로, 두 단계 위(mind/ -> cosmos/)로 올라가 data/에 붙는다.
+  // Compiled output lands at mind/dist/ask.js, so go up two levels (mind/ -> cosmos/) to reach data/.
   return path.resolve(here, "..", "..", "data");
 }
 
@@ -110,7 +110,7 @@ export async function runAsk(question: string, deps: AskDeps): Promise<AskEnvelo
   const routeResponse = await deps.core.route(question, deps.ownerScope);
   const decisions = decideRoutes(routeResponse.scores);
   const consultedIds = consultedClusterIds(decisions);
-  // detail은 UI 표시용이므로 UUID가 아니라 slug를 보낸다 (CONTRACT M7.5 stage 표준).
+  // detail is for UI display, so send the slug rather than the UUID (CONTRACT M7.5 stage standard).
   const consultedSlugs = decisions.filter((d) => d.action === "consulted").map((d) => d.slug);
   deps.onProgress?.("route", consultedSlugs.length > 0 ? consultedSlugs.join(",") : undefined);
 
@@ -129,9 +129,10 @@ export async function runAsk(question: string, deps: AskDeps): Promise<AskEnvelo
 
   const results = searchResponse.results;
 
-  // M10 그래프 확장: 검색 히트 문서들의 1-hop 이웃(저자가 [[링크]]로 명시한 관계)을
-  // 인용 후보로 뒤에 합류시킨다. 실패·미구현(fake core)은 조용히 건너뛴다 —
-  // 확장은 보강이지 필수 경로가 아니다.
+  // M10 graph extension: append the 1-hop neighbors of the search-hit documents (relations
+  // the author made explicit via [[wikilinks]]) as citation candidates. Failures or an
+  // unimplemented backend (fake core) are silently skipped — this is an enhancement,
+  // not a required path.
   const GRAPH_NEIGHBOR_LIMIT = 4;
   let graphNeighbors: { origin: string; title?: string | null; snippet: string; doc_id: string }[] = [];
   const graphFn = (deps.core as Partial<CoreClient>).graphNeighbors?.bind(deps.core);
@@ -150,7 +151,7 @@ export async function runAsk(question: string, deps: AskDeps): Promise<AskEnvelo
         });
       }
     } catch {
-      // 그래프 미가용은 답변을 막지 않는다.
+      // Graph unavailability doesn't block the answer.
     }
   }
 

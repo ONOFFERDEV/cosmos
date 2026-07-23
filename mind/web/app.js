@@ -1,4 +1,4 @@
-// 엔트리 포인트: 데이터 로드 -> scene/interactions/ask 모듈 부트스트랩.
+// Entry point: load data -> bootstrap scene/interactions/ask modules.
 import { createUniverseScene } from './scene.js';
 import { setupInteractions } from './interactions.js';
 import { setupAsk, authHeaders } from './ask.js';
@@ -41,8 +41,8 @@ function networkErrorMessage(err) {
 async function loadUniverse() {
   let res;
   try {
-    // M9: 토큰이 있으면 본인 스코프(공통+개인)로 코스모스를 받는다 — 헤더가
-    // 빠지면 admin이어도 무인증(공통만) 뷰가 되는 것이 실사용에서 확인된 구멍.
+    // M9: If a token exists, fetch the cosmos in the caller's own scope (shared+personal) — omitting
+    // this header falls back to the unauthenticated (shared-only) view even for admins, a gap confirmed in real usage.
     res = await fetch(dataUrl, { headers: authHeaders() });
   } catch (err) {
     throw new Error(networkErrorMessage(err));
@@ -67,9 +67,9 @@ function populateLegendStats(data) {
   els.legendStats.textContent = `클러스터 ${data.clusters.length}개 · 문서 ${data.docs.length}개`;
 }
 
-// ---- 클러스터 동작 잠금(좌상단 체크박스) ----
-// 체크 = 동작, 해제 = 잠금(그 자리 정지). 잠근 목록은 localStorage에 남아
-// 새로고침 후에도 유지된다(코퍼스에 없는 슬러그는 무시).
+// ---- Cluster motion lock (top-left checkboxes) ----
+// Checked = moving, unchecked = locked (frozen in place). The locked list is kept in localStorage
+// and persists across reloads (slugs not present in the corpus are ignored).
 const MOTION_LOCKS_KEY = 'cosmos-motion-locks';
 
 function loadMotionLocks() {
@@ -85,7 +85,7 @@ function saveMotionLocks(locked) {
   try {
     localStorage.setItem(MOTION_LOCKS_KEY, JSON.stringify([...locked]));
   } catch {
-    /* 저장 실패는 치명적이지 않다(프라이빗 모드 등) */
+    /* save failure isn't fatal (e.g. private browsing mode) */
   }
 }
 
@@ -96,7 +96,7 @@ function setupMotionControls(sceneApi) {
 
   const locked = loadMotionLocks();
   const rows = [];
-  const groupHeads = []; // { checkbox, rows } — 섹션(개인/공용) 일괄 토글
+  const groupHeads = []; // { checkbox, rows } — bulk toggle per section (personal/shared)
 
   function syncCheckbox(checkboxEl, groupRows) {
     const on = groupRows.filter((r) => r.checkbox.checked).length;
@@ -132,7 +132,7 @@ function setupMotionControls(sceneApi) {
 
     const name = document.createElement('span');
     name.className = 'motion-name';
-    // 섹션으로 이미 구분되므로 목록 안에선 "개인 · " 접두를 뺀다(3D 라벨은 유지).
+    // Already distinguished by section, so drop the "개인 · " prefix within the list (the 3D label keeps it).
     name.textContent = entry.data.name ?? entry.slug;
     name.title = name.textContent;
 
@@ -187,16 +187,16 @@ function setupMotionControls(sceneApi) {
     syncHeads();
   });
 
-  // 주의: 지금 화면에 없는 슬러그도 locked에 남겨둔다 — 무인증 뷰(공통만)에서
-  // 로드해도 개인 클러스터의 잠금 설정이 지워지지 않아야 하기 때문.
+  // Note: slugs not currently on screen are still kept in locked — because loading the
+  // unauthenticated view (shared-only) shouldn't wipe out the personal clusters' lock settings.
   syncHeads();
 }
 
-// ---- 표시 옵션: 밝기 슬라이더 ----
-// CSS filter로 캔버스 전체(성운·별·문서점)를 균일 조광 — 라벨 레이어는
-// 별도 DOM이라 텍스트 가독성은 유지된다. 값은 localStorage에 저장.
+// ---- Display options: brightness slider ----
+// Uniformly dims the whole canvas (nebula/stars/doc points) via CSS filter — the label layer
+// is a separate DOM so text legibility is preserved. Value is stored in localStorage.
 const BRIGHTNESS_KEY = 'cosmos-brightness';
-const LINKS_KEY = 'cosmos-links'; // M10 관계선 토글 기억
+const LINKS_KEY = 'cosmos-links'; // M10 relationship-line toggle memory
 
 function setupDisplayOptions(sceneApi) {
   const slider = document.getElementById('brightness-slider');
@@ -214,7 +214,7 @@ function setupDisplayOptions(sceneApi) {
   let saved = 100;
   try {
     saved = Number(localStorage.getItem(BRIGHTNESS_KEY)) || 100;
-  } catch { /* 접근 불가 시 기본값 */ }
+  } catch { /* default value if inaccessible */ }
   apply(saved);
 
   slider.addEventListener('input', () => {
@@ -224,7 +224,7 @@ function setupDisplayOptions(sceneApi) {
     } catch { /* 저장 실패 무시 */ }
   });
 
-  // M10 관계선 토글(기본 켬, localStorage 기억). 링크 0건이면 행 자체를 숨긴다.
+  // M10 relationship-line toggle (default on, remembered in localStorage). If there are 0 links, hide the row entirely.
   const linksToggle = document.getElementById('links-toggle');
   const linksCount = document.getElementById('links-count');
   if (linksToggle) {
@@ -233,10 +233,10 @@ function setupDisplayOptions(sceneApi) {
       if (row) row.style.display = 'none';
     } else {
       if (linksCount) linksCount.textContent = `${sceneApi.linkCount}개`;
-      let on = false; // 기본 꺼짐 — 명시적으로 켠 사용자만 기억값으로 복원
+      let on = false; // default off — only restored from memory for users who explicitly turned it on
       try {
         on = localStorage.getItem(LINKS_KEY) === 'on';
-      } catch { /* 접근 불가 시 기본 꺼짐 */ }
+      } catch { /* default off if inaccessible */ }
       linksToggle.checked = on;
       sceneApi.setLinksVisible(on);
       linksToggle.addEventListener('change', () => {
@@ -270,7 +270,7 @@ async function main() {
     return;
   }
 
-  // 반환된 패널 API를 sceneApi에 실어 헤드리스 게이트(__cosmosSceneApi.interactions)에서 쓴다.
+  // Attach the returned panel API onto sceneApi so the headless gate (__cosmosSceneApi.interactions) can use it.
   sceneApi.interactions = setupInteractions({ sceneApi, canvasEl: sceneApi.renderer.domElement, els });
   setupAsk({ sceneApi, els, isFixtureMode });
   setupMotionControls(sceneApi);
@@ -281,21 +281,21 @@ async function main() {
 
   els.loadingOverlay.hidden = true;
 
-  // 토큰을 나중에 입력하면(관리 프롬프트 등) 스코프가 넓어져 개인 클러스터가
-  // 새로 내려올 수 있다 — 실제로 달라질 때만 새로고침해 채팅 이력 소실을 최소화.
+  // If a token is entered later (e.g. via the admin prompt), the scope widens and personal
+  // clusters may newly appear — only reload when it actually changed, to minimize loss of chat history.
   window.addEventListener('cosmos-token-updated', async () => {
     try {
       const fresh = await loadUniverse();
       if ((fresh.clusters?.length ?? 0) !== (data.clusters?.length ?? 0)) location.reload();
     } catch {
-      /* 재조회 실패는 무시 — 다음 수동 새로고침에서 반영된다 */
+      /* ignore re-fetch failure — it'll be reflected on the next manual reload */
     }
   });
 
   if (isFixtureMode) {
     // eslint-disable-next-line no-console
     console.info('[cosmos] fixture 모드 — dev-fixture.json 사용 중. 질문에 "코퍼스 밖"을 포함하면 insufficient 응답을 시험할 수 있습니다.');
-    // fixture 전용 테스트 훅 — 헤드리스 검증이 모션 시계 정지를 직접 어서션할 수 있게.
+    // fixture-only test hook — lets headless verification directly assert that the motion clock stopped.
     window.__cosmosSceneApi = sceneApi;
   }
 }

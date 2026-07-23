@@ -1,6 +1,6 @@
-// 클러스터 부트스트랩: core POST /clusters/bootstrap 호출 → 각 클러스터를 sample로부터
-// LLM 라벨링(slug/name/description) → PATCH /clusters/{id} → 결과 표 출력.
-// CONTRACT.md M1 확장 절 "bootstrap" 참고. slug 충돌 시 -2, -3... 접미사를 붙인다.
+// Cluster bootstrap: calls core POST /clusters/bootstrap → LLM-labels each cluster
+// from its sample (slug/name/description) → PATCH /clusters/{id} → prints the result table.
+// See CONTRACT.md M1 확장 section, "bootstrap". Slug collisions get a -2, -3, ... suffix.
 
 import type { CoreClient, ClusterBootstrapResult, BootstrapOptions } from "./core-client.js";
 import type { LlmClient } from "./llm.js";
@@ -31,7 +31,7 @@ export interface BootstrapRunResult {
   description: string;
 }
 
-/** 영문 kebab-case로 정규화한다. 결과가 비면 "cluster"로 대체한다. */
+/** Normalizes to English kebab-case. Falls back to "cluster" if the result is empty. */
 export function sanitizeSlug(raw: string): string {
   const s = raw
     .toLowerCase()
@@ -41,7 +41,7 @@ export function sanitizeSlug(raw: string): string {
   return s || "cluster";
 }
 
-/** 이미 사용된 slug와 겹치면 -2, -3... 접미사를 붙여 유일하게 만든다. 순수 함수 — used를 변경. */
+/** If it collides with an already-used slug, appends a -2, -3... suffix to make it unique. Pure function — mutates used. */
 export function dedupSlug(slug: string, used: Set<string>): string {
   if (!used.has(slug)) {
     used.add(slug);
@@ -103,8 +103,8 @@ export async function runBootstrap(
 
   for (const cluster of bootstrapResponse.clusters) {
     const label = await labelCluster(cluster, deps.llm);
-    // M9: 개인 클러스터는 LLM 리라벨 후에도 p-<owner>- 접두를 유지해
-    // 공통 슬러그와 절대 충돌하지 않게 한다.
+    // M9: personal clusters keep the p-<owner>- prefix even after LLM relabeling,
+    // so they never collide with common/shared slugs.
     const scopedSlug = cluster.owner ? `p-${cluster.owner}-${label.slug}` : label.slug;
     const finalSlug = dedupSlug(scopedSlug, usedSlugs);
 

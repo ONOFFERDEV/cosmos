@@ -1,5 +1,5 @@
-// 검색·라우팅(search/route/misfits): BM25+벡터 RRF+rerank 하이브리드.
-// 전부 후보 단계에서 exclusion-set(브랜치 제외 + owner 스코프) 필터 — 재색인 없는 격리.
+// Search & routing (search/route/misfits): BM25 + vector RRF + rerank hybrid.
+// All of it is filtered by the exclusion-set (branch exclusion + owner scope) at the candidate stage — isolation without reindexing.
 
 use super::*;
 

@@ -1,5 +1,5 @@
-// 클러스터 연산: bootstrap(스코프별 k-means, force도 스코프 국소)·메타 갱신·birth·merge.
-// 파괴 연산은 저널 inverse 동반(rollback.rs가 되돌린다).
+// Cluster operations: bootstrap (per-scope k-means, force is also scope-local) · meta refresh · birth · merge.
+// Destructive operations come with a journal inverse (rollback.rs undoes them).
 
 use super::*;
 

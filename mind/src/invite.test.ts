@@ -50,7 +50,7 @@ test("sendInvite는 conversations.open→chat.postMessage 순으로 호출하고
     assert.deepEqual(calls[0].body, { users: "U999" });
     assert.equal(calls[1].method, "chat.postMessage");
     assert.equal(calls[1].body.channel, "C123");
-    // 기본 공개 주소는 중립값(localhost) — 실배포 주소는 env COSMOS_PUBLIC_URL이 정한다(제품화 규약).
+    // Default public address is a neutral value (localhost) — the real deployment address is set via env COSMOS_PUBLIC_URL (productization convention).
     assert.match(String(calls[1].body.text), /http:\/\/localhost:8800\/#token=/);
 
     const invites = JSON.parse(await readFile(path.join(dataDir, "invites.json"), "utf8"));
@@ -124,7 +124,7 @@ test("checkInvites는 인증됨→done, 72h경과→expired, 그 외→무동작
     });
     assert.ok(verified.delivered && expired.delivered && recent.delivered);
 
-    // verified-user만 first_used_at을 기록하도록 실제 인증을 시뮬레이션한다(write-once 재사용).
+    // Simulate real authentication so only verified-user gets first_used_at recorded (write-once reuse).
     await resolveIdentity(verified.token, dataDir);
 
     const checkCalls: SlackCall[] = [];

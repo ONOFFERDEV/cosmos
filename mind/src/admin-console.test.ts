@@ -1,6 +1,6 @@
-// M8.6 관리 콘솔: GET /slack/users, POST /invite 서버 테스트.
-// CONTRACT.md "# M8.6 확장" 참고. server-mode.test.ts의 withServer/withAuthServer/
-// makeTempDataDir 패턴을 그대로 복제한다(해당 파일은 읽기 전용 템플릿이라 수정 금지).
+// M8.6 admin console: server tests for GET /slack/users, POST /invite.
+// See CONTRACT.md "# M8.6 확장". Duplicates server-mode.test.ts's withServer/withAuthServer/
+// makeTempDataDir pattern verbatim (that file is a read-only template -- do not modify it).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -89,7 +89,7 @@ interface FakeSlackResult {
   ts?: string;
 }
 
-/** invite.ts callSlack / server.ts fetchSlackUsers가 호출하는 슬랙 엔드포인트를 URL로 분기해 응답한다. */
+/** Responds by branching on URL for the Slack endpoints called by invite.ts's callSlack / server.ts's fetchSlackUsers. */
 function makeFakeSlackFetch(
   handlers: {
     usersList?: () => FakeSlackResult;

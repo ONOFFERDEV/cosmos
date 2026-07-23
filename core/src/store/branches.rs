@@ -1,9 +1,9 @@
-// branches(지식 PR) + 문서 재태깅(main↔브랜치) — 승격/병합/폐기의 저장 계층.
+// branches (knowledge PR) + doc re-tagging (main↔branch) — the storage layer for promotion/merge/discard.
 
 use super::*;
 
 impl Store {
-    /// Creates a branch (지식 PR) in `status = 'open'`. Returns `Ok(true)` if
+    /// Creates a branch (knowledge PR) in `status = 'open'`. Returns `Ok(true)` if
     /// `name` already exists (UNIQUE violation), letting the Engine layer map
     /// that to a 409 without parsing SQL error text; `Ok(false)` on success.
     pub fn create_branch(

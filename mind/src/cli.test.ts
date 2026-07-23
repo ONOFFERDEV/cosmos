@@ -6,8 +6,8 @@ import path from "node:path";
 
 import { anyDirExists } from "./cli.js";
 
-// M5: serve 시작 시 워처 대상 디렉터리가 전부 없으면 워처를 아예 띄우지 않는다.
-// anyDirExists는 그 판단 함수다.
+// M5: at serve startup, if every watcher target directory is missing, the watcher isn't started at all.
+// anyDirExists is that decision function.
 
 test("anyDirExists는 대상 디렉터리가 모두 존재하지 않으면 false를 반환한다", async () => {
   const missing1 = path.join(tmpdir(), `cosmos-cli-test-missing-1-${Date.now()}`);

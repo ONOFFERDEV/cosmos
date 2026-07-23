@@ -1,5 +1,5 @@
-// 읽기 목록 API(health/journal/docs/clusters/entities/digests/centroids).
-// owner_scope 필터 공통 — 스코프 밖 개인 지식은 어떤 목록에도 안 나온다.
+// Read-only listing API (health/journal/docs/clusters/entities/digests/centroids).
+// owner_scope filtering is shared across all of these — personal knowledge outside the scope never appears in any listing.
 
 use super::*;
 

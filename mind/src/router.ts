@@ -1,8 +1,8 @@
-// 클러스터 라우팅: core /route가 돌려주는 centroid_sim/bm25_hits로부터
-// 어떤 클러스터를 "참고(consulted)"하고 어떤 클러스터를 "건너뛸지(skipped)" 결정한다.
-// CONTRACT.md M1 확장 절: score = centroid_sim + 0.02*min(bm25_hits,10),
-// 내림차순 정렬 후 상위 K=3을 consulted 후보로 삼되, 그중 score < 0.6*top_score인
-// 것은 K 안에 있어도 skipped로 강등한다. 나머지는 전부 skipped.
+// Cluster routing: from the centroid_sim/bm25_hits returned by core /route, decides which
+// clusters to "consult" and which to "skip".
+// CONTRACT.md M1 extension section: score = centroid_sim + 0.02*min(bm25_hits,10), sort
+// descending, take the top K=3 as consulted candidates, but demote any of them with
+// score < 0.6*top_score to skipped even if within K. Everything else is skipped.
 
 import type { RouteScore } from "./core-client.js";
 
@@ -24,8 +24,8 @@ export function computeRouteScore(centroidSim: number, bm25Hits: number): number
 }
 
 /**
- * RouteScore[] (core /route 응답)로부터 consulted/skipped 결정과 trace용 사유를 계산한다.
- * 순수 함수 — I/O 없음.
+ * Computes the consulted/skipped decision and trace reason from RouteScore[] (the core /route response).
+ * Pure function -- no I/O.
  */
 export function decideRoutes(scores: RouteScore[]): RouteDecision[] {
   if (scores.length === 0) {

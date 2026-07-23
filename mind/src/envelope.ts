@@ -1,5 +1,5 @@
-// /ask 응답 봉투(envelope) 조립. CONTRACT.md M1 확장 절에 정의된 정확한 스키마를 따른다.
-// sources는 실제로 인용된 청크만, [1]..[n]으로 재번호를 매겨 담는다.
+// Assembles the /ask response envelope. Follows the exact schema defined in CONTRACT.md's M1 extension section.
+// sources holds only the actually cited chunks, renumbered as [1]..[n].
 
 import { BLOCK_MESSAGE } from "./guard.js";
 
@@ -21,9 +21,9 @@ export interface TraceEntry {
   cluster: string;
   action: "consulted" | "skipped";
   why: string;
-  /** M3 deep: 해당 클러스터에 배정된 하위 질문. consulted 항목에만 존재. */
+  /** M3 deep: the subquestion assigned to this cluster. Only present on consulted entries. */
   subquestion?: string;
-  /** M3 deep: 해당 클러스터 브리프가 낸 claim 수. consulted 항목에만 존재. */
+  /** M3 deep: number of claims this cluster's brief produced. Only present on consulted entries. */
   claims?: number;
 }
 
@@ -31,7 +31,7 @@ export interface Cost {
   llm_calls: number;
   secs: number;
   model: string;
-  /** M3 deep: 단계별(planner/cluster_agents/rebuttal/synthesis_1/synthesis_2) 소요 초. */
+  /** M3 deep: elapsed seconds per stage (planner/cluster_agents/rebuttal/synthesis_1/synthesis_2). */
   stages?: Record<string, number>;
 }
 
@@ -45,7 +45,7 @@ export interface AskEnvelope {
   cost: Cost;
 }
 
-/** LLM에 보여준 [1]..[n] 번호가 매겨진 검색 청크. */
+/** Search chunks numbered [1]..[n] as shown to the LLM. */
 export interface NumberedChunk {
   n: number;
   origin: string;
@@ -53,13 +53,13 @@ export interface NumberedChunk {
   chunk_id: string;
   char_start: number;
   char_end: number;
-  /** LLM 프롬프트 조립용 원문. Source에는 포함되지 않는다. */
+  /** Raw text for assembling the LLM prompt. Not included in Source. */
   text: string;
 }
 
 /**
- * 실제로 인용된(cites에 등장한) 청크만 골라 등장 순서대로 1..n 재번호를 매기고,
- * 문장들의 cites도 새 번호로 다시 쓴다. 순수 함수 — I/O 없음.
+ * Picks only the actually cited chunks (those appearing in cites), renumbers them 1..n in order
+ * of appearance, and rewrites the sentences' cites with the new numbers. Pure function -- no I/O.
  */
 export function numberSources(
   chunks: NumberedChunk[],
@@ -104,7 +104,7 @@ export function numberSources(
   return { sources, sentences: remappedSentences };
 }
 
-/** 문장들의 텍스트와 (재번호 매겨진) 인용을 이어붙여 answer 전체 텍스트를 만든다. */
+/** Concatenates the sentences' text with their (renumbered) citations to build the full answer text. */
 export function renderAnswer(sentences: Sentence[]): string {
   return sentences
     .map((s) => (s.cites.length > 0 ? `${s.text} ${s.cites.map((c) => `[${c}]`).join("")}` : s.text))

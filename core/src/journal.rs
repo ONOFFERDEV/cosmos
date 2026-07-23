@@ -252,7 +252,7 @@ pub fn append_owner_migrate(store: &Store, source_type: &str, owner: &str, n_doc
         .context("appending owner_migrate event")
 }
 
-/// P4(공용지식 이관): append a `kind=docs_delete` event recording a bulk
+/// P4 (shared-knowledge migration): append a `kind=docs_delete` event recording a bulk
 /// delete by origin prefix. No inverse — the deletion is the switchover step
 /// after the same content re-enters under a new origin namespace (knowledge://).
 pub fn append_docs_delete(store: &Store, origin_prefix: &str, n_docs: usize) -> Result<i64> {

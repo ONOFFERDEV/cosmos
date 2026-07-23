@@ -1,6 +1,6 @@
-// LLM 텍스트 응답에서 JSON 객체를 추출하는 순수 함수.
-// 제약된 디코딩 없이 프롬프트에 JSON 형식을 박아 넣는 방식이므로, 응답에는
-// 코드펜스(```json ... ```)나 전후 잡담이 섞여 나올 수 있다. 이 함수가 그 잡음을 걷어낸다.
+// Pure function that extracts a JSON object from an LLM text response.
+// Since this relies on embedding the JSON format in the prompt rather than constrained decoding,
+// the response may come mixed with a code fence (```json ... ```) or chatter before/after. This function strips that noise.
 
 export function extractJson(text: string): unknown {
   const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);

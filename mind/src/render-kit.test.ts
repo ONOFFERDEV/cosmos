@@ -1,4 +1,4 @@
-// 배포처별 kit 자산 치환 — 다른 조직이 띄우면 그들의 주소·템플릿이 문서에 박혀 나가야 한다.
+// Per-deployment kit asset substitution — when another org spins this up, their own URL/template must be baked into the docs.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 

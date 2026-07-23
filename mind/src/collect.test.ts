@@ -175,8 +175,8 @@ test("decodeXmlEntities는 이름 엔티티와 숫자 엔티티를 모두 디코
   assert.equal(decodeXmlEntities("&#65;&#x42;"), "AB");
 });
 
-// --- M8: 수집 일원화(runCollect → core 브랜치) + 레거시 inbox 마이그레이션 ---
-// CONTRACT.md "# M8 확장" 절 "## mind: 사용자·역할" > 수집 일원화 참고.
+// --- M8: unify collection (runCollect -> core branch) + legacy inbox migration ---
+// See CONTRACT.md "# M8 확장" section, "## mind: 사용자·역할" > collection unification.
 
 function makeConfig(overrides?: Partial<CosmosConfig>): CosmosConfig {
   return {

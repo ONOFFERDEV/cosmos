@@ -1,8 +1,8 @@
-// 자기소멸 초대 봇. CONTRACT.md "# M8.5 확장" 참고.
+// Self-expiring invite bot. See CONTRACT.md "# M8.5 확장".
 // data/invites.json: [{name, slack_user, channel, ts, sent_at, status}].
-// env SLACK_BOT_TOKEN 미설정 = 초대 봇 기능 전체 비활성(sendInvite는 계정만 만들고 토큰을 반환,
-// checkInvites는 아무 것도 하지 않는다). env COSMOS_PUBLIC_URL = 초대 링크 베이스
-// (기본 http://localhost:8800 — 실배포 주소는 env가 정한다).
+// env SLACK_BOT_TOKEN unset = the whole invite-bot feature is disabled (sendInvite still creates
+// the account and returns the token, checkInvites does nothing). env COSMOS_PUBLIC_URL = invite link base
+// (default http://localhost:8800 — the real deployed address is set via env).
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -90,10 +90,10 @@ function buildInviteText(link: string): string {
 }
 
 /**
- * 새 사용자를 만들고(addUser 재사용) 슬랙 DM으로 초대 링크를 발송한다. SLACK_BOT_TOKEN이
- * 없거나 슬랙 호출(conversations.open/chat.postMessage)이 실패하면 계정은 그대로 유지한 채
- * 토큰을 반환한다 — 호출부가 수동 전달 폴백을 안내해야 한다. 이 경우 invites.json에는
- * 기록하지 않는다(발송되지 않은 메시지를 추적 대상으로 남기지 않기 위함).
+ * Creates a new user (reusing addUser) and sends the invite link via Slack DM. If SLACK_BOT_TOKEN
+ * is unset or the Slack call (conversations.open/chat.postMessage) fails, the account is kept as-is
+ * and the token is still returned — the caller should guide the user to a manual-delivery fallback. In
+ * this case nothing is recorded in invites.json (so an undelivered message isn't left to be tracked).
  */
 export async function sendInvite(
   name: string,
@@ -142,10 +142,10 @@ export async function sendInvite(
 }
 
 /**
- * pending 초대를 순회해 ①첫 인증 완료(users.json의 first_used_at) ②72h 경과(미인증) 여부를
- * 판정하고, 슬랙 DM을 삭제한 뒤 후속 안내 DM을 보내 상태를 done|expired로 전이시킨다.
- * 슬랙 호출 실패는 상태를 건드리지 않아 다음 주기에 재시도된다. SLACK_BOT_TOKEN 미설정이면
- * 아무 것도 하지 않는다.
+ * Iterates pending invites, checks ① first-verification completed (users.json's first_used_at) or
+ * ② 72h elapsed (unverified), then deletes the Slack DM and sends a follow-up DM, transitioning status
+ * to done|expired. A failed Slack call leaves status untouched so it's retried next cycle. If
+ * SLACK_BOT_TOKEN is unset, does nothing.
  */
 export async function checkInvites(deps: InviteDeps = {}): Promise<void> {
   const botToken = process.env.SLACK_BOT_TOKEN;
@@ -184,7 +184,7 @@ export async function checkInvites(deps: InviteDeps = {}): Promise<void> {
       invite.status = verified ? "done" : "expired";
       changed = true;
     } catch {
-      // 슬랙 호출 실패 — 상태 불변, 다음 주기 재시도.
+      // Slack call failed — state unchanged, retried next cycle.
     }
   }
 

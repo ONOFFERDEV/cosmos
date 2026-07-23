@@ -1,5 +1,5 @@
-// 지식 PR(브랜치): 생성/목록/문서 조회, 승격 태깅(tag_branch_docs, owner≠NULL만),
-// 체리픽 merge(branch_id=NULL+owner=NULL 동시 전환+inverse), discard(비가역).
+// Knowledge PR (branch): create/list/doc lookup, promotion tagging (tag_branch_docs, owner≠NULL only),
+// cherry-pick merge (branch_id=NULL+owner=NULL simultaneous flip+inverse), discard (irreversible).
 
 use super::*;
 
@@ -34,7 +34,7 @@ impl Engine {
     }
 
     /// M9: `POST /branches/{branch_id}/docs` — tag existing personal docs
-    /// into an open branch for promotion review (지식 PR 재사용). While
+    /// into an open branch for promotion review (reusing the knowledge-PR concept). While
     /// tagged, branch exclusion hides them even from the owner's own scope
     /// (intended: "under review"). Rejects shared docs
     /// (`EngineError::PromoteSharedDoc`, 400 — demoting common knowledge is

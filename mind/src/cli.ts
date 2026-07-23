@@ -1,9 +1,9 @@
-// mind CLI 진입점.
-// 사용법: node dist/cli.js bootstrap | ask "질문" [--deep] | serve [--port 8800]
-//        | collect | inbox|approve|reject(폐기 — 브랜치 검토로 일원화) | scan | ingest <경로|URL> [--type manual]
+// mind CLI entry point.
+// Usage: node dist/cli.js bootstrap | ask "question" [--deep] | serve [--port 8800]
+//        | collect | inbox|approve|reject(deprecated — unified into branch review) | scan | ingest <path|URL> [--type manual]
 //        | lifecycle run [--dry-run]|status | universe | digest [--all]
-//        | user add <이름> [--role member|admin]|list|revoke <이름>
-//        | invite <이름> <슬랙멤버ID> [--role member|admin]
+//        | user add <name> [--role member|admin]|list|revoke <name>
+//        | invite <name> <slack-member-id> [--role member|admin]
 
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
 
   switch (command) {
     case "bootstrap": {
-      // M9: --owner <이름>로 개인 스코프 부트스트랩(+라벨링), --force는 해당 스코프만 재생성.
+      // M9: --owner <name> bootstraps (and labels) the personal scope; --force regenerates only that scope.
       const force = rest.includes("--force");
       const ownerIdx = rest.indexOf("--owner");
       const owner = ownerIdx !== -1 ? rest[ownerIdx + 1] : undefined;
@@ -238,8 +238,8 @@ function parsePort(args: string[]): number | null {
   return Number.isInteger(value) && value > 0 ? value : null;
 }
 
-// dirs 중 디스크에 실재하는 디렉터리가 하나라도 있으면 true. serve 시작 시 워처
-// 자동 스킵 판단에 쓰인다(모든 대상 디렉터리가 없으면 워처를 아예 띄우지 않는다).
+// True if at least one of dirs actually exists on disk. Used at serve startup to
+// decide whether to auto-skip the watcher (if none of the target directories exist, the watcher never starts at all).
 export async function anyDirExists(dirs: string[]): Promise<boolean> {
   const results = await Promise.all(
     dirs.map((d) =>
@@ -251,9 +251,9 @@ export async function anyDirExists(dirs: string[]): Promise<boolean> {
   return results.some(Boolean);
 }
 
-// import.meta.url === 이 파일의 실제 실행 경로일 때만 main()을 구동한다.
-// cli.test.ts 등에서 anyDirExists를 import만 할 때 CLI 디스패치(main)가
-// 함께 실행되어 알 수 없는 명령으로 process.exitCode를 오염시키는 것을 막는다.
+// Only drive main() when import.meta.url === this file's actual execution path.
+// Prevents CLI dispatch (main) from also running when something like cli.test.ts
+// only imports anyDirExists, which would pollute process.exitCode with an unknown command.
 const isMainModule = process.argv[1] ? fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) : false;
 if (isMainModule) {
   main().catch((err) => {

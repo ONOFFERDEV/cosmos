@@ -1,4 +1,4 @@
-// D:\cosmos\cosmos.config.json 로더. CONTRACT.md M2 확장 절 "설정 파일" 참고.
+// Loader for D:\cosmos\cosmos.config.json. See CONTRACT.md M2 확장 section, "설정 파일".
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -26,7 +26,7 @@ export interface CollectConfig {
   max_pending_per_run: number;
 }
 
-// M6a: session/repo 소스를 함께 스캔하기 위한 확장 항목. path 부재 시 스킵(에러 아님).
+// M6a: extension field for scanning session/repo sources together. Skipped if path is absent (not an error).
 export interface SourceConfig {
   path: string;
   source_type: "session" | "repo";
@@ -34,8 +34,8 @@ export interface SourceConfig {
   docs_only?: boolean;
 }
 
-// sources가 없거나 빈 배열이면 dirs를 session 소스로 취급하는 기존 동작에 폴백한다(하위호환).
-// cron/policy와 동일하게 sources는 validateConfig()에서 별도 검증하지 않는 선택 필드다.
+// Falls back to the legacy behavior of treating dirs as session sources if sources is absent or an empty array (backward compatible).
+// Like cron/policy, sources is an optional field not separately validated in validateConfig().
 export interface WatcherConfig {
   dirs: string[];
   interval_secs: number;
@@ -57,12 +57,12 @@ export interface LifecycleConfig {
   merge_sim: number;
 }
 
-// M5: serve 프로세스 내 주기 작업(collect/lifecycle) 타이머 설정. 0 = 해당 작업 비활성.
-// policy 필드와 동일하게 validateConfig()에서 검증하지 않는 선택 필드다(cron.ts).
+// M5: timer settings for periodic jobs (collect/lifecycle) within the serve process. 0 = that job disabled.
+// Like the policy field, this is an optional field not validated in validateConfig() (cron.ts).
 export interface CronConfig {
   collect_interval_hours: number;
   lifecycle_interval_hours: number;
-  /** M9.6 개인 지식 레포 pull 주기(기본 1, 0=비활성). */
+  /** M9.6 personal knowledge repo pull interval (default 1, 0 = disabled). */
   repo_sync_interval_hours?: number;
 }
 

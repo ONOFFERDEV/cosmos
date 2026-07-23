@@ -1,15 +1,15 @@
-// M10 관계 그래프 조회: 문서의 in/out 링크와 1-hop 이웃(그래프 확장용).
-// 스코프 격리가 관계에도 적용된다 — 스코프 밖 개인 문서는 항목째 제외
-// (제목·이름도 유출이다). dangling(코퍼스 밖 이름)은 노출 무해라 그대로 낸다.
-// CONTRACT.md "관계 그래프 (M10 v1)" 참고.
+// M10 relationship graph lookup: a document's in/out links and 1-hop neighbors (for graph expansion).
+// Scope isolation applies to relationships too — documents outside scope (personal) are excluded entirely
+// (even the title/name would be a leak). dangling (names outside the corpus) are harmless to expose, so they pass through as-is.
+// See CONTRACT.md "관계 그래프 (M10 v1)".
 
 use super::*;
 
 impl Engine {
-    /// `GET /graph/docs/{doc_id}` — 문서의 나가는/들어오는 링크.
+    /// `GET /graph/docs/{doc_id}` — a document's outbound/inbound links.
     pub fn graph_doc(&self, doc_id: &str, owner_scope: Option<&str>) -> Result<GraphDocResponse, EngineError> {
         let scope = OwnerScope::parse(owner_scope);
-        // 대상 문서 자체가 스코프 밖이면 존재를 확인해 주지 않는다(404와 동일 응답).
+        // If the target document itself is out of scope, don't confirm its existence (respond the same as 404).
         let (owner, branch) =
             self.store.doc_owner_and_branch(doc_id)?.ok_or_else(|| EngineError::DocNotFound(doc_id.to_string()))?;
         if branch.is_some() || !scope.allows(owner.as_deref()) {
@@ -19,7 +19,7 @@ impl Engine {
         let to_item = |row: crate::store::DocLinkRow| -> Option<GraphLinkItem> {
             match &row.other_doc_id {
                 Some(_) => {
-                    // 해석된 상대 문서: 브랜치 격리 + 스코프 격리 둘 다 통과해야 노출.
+                    // Resolved target document: must pass both branch isolation and scope isolation to be exposed.
                     if row.other_branch_id.is_some() || !scope.allows(row.other_owner.as_deref()) {
                         return None;
                     }
@@ -42,8 +42,8 @@ impl Engine {
         Ok(GraphDocResponse { doc_id: doc_id.to_string(), outbound, inbound })
     }
 
-    /// `GET /graph/links` — 스코프 안에서 양 끝이 모두 노출 가능한 해석 링크 쌍
-    /// 전량(관계선 시각화용). 한쪽 끝이라도 스코프 밖(개인)·브랜치면 쌍째 제외.
+    /// `GET /graph/links` — all resolved link pairs where both endpoints are exposable
+    /// within scope (for relationship-line visualization). If either endpoint is out of scope (personal) or on a branch, the whole pair is excluded.
     pub fn graph_links(&self, owner_scope: Option<&str>) -> Result<GraphLinksResponse> {
         let scope = OwnerScope::parse(owner_scope);
         let pairs = self.store.resolved_link_pairs()?;
@@ -60,8 +60,8 @@ impl Engine {
         Ok(GraphLinksResponse { links })
     }
 
-    /// `POST /graph/neighbors` — 입력 문서들의 1-hop 이웃(스코프·브랜치 격리,
-    /// limit 상한, 첫 청크 스니펫 동봉). mind의 fast 그래프 확장이 쓴다.
+    /// `POST /graph/neighbors` — 1-hop neighbors of the input documents (scope/branch isolation,
+    /// capped by limit, with the first chunk's snippet attached). Used by mind's fast graph expansion.
     pub fn graph_neighbors(&self, req: &GraphNeighborsRequest) -> Result<Vec<GraphNeighborDoc>> {
         let scope = OwnerScope::parse(req.owner_scope.as_deref());
         let limit = req.limit.unwrap_or(4).min(20);

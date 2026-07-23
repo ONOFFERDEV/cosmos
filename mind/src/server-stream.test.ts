@@ -1,6 +1,6 @@
-// /ask/stream SSE 엔드포인트 테스트. onProgress 훅이 SSE status 이벤트로 흘러나오는지,
-// 단계 순서가 계약대로인지, 토큰 게이트가 /ask와 동일하게 걸리는지, 기존 /ask 회귀가
-// 없는지 확인한다. CONTRACT.md "# M7.5 확장" 절 참고.
+// Tests for the /ask/stream SSE endpoint. Confirms the onProgress hook flows out as SSE status
+// events, stage ordering matches the contract, the token gate applies the same as /ask, and
+// there's no regression on the existing /ask. See CONTRACT.md "# M7.5 확장" section.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -78,7 +78,7 @@ async function withServer(deps: ServerDeps, fn: (port: number) => Promise<void>)
 
 type SseEvent = { event: string; data: unknown };
 
-/** SSE 응답 전문을 event/data 쌍 배열로 파싱한다. ":ka" 키프얼라이브 주석 라인은 건너뛴다. */
+/** Parses the full SSE response text into an array of event/data pairs. Skips ":ka" keep-alive comment lines. */
 function parseSseEvents(text: string): SseEvent[] {
   const events: SseEvent[] = [];
   for (const block of text.split("\n\n")) {

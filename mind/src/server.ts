@@ -1,8 +1,8 @@
-// mind HTTP 서버 (node:http, 포트 8800). CONTRACT.md M1/M4 확장 절 "server" 참고.
-// POST /ask {question} -> ask 응답 봉투. GET /health -> {status, core: <core /health 프록시>}.
-// GET /universe -> 3D 코스모스 뷰 페이로드(universe.ts). GET / , GET /web/* -> mind/web/ 정적 서빙
-// (mind/web/은 디자이너 레인 소유 — 이 파일은 그 디렉토리를 읽기만 하고 절대 쓰지 않는다).
-// 어떤 요청 처리 중 예외가 나도 HTTP 500 + 한국어 message로 응답하고 프로세스는 죽지 않는다.
+// mind HTTP server (node:http, port 8800). See CONTRACT.md M1/M4 extension section "server".
+// POST /ask {question} -> ask response envelope. GET /health -> {status, core: <core /health proxy>}.
+// GET /universe -> 3D cosmos view payload (universe.ts). GET / , GET /web/* -> mind/web/ static serving
+// (mind/web/ is owned by the designer lane — this file only reads that directory, never writes to it).
+// If an exception occurs while handling any request, respond with HTTP 500 + a Korean message, and the process does not die.
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -29,8 +29,8 @@ import { loadRepos, publicRepoView, syncOwnerRepo, upsertRepo, upsertSharedRepo 
 
 export const DEFAULT_MIND_PORT = 8800;
 
-// mind/web/ 은 디자이너 레인 소유 산출물 디렉토리 — 여기서는 정적 서빙을 위해 읽기만 한다.
-// 빌드 산출물 dist/server.js 기준 한 단계 위(../web)가 mind/web/ 이다(universe.ts의 defaultDataDir 패턴과 동일).
+// mind/web/ is an output directory owned by the designer lane — here we only read it for static serving.
+// One level up from the built dist/server.js (../web) is mind/web/ (same pattern as universe.ts's defaultDataDir).
 const WEB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "web");
 
 const STATIC_CONTENT_TYPES: Record<string, string> = {
@@ -45,9 +45,9 @@ const STATIC_CONTENT_TYPES: Record<string, string> = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
   ".wasm": "application/wasm",
-  // 팀원 킷(.ps1)은 text/plain+utf-8 — `iex (irm .../kit)` 원라이너가 문자열로 받아 실행한다.
+  // Teammate kit (.ps1) is text/plain+utf-8 — the `iex (irm .../kit)` one-liner fetches it as a string and executes it.
   ".ps1": "text/plain; charset=utf-8",
-  // AI 실행용 런북(.md) — 팀원의 AI가 URL로 fetch해 텍스트로 읽는다.
+  // AI-executable runbook (.md) — the teammate's AI fetches it by URL and reads it as text.
   ".md": "text/markdown; charset=utf-8",
 };
 
@@ -65,7 +65,7 @@ export interface ServerDeps {
 export function createMindServer(deps: ServerDeps): Server {
   const server = createServer((req, res) => {
     handleRequest(req, res, deps).catch((err: unknown) => {
-      // handleRequest 내부의 개별 try/catch를 모두 뚫고 올라온 경우의 최종 방어선.
+      // Final line of defense for cases that slip past every individual try/catch inside handleRequest.
       if (!res.headersSent) {
         sendJson(res, 500, { message: `서버 오류: ${errorMessage(err)}` });
       } else {
@@ -73,20 +73,20 @@ export function createMindServer(deps: ServerDeps): Server {
       }
     });
   });
-  // CONTRACT.md "서버 소켓·진단 규격": 기본 requestTimeout(300s)이 deep 장시간 응답(최대 900s) 소켓을 절단하므로 비활성화.
+  // CONTRACT.md "서버 소켓·진단 규격": disabled because the default requestTimeout (300s) would cut off the socket for deep's long-running responses (up to 900s).
   server.requestTimeout = 0;
   console.log("requestTimeout=0");
   console.log(process.env.COSMOS_TOKEN ? "인증 활성화" : "인증 비활성");
   return server;
 }
 
-// M8: 브랜치 검토로 일원화됨에 따라 /inbox 계열은 410 Gone으로 안내만 한다. CONTRACT.md "# M8 확장" 참고.
+// M8: since everything was unified into branch review, /inbox routes just return 410 Gone as a notice. See CONTRACT.md "# M8 확장".
 const INBOX_GONE_MESSAGE = "브랜치 검토로 일원화되었습니다 — 웹 검토 화면 또는 /branches 사용";
 
 /**
- * Authorization: Bearer <token> 헤더로 identity(name+role)를 판정한다. COSMOS_TOKEN env가
- * 비어 있으면 resolveIdentity가 로컬 개발 모드로 항상 admin을 반환한다(기존 isTokenValid의
- * "!token → true" 공개 규약과 동일한 효과). 실패 시 기존 401 응답 계약을 그대로 유지한다.
+ * Determines identity (name+role) from the Authorization: Bearer <token> header. If COSMOS_TOKEN env
+ * is empty, resolveIdentity treats it as local dev mode and always returns admin (same effect as the
+ * old isTokenValid's "!token → true" public contract). Keeps the existing 401 response contract on failure.
  */
 async function requireIdentity(
   req: IncomingMessage,
@@ -110,9 +110,9 @@ function requireAdmin(identity: Identity, res: ServerResponse): boolean {
 }
 
 /**
- * identity로 core에 전달할 owner_scope를 결정한다. CONTRACT.md "# M9 확장" mind 절 참고.
- * admin은 인증된 이름과 무관하게 고정 "admin" 개인 네임스페이스를 공유한다(다중 admin 계정도 동일).
- * identity가 null(무인증 공개 경로)이면 공통(shared)만 노출한다.
+ * Determines the owner_scope to pass to core based on identity. See CONTRACT.md "# M9 확장" mind section.
+ * admin shares a fixed "admin" personal namespace regardless of the authenticated name (same for multiple admin accounts).
+ * If identity is null (unauthenticated public route), only shared is exposed.
  */
 export function ownerScopeFor(identity: Identity | null): string {
   if (!identity) return "shared";
@@ -120,7 +120,7 @@ export function ownerScopeFor(identity: Identity | null): string {
   return `shared+${identity.name}`;
 }
 
-/** core 프록시 호출 실패 시 CoreHttpError면 core의 status(404/409 등)를 그대로 전달한다. */
+/** If a core proxy call fails with CoreHttpError, forward core's status (404/409 etc.) as-is. */
 function sendCoreError(res: ServerResponse, prefix: string, err: unknown): void {
   if (err instanceof CoreHttpError) {
     sendJson(res, err.status, { message: `${prefix}: ${err.message}` });
@@ -130,11 +130,11 @@ function sendCoreError(res: ServerResponse, prefix: string, err: unknown): void 
 }
 
 // ---------------------------------------------------------------------
-// 라우트 테이블 — 모든 엔드포인트는 여기에 auth 수준을 명시하고 등록한다.
-//   public   : 무인증 허용 (근거 주석 필수 — 공개는 예외지 기본값이 아니다)
-//   identity : 유효 토큰 필요 (401은 디스패처가 전송)
-//   admin    : identity + admin 역할 (403은 디스패처가 전송)
-// path가 RegExp면 캡처 그룹이 ctx.params로 들어온다.
+// Route table — every endpoint declares and registers its auth level here.
+//   public   : unauthenticated access allowed (justification comment required — public is the exception, not the default)
+//   identity : valid token required (dispatcher sends 401)
+//   admin    : identity + admin role (dispatcher sends 403)
+// If path is a RegExp, capture groups flow into ctx.params.
 // ---------------------------------------------------------------------
 type AuthLevel = "public" | "identity" | "admin";
 
@@ -143,9 +143,9 @@ interface RouteContext {
   res: ServerResponse;
   deps: ServerDeps;
   url: URL;
-  /** auth가 identity/admin이면 항상 non-null. public이면 null. */
+  /** Always non-null when auth is identity/admin. Null for public. */
   identity: Identity | null;
-  /** RegExp path의 캡처 그룹(1번부터). */
+  /** Capture groups of the RegExp path (starting from 1). */
   params: string[];
 }
 
@@ -157,52 +157,52 @@ interface Route {
 }
 
 const ROUTES: Route[] = [
-  // public: 상태 확인용 — 데이터 비노출(카운트만).
+  // public: for health checks — no data exposed (counts only).
   { method: "GET", path: "/health", auth: "public", handler: ({ res, deps }) => handleHealth(res, deps) },
 
   { method: "POST", path: "/ask", auth: "identity", handler: ({ req, res, deps, identity }) => handleAsk(req, res, deps, identity!) },
   { method: "POST", path: "/ask/stream", auth: "identity", handler: ({ req, res, deps, identity }) => handleAskStream(req, res, deps, identity!) },
   { method: "GET", path: "/me", auth: "identity", handler: ({ res, identity }) => sendJson(res, 200, { name: identity!.name, role: identity!.role }) },
 
-  // M8: /inbox 계열은 브랜치 검토로 일원화 — 410 안내만 (public: 안내 문구뿐, 데이터 없음).
+  // M8: /inbox routes were unified into branch review — 410 notice only (public: just a notice message, no data).
   { method: "GET", path: "/inbox", auth: "public", handler: ({ res }) => sendJson(res, 410, { message: INBOX_GONE_MESSAGE }) },
   { method: "POST", path: /^\/inbox\/([^/]+)\/(approve|reject)$/, auth: "public", handler: ({ res }) => sendJson(res, 410, { message: INBOX_GONE_MESSAGE }) },
 
-  // 지식 PR(브랜치): 열람=identity, 병합/폐기=admin.
+  // Knowledge PR (branch): viewing = identity, merge/discard = admin.
   { method: "GET", path: "/branches", auth: "identity", handler: ({ res, deps, url }) => handleListBranches(res, deps, url) },
   { method: "POST", path: "/branches", auth: "identity", handler: ({ req, res, deps, identity }) => handleCreateBranch(req, res, deps, identity!) },
   { method: "GET", path: /^\/branches\/([^/]+)\/docs$/, auth: "identity", handler: ({ res, deps, params }) => handleBranchDocs(res, deps, params[0]) },
   { method: "POST", path: /^\/branches\/([^/]+)\/merge$/, auth: "admin", handler: ({ req, res, deps, params }) => handleMergeBranch(req, res, deps, params[0]) },
   { method: "POST", path: /^\/branches\/([^/]+)\/discard$/, auth: "admin", handler: ({ res, deps, params }) => handleDiscardBranch(res, deps, params[0]) },
 
-  // M8.6 관리 콘솔: 슬랙 사용자 검색 + 초대 DM 발송.
+  // M8.6 admin console: Slack user search + invite DM sending.
   { method: "GET", path: "/slack/users", auth: "admin", handler: ({ res, deps, url }) => handleSlackUsers(res, deps, url) },
   { method: "POST", path: "/invite", auth: "admin", handler: ({ req, res, deps }) => handleInvite(req, res, deps) },
 
-  // 업로드: member는 branch_id 또는 owner=본인 필수(핸들러 내부 규칙).
+  // Upload: a member must supply branch_id or owner=self (rule enforced inside the handler).
   { method: "POST", path: "/ingest", auth: "identity", handler: ({ req, res, deps, identity }) => handleIngest(req, res, deps, identity!) },
 
-  // M9.6 개인 지식 레포 커넥터 — owner는 identity에서 강제(타인 레포 등록 불가).
+  // M9.6 personal knowledge repo connector — owner is enforced from identity (can't register someone else's repo).
   { method: "GET", path: "/my/repo", auth: "identity", handler: ({ res, deps, identity }) => handleMyRepoGet(res, deps, identity!) },
   { method: "PUT", path: "/my/repo", auth: "identity", handler: ({ req, res, deps, identity }) => handleMyRepoPut(req, res, deps, identity!) },
   { method: "POST", path: "/my/repo/sync", auth: "identity", handler: ({ res, deps, identity }) => handleMyRepoSync(res, deps, identity!) },
   { method: "GET", path: "/repos", auth: "admin", handler: ({ res, deps }) => handleReposList(res, deps) },
-  // P4: 공용 지식 레포(owner 없이 shared 스코프 ingest) — 등록·강제 동기화는 admin 전용.
+  // P4: shared knowledge repo (ingested into shared scope without an owner) — registration and forced sync are admin-only.
   { method: "PUT", path: "/repos/shared", auth: "admin", handler: ({ req, res, deps }) => handleSharedRepoPut(req, res, deps) },
   { method: "POST", path: "/repos/shared/sync", auth: "admin", handler: ({ res, deps }) => handleSharedRepoSync(res, deps) },
 
-  // public: 읽기 전용 검색 — MCP cosmos_search가 core 응답 shape을 그대로 기대.
-  // 핸들러가 옵션 토큰을 해석해 owner_scope를 서버 계산값으로 강제 덮어쓴다(M9 위장 차단).
+  // public: read-only search — the MCP cosmos_search expects the core response shape as-is.
+  // The handler resolves the optional token and forces owner_scope to the server-computed value (blocks M9 impersonation).
   { method: "POST", path: "/search", auth: "public", handler: ({ req, res, deps }) => handleSearch(req, res, deps) },
-  // public: 3D 코스모스 데이터 — 무인증=공통(shared)만, 토큰 있으면 핸들러가 본인 스코프 부여.
+  // public: 3D cosmos data — unauthenticated = shared only; with a token, the handler grants the caller's own scope.
   { method: "GET", path: "/universe", auth: "public", handler: ({ req, res, deps }) => handleUniverse(req, res, deps) },
-  // public: M10 문서 관계 그래프 — /universe와 동급(무인증=공통만, 스코프는 서버가 강제).
+  // public: M10 document relation graph — same tier as /universe (unauthenticated = shared only, scope enforced by the server).
   { method: "GET", path: /^\/graph\/docs\/([^/]+)$/, auth: "public", handler: ({ req, res, deps, params }) => handleGraphDoc(req, res, deps, params[0]) },
 
-  // public: 팀원 개인 지식 킷 설치기(짧은 주소) — 스크립트에 시크릿 없음, 토큰은 실행자가 입력.
+  // public: teammate personal knowledge kit installer (short URL) — no secrets in the script, the token is entered by whoever runs it.
   { method: "GET", path: "/kit", auth: "public", handler: ({ res }) => serveWebAsset(res, "kit/install.ps1") },
 
-  // public: 정적 웹 자산.
+  // public: static web assets.
   { method: "GET", path: "/", auth: "public", handler: ({ res }) => serveWebAsset(res, "index.html") },
   { method: "GET", path: /^\/web\/(.*)$/, auth: "public", handler: ({ res, params }) => handleWebAsset(res, params[0]) },
 ];
@@ -225,8 +225,8 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse, deps: Se
     let identity: Identity | null = null;
     if (route.auth !== "public") {
       identity = await requireIdentity(req, res, deps);
-      if (!identity) return; // 401 전송됨
-      if (route.auth === "admin" && !requireAdmin(identity, res)) return; // 403 전송됨
+      if (!identity) return; // 401 already sent
+      if (route.auth === "admin" && !requireAdmin(identity, res)) return; // 403 already sent
     }
 
     await route.handler({ req, res, deps, url, identity, params });
@@ -237,8 +237,8 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse, deps: Se
 }
 
 /**
- * GET /graph/docs/{doc_id}: 문서의 관계(in/out)를 core에서 조회해 그대로 반환한다.
- * 공개 경로 — 옵션 토큰을 해석해 owner_scope를 서버 계산값으로 강제한다(/search와 동일 원칙).
+ * GET /graph/docs/{doc_id}: looks up a document's relations (in/out) from core and returns them as-is.
+ * Public route — resolves the optional token and forces owner_scope to the server-computed value (same principle as /search).
  */
 async function handleGraphDoc(
   req: IncomingMessage,
@@ -265,9 +265,9 @@ async function handleGraphDoc(
   }
 }
 
-// ---- M9.6 개인 지식 레포 커넥터 핸들러 ----
+// ---- M9.6 personal knowledge repo connector handlers ----
 
-/** ingest의 expectedOwner 규칙과 동일: admin은 고정 "admin" 네임스페이스, member는 본인 이름. */
+/** Same rule as ingest's expectedOwner: admin gets the fixed "admin" namespace, member gets their own name. */
 function ownerNameFor(identity: Identity): string {
   return identity.role === "admin" ? "admin" : identity.name;
 }
@@ -299,7 +299,7 @@ async function handleMyRepoPut(
       },
       deps.dataDir
     );
-    // 등록 직후 1회 즉시 동기화 — 연결이 실제로 되는지 그 자리에서 확인시킨다.
+    // Sync once immediately after registration — confirms right there that the connection actually works.
     const result = await syncOwnerRepo(entry.owner, { core: deps.core, dataDir: deps.dataDir, fetchImpl: deps.fetchImpl });
     sendJson(res, 200, { saved: true, sync: result });
   } catch (err) {
@@ -325,7 +325,7 @@ async function handleReposList(res: ServerResponse, deps: ServerDeps): Promise<v
   sendJson(res, 200, entries.map(publicRepoView));
 }
 
-/** P4: 공용 레포 등록(admin) — owner 없이 shared 스코프로 pull되는 레포. 등록 직후 1회 동기화. */
+/** P4: register a shared repo (admin) — pulled under the shared scope with no owner. Syncs once immediately after registration. */
 async function handleSharedRepoPut(req: IncomingMessage, res: ServerResponse, deps: ServerDeps): Promise<void> {
   try {
     const body = (await readJsonBody(req)) as { repo?: unknown; branch?: unknown; token?: unknown };
@@ -348,7 +348,7 @@ async function handleSharedRepoPut(req: IncomingMessage, res: ServerResponse, de
   }
 }
 
-/** P4: 공용 레포 전체 즉시 동기화(admin). */
+/** P4: immediately sync all shared repos (admin). */
 async function handleSharedRepoSync(res: ServerResponse, deps: ServerDeps): Promise<void> {
   const entries = await loadRepos(deps.dataDir);
   const results = [];
@@ -359,10 +359,11 @@ async function handleSharedRepoSync(res: ServerResponse, deps: ServerDeps): Prom
 }
 
 /**
- * POST /ingest: {docs:[...]} 를 core /ingest로 그대로 전달하고 응답을 그대로 반환한다.
- * M9: owner 지정 시 본인 개인 공간(admin은 고정 "admin", member는 본인 이름)과 다르면 403.
- * 팀원은 branch_id 또는 owner=본인 중 하나가 반드시 있어야 한다(둘 다 없으면 403).
- * owner+branch_id를 동시에 지정하는 경우는 여기서 막지 않고 core의 400 응답을 그대로 전달한다.
+ * POST /ingest: forwards {docs:[...]} as-is to core's /ingest and returns its response unchanged.
+ * M9: if owner is specified and differs from the caller's own personal space (fixed "admin" for admin,
+ * own name for member), returns 403.
+ * A team member must have either branch_id or owner=self set (403 if neither is present).
+ * Specifying owner+branch_id at the same time isn't blocked here — core's 400 response is passed through as-is.
  */
 async function handleIngest(
   req: IncomingMessage,
@@ -391,10 +392,11 @@ async function handleIngest(
 }
 
 /**
- * POST /search: {query, k?, cluster_ids?} 를 core /search로 그대로 전달하고 응답을 그대로 반환한다.
- * 공개 엔드포인트지만(토큰 없이도 접근 가능) Authorization 헤더가 있으면 identity를 해석해
- * 본인 스코프를 부여한다. 클라이언트가 body에 owner_scope를 지정해도 서버가 계산한 값으로
- * 무조건 덮어쓴다 — 타인 스코프로 위장한 검색을 막기 위함(CONTRACT.md "# M9 확장" mind 절).
+ * POST /search: forwards {query, k?, cluster_ids?} as-is to core's /search and returns its response unchanged.
+ * A public endpoint (accessible without a token), but if an Authorization header is present, it resolves
+ * the identity and applies the caller's own scope. Even if the client specifies owner_scope in the body,
+ * the server unconditionally overwrites it with its own computed value — this prevents searches disguised
+ * under someone else's scope (see CONTRACT.md's mind section, "# M9 확장").
  */
 async function handleSearch(req: IncomingMessage, res: ServerResponse, deps: ServerDeps): Promise<void> {
   try {
@@ -416,8 +418,8 @@ async function handleSearch(req: IncomingMessage, res: ServerResponse, deps: Ser
 
 async function handleUniverse(req: IncomingMessage, res: ServerResponse, deps: ServerDeps): Promise<void> {
   try {
-    // M9: 공개 경로 — 무토큰=공통만, 토큰 있으면 본인 스코프(401 아님).
-    // resolveIdentity가 개발 모드(COSMOS_TOKEN 미설정=전원 admin)까지 일관 처리한다.
+    // M9: a public route — no token means shared content only, a token means the caller's own scope (never a 401).
+    // resolveIdentity handles this consistently, including dev mode (no COSMOS_TOKEN set = everyone is admin).
     const header = req.headers.authorization;
     const token = header && header.startsWith("Bearer ") ? header.slice("Bearer ".length) : null;
     const identity = await resolveIdentity(token, deps.dataDir);
@@ -440,8 +442,9 @@ async function handleWebAsset(res: ServerResponse, rawSuffix: string): Promise<v
 }
 
 /**
- * kit/ 텍스트 자산의 배포처별 치환 — 소스는 {{PUBLIC_URL}}·{{TEMPLATE_REPO}} 플레이스홀더만
- * 담고, 서빙 시 그 조직의 env가 박혀 나간다(다른 회사가 띄우면 그들의 주소·템플릿이 나감).
+ * Per-deployment substitution for kit/ text assets — the source only holds {{PUBLIC_URL}}/{{TEMPLATE_REPO}}
+ * placeholders, and that organization's own env values get baked in at serve time (if another company
+ * runs this, their own URL/template comes out instead).
  */
 export function renderKitAsset(text: string): string {
   const publicUrl = (process.env.COSMOS_PUBLIC_URL || "http://localhost:8800").replace(/\/+$/, "");
@@ -459,9 +462,10 @@ function isKitTextAsset(relPath: string): boolean {
 }
 
 /**
- * mind/web/ 아래의 상대 경로를 읽어 응답한다. 경로 탈출 방어: path.resolve로 정규화한 뒤
- * WEB_ROOT 하위에 실제로 포함되는지 문자열 접두 검사로 확인한다(윈도우 경로 구분자 처리 포함이므로
- * "..%5C"(역슬래시 인코딩) 같은 윈도우 전용 탈출 시도도 이 검사 하나로 걸러진다).
+ * Reads and responds with a relative path under mind/web/. Path traversal defense: normalize with
+ * path.resolve, then verify with a string-prefix check that the result actually falls under WEB_ROOT
+ * (this includes Windows path separator handling, so Windows-only escape attempts like "..%5C"
+ * (backslash-encoded) are also caught by this single check).
  */
 async function serveWebAsset(res: ServerResponse, relPath: string): Promise<void> {
   const target = path.resolve(WEB_ROOT, relPath);
@@ -571,7 +575,7 @@ interface SlackUsersListResponse {
   }>;
 }
 
-/** SLACK_BOT_TOKEN으로 users.list를 호출해 활성·비봇 사용자 중 real_name/display_name에 q가 포함되는 것만 반환한다. */
+/** Calls users.list with SLACK_BOT_TOKEN and returns only active, non-bot users whose real_name/display_name contains q. */
 async function fetchSlackUsers(q: string, botToken: string, fetchImpl: typeof fetch): Promise<SlackUser[]> {
   const res = await fetchImpl("https://slack.com/api/users.list", {
     method: "POST",
@@ -596,7 +600,7 @@ async function fetchSlackUsers(q: string, botToken: string, fetchImpl: typeof fe
     .filter((u) => u.real_name.toLowerCase().includes(needle) || u.display_name.toLowerCase().includes(needle));
 }
 
-/** GET /slack/users?q=<이름>: admin 전용 — SLACK_BOT_TOKEN 미설정 시 503. */
+/** GET /slack/users?q=<name>: admin only — returns 503 if SLACK_BOT_TOKEN isn't configured. */
 async function handleSlackUsers(res: ServerResponse, deps: ServerDeps, url: URL): Promise<void> {
   const q = url.searchParams.get("q");
   if (!q) {
@@ -616,7 +620,7 @@ async function handleSlackUsers(res: ServerResponse, deps: ServerDeps, url: URL)
   }
 }
 
-/** POST /invite {name, slack_user_id, role?="member"}: admin 전용 — invite.ts sendInvite 재사용. */
+/** POST /invite {name, slack_user_id, role?="member"}: admin only — reuses sendInvite from invite.ts. */
 async function handleInvite(req: IncomingMessage, res: ServerResponse, deps: ServerDeps): Promise<void> {
   const body = await readJsonBody(req);
   const bodyObj = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
@@ -657,19 +661,19 @@ async function handleHealth(res: ServerResponse, deps: ServerDeps): Promise<void
 
 type AskMode = "fast" | "deep" | "global";
 
-/** mode 바디 필드 + classifyIntent 게이트로 최종 파이프라인을 결정한다. CONTRACT.md "# M7 확장" 참고. */
+/** Decides the final pipeline from the mode body field plus the classifyIntent gate. See CONTRACT.md "# M7 확장". */
 function resolveAskMode(rawMode: string, question: string): AskMode {
   if (rawMode === "deep") return "deep";
   if (rawMode === "global") return "global";
   if (rawMode === "point" || rawMode === "fast") return "fast";
-  // "auto" 또는 알 수 없는 값: 결정론적 인텐트 게이트로 분류.
+  // "auto" or an unrecognized value: classify with the deterministic intent gate.
   return classifyIntent(question) === "global" ? "global" : "fast";
 }
 
 /**
- * mode에 맞는 파이프라인(fast/deep/global)을 실행하고 봉투를 반환한다. onProgress는 SSE
- * 스트림(/ask/stream)에서만 주입되고, 미지정 시 각 파이프라인은 무동작(no-op)이라 /ask 동작은
- * 그대로다. CONTRACT.md "# M7.5 확장" 참고.
+ * Runs the pipeline matching mode (fast/deep/global) and returns the envelope. onProgress is only
+ * injected from the SSE stream (/ask/stream); when it's not provided, each pipeline treats it as a
+ * no-op, so /ask's behavior is unchanged. See CONTRACT.md "# M7.5 확장".
  */
 async function runAskPipeline(
   question: string,
@@ -713,8 +717,8 @@ async function handleAsk(req: IncomingMessage, res: ServerResponse, deps: Server
       throw err;
     }
   } catch (err) {
-    // 진단 규격: 콘솔에도 스택+단계 컨텍스트를 남긴다(삼키기 금지). 단계명은 deep.ts가
-    // [deep:<stage>] 프리픽스로 에러 메시지에 실어 보내므로 err.stack에 그대로 드러난다.
+    // Diagnostic spec: also log the stack + stage context to the console (never swallow it). The stage
+    // name is carried in the error message by deep.ts via the [deep:<stage>] prefix, so it shows up as-is in err.stack.
     console.error("[ask-error]", mode, err instanceof Error ? err.stack ?? err.message : err);
     sendJson(res, 500, { message: `/ask 처리 실패: ${errorMessage(err)}` });
   }
@@ -723,9 +727,9 @@ async function handleAsk(req: IncomingMessage, res: ServerResponse, deps: Server
 const SSE_KEEPALIVE_MS = 15000;
 
 /**
- * POST /ask/stream: /ask와 동일한 바디·모드 판정을 쓰되 onProgress 마일스톤을 `status` SSE
- * 이벤트로 즉시 흘려보내고, 최종 결과를 `envelope`(정확히 1회) 또는 `error`로 종결한다.
- * CONTRACT.md "# M7.5 확장" 규격.
+ * POST /ask/stream: uses the same body/mode resolution as /ask, but streams onProgress milestones
+ * immediately as `status` SSE events, and terminates with a single `envelope` event (exactly once)
+ * or an `error` event. Spec per CONTRACT.md "# M7.5 확장".
  */
 async function handleAskStream(req: IncomingMessage, res: ServerResponse, deps: ServerDeps, identity: Identity): Promise<void> {
   let mode: AskMode = "fast";
@@ -740,8 +744,8 @@ async function handleAskStream(req: IncomingMessage, res: ServerResponse, deps: 
     if (!closed) res.write(":ka\n\n");
   }, SSE_KEEPALIVE_MS);
 
-  // res(응답)의 close를 봐야 한다 — req(요청)의 close는 요청 바디를 다 읽으면 곧바로
-  // 발생해 스트림이 시작되기도 전에 closed=true가 돼버린다(응답이 끝난 게 아닌데도).
+  // Must watch res's (response) close — req's (request) close fires as soon as the request body
+  // is fully read, which would set closed=true before the stream even starts (even though the response hasn't ended).
   res.on("close", () => {
     closed = true;
     clearInterval(keepAlive);

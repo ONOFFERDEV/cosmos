@@ -1,7 +1,7 @@
-// cosmos-core(Rust, :8801) HTTP 계약 클라이언트.
-// 스키마는 ../contract/openapi.yaml을 그대로 따른다 (mind가 실제로 쓰는 엔드포인트만 포함:
+// cosmos-core (Rust, :8801) HTTP contract client.
+// Schema follows ../contract/openapi.yaml exactly (only includes endpoints mind actually uses:
 // /health, /search, /clusters, /clusters/bootstrap, /clusters/{id} PATCH, /route).
-// CoreClient는 인터페이스로 노출해 테스트에서 mock 주입이 가능하게 한다.
+// CoreClient is exposed as an interface so tests can inject a mock.
 
 export interface HealthResponse {
   status: "ok";
@@ -15,7 +15,7 @@ export interface SearchRequest {
   query: string;
   k?: number;
   cluster_ids?: string[];
-  // M9: 소유권 스코프("shared" | "shared+<name>"). mind가 identity로 결정해 채운다.
+  // M9: ownership scope ("shared" | "shared+<name>"). mind determines this from identity and fills it in.
   owner_scope?: string;
 }
 
@@ -56,7 +56,7 @@ export interface ClusterSummary {
   name?: string | null;
   description?: string | null;
   status: "active" | "dormant" | "merged";
-  /** M9: 개인 지식 공간 소유자(null=공통). */
+  /** M9: owner of the personal knowledge space (null = shared). */
   owner?: string | null;
   n_docs: number;
   n_chunks: number;
@@ -78,7 +78,7 @@ export interface BootstrapOptions {
   k_max?: number;
   seed?: number;
   force?: boolean;
-  /** M9: 부트스트랩할 개인 스코프(생략=공통 문서만). force는 해당 스코프만 재생성. */
+  /** M9: personal scope to bootstrap (omit = shared docs only). force regenerates only that scope. */
   owner?: string;
 }
 
@@ -121,7 +121,7 @@ export interface IngestDoc {
 export interface IngestRequest {
   docs: IngestDoc[];
   branch_id?: string;
-  // M9: 개인 공간 지정("admin" 또는 요청자 본인 이름). branch_id와 동시 지정 금지(core 400).
+  // M9: specifies the personal space ("admin" or the requester's own name). Cannot be set together with branch_id (core returns 400).
   owner?: string;
 }
 
@@ -139,7 +139,7 @@ export interface IngestResponse {
   ingested: IngestedDoc[];
 }
 
-// M4: 클러스터 생명주기(탄생/병합) + universe 조립용 엔드포인트. CONTRACT.md "# M4 확장" 절 참고.
+// M4: endpoints for cluster lifecycle (birth/merge) + universe assembly. See CONTRACT.md "# M4 확장" section.
 
 export interface BirthProposal {
   doc_ids: string[];
@@ -178,7 +178,7 @@ export interface MergeClustersRequest {
   dst_id: string;
 }
 
-/** centroid: base64 인코딩된 f32le 벡터 (core GET /clusters/centroids). */
+/** centroid: base64-encoded f32le vector (core GET /clusters/centroids). */
 export interface ClusterCentroid {
   id: string;
   centroid: string;
@@ -195,8 +195,8 @@ export interface DocSummary {
   fit?: number | null;
 }
 
-// M7: 레지스트리(전체 개체) + 클러스터 다이제스트 전수 조회. CONTRACT.md "# M7 확장" 절 참고.
-// global 파이프라인이 완전성 보장을 위해 유사도 검색 대신 전수 스캔에 쓴다.
+// M7: registry (all entities) + full scan of cluster digests. See CONTRACT.md "# M7 확장" section.
+// The global pipeline uses a full scan instead of similarity search to guarantee completeness.
 
 export interface Entity {
   doc_id: string;
@@ -225,7 +225,7 @@ export interface PutClusterDigestRequest {
   model?: string;
 }
 
-// M8: 브랜치(격리된 변경 묶음) CRUD + 병합/폐기. CONTRACT.md "# M8 확장" 절 참고.
+// M8: branch (isolated change set) CRUD + merge/discard. See CONTRACT.md "# M8 확장" section.
 
 export interface BranchSummary {
   id: string;
@@ -250,7 +250,7 @@ export interface MergeBranchResponse {
   remaining: number;
 }
 
-/** M10: 그래프 이웃 문서(첫 청크 스니펫 동봉). */
+/** M10: graph neighbor doc (includes first-chunk snippet). */
 export interface GraphNeighborDoc {
   doc_id: string;
   origin: string;
@@ -270,7 +270,7 @@ export interface GraphDocResponse {
   inbound: GraphLinkItem[];
 }
 
-/** M10 관계선: 스코프 안에서 양 끝이 모두 노출 가능한 해석 링크 쌍. */
+/** M10 relation edge: a resolved link pair where both endpoints are visible within scope. */
 export interface GraphLinkPair {
   src_doc_id: string;
   dst_doc_id: string;
@@ -280,7 +280,7 @@ export interface GraphLinkPair {
 export interface CoreClient {
   health(): Promise<HealthResponse>;
   search(req: SearchRequest): Promise<SearchResponse>;
-  // M10: 선택 메서드 — ask의 그래프 확장은 미구현 core(테스트 fake 포함)에서 조용히 생략된다.
+  // M10: optional methods — ask's graph expansion is silently skipped on a core that doesn't implement them (including test fakes).
   graphNeighbors?(docIds: string[], ownerScope?: string, limit?: number): Promise<GraphNeighborDoc[]>;
   graphDoc?(docId: string, ownerScope?: string): Promise<GraphDocResponse>;
   graphLinks?(ownerScope?: string): Promise<GraphLinkPair[]>;
@@ -304,7 +304,7 @@ export interface CoreClient {
   discardBranch(branchId: string): Promise<BranchSummary>;
 }
 
-/** core HTTP 요청 실패 시 던지는 에러. status로 409(중복) 등을 호출부에서 분기할 수 있게 한다. */
+/** Error thrown when a core HTTP request fails. Exposes status so callers can branch on e.g. 409 (duplicate). */
 export class CoreHttpError extends Error {
   constructor(
     message: string,
@@ -318,7 +318,7 @@ export class CoreHttpError extends Error {
 export const DEFAULT_CORE_BASE_URL = "http://127.0.0.1:8801";
 
 export class CosmosCoreClient implements CoreClient {
-  // 베이스 URL은 env COSMOS_CORE_URL로 override 가능(기본값 DEFAULT_CORE_BASE_URL). 하드코딩 제거.
+  // Base URL can be overridden via env COSMOS_CORE_URL (default DEFAULT_CORE_BASE_URL). Removes hardcoding.
   constructor(private readonly baseUrl: string = process.env.COSMOS_CORE_URL || DEFAULT_CORE_BASE_URL) {}
 
   async health(): Promise<HealthResponse> {

@@ -1,4 +1,4 @@
-// entities(frontmatter 파생 레지스트리) + cluster_digests(클러스터 자기소개문).
+// entities (frontmatter-derived registry) + cluster_digests (cluster self-introduction text).
 
 use super::*;
 

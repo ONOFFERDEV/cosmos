@@ -70,7 +70,7 @@ fn migrate_cluster_centroid_column(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-/// M8: additive migration for branch (지식 PR) support — adds `docs.branch_id`
+/// M8: additive migration for branch (knowledge PR) support — adds `docs.branch_id`
 /// so existing rows are undamaged; `NULL` means the doc is on main.
 fn migrate_docs_branch_id_column(conn: &Connection) -> Result<()> {
     let has_branch_id = conn
@@ -123,9 +123,9 @@ fn migrate_clusters_owner_column(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-/// M10: additive migration — `docs.doc_name`(origin 스템, 소문자) 컬럼과
-/// `doc_links` 테이블. 기존 행의 doc_name은 여기서 즉시 백필한다(문서 수백 건
-/// 규모라 open 시 1회 순회 비용은 무시 가능).
+/// M10: additive migration — the `docs.doc_name` (lowercased origin stem) column and
+/// the `doc_links` table. Existing rows' doc_name is backfilled immediately here (at a scale
+/// of a few hundred documents, a single pass on open costs nothing worth worrying about).
 fn migrate_doc_links(conn: &Connection) -> Result<()> {
     let has_doc_name = conn
         .prepare("PRAGMA table_info(docs)")
@@ -139,7 +139,7 @@ fn migrate_doc_links(conn: &Connection) -> Result<()> {
             .context("adding docs.doc_name column")?;
     }
 
-    // 백필: doc_name이 비어 있는 행만(멱등).
+    // Backfill: only rows where doc_name is empty (idempotent).
     let pending: Vec<(String, String)> = conn
         .prepare("SELECT id, origin FROM docs WHERE doc_name IS NULL")
         .context("preparing doc_name backfill query")?
@@ -243,7 +243,7 @@ pub struct DocSummaryRow {
     pub owner: Option<String>,
 }
 
-/// M8: a branch (지식 PR) row, with `n_docs` pre-joined so callers don't need
+/// M8: a branch (knowledge PR) row, with `n_docs` pre-joined so callers don't need
 /// a second query.
 #[derive(Debug, Clone)]
 pub struct BranchRow {
@@ -387,17 +387,17 @@ impl Store {
 }
 
 // ---------------------------------------------------------------------
-// 테이블/관심사별 impl 분할 — DDL·행 타입·OwnerScope·Store는 이 파일에,
-// 각 자식 모듈은 use super::*로 접근한다.
+// Split into impls by table/concern — DDL, row types, OwnerScope, and Store live in this file,
+// and each child module accesses them via use super::*.
 // ---------------------------------------------------------------------
-mod branches; // 지식 PR 저장 계층
-mod links; // M10 문서 관계 그래프(doc_links)
+mod branches; // knowledge PR storage layer
+mod links; // M10 document relationship graph (doc_links)
 pub use links::DocLinkRow;
-mod chunks; // 청크·임베딩·exclusion-set
-mod clusters; // 클러스터 행 연산
-mod docs; // 문서 행 연산·소유권
-mod entities; // 엔티티 레지스트리·다이제스트
-mod events; // 저널·롤백 역연산
+mod chunks; // chunks · embeddings · exclusion-set
+mod clusters; // cluster row operations
+mod docs; // document row operations · ownership
+mod entities; // entity registry · digest
+mod events; // journal · rollback inverse ops
 
 #[cfg(test)]
 mod tests;

@@ -1,5 +1,5 @@
-// 저널 롤백: kind별 inverse 적용(cluster_birth / cluster_merge / branch_merge).
-// branch_merge는 M9부터 doc별 이전 owner까지 복원(승격 왕복 무손실).
+// Journal rollback: applies the inverse per kind (cluster_birth / cluster_merge / branch_merge).
+// Since M9, branch_merge restores each doc's previous owner too (promotion round-trip is lossless).
 
 use super::*;
 

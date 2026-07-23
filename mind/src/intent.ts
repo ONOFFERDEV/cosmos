@@ -1,6 +1,8 @@
-// 인텐트 게이트: 질문이 "전수 나열/개요"를 요구하는 global 질문인지, 특정 대상을 겨누는
-// point 질문인지 결정론적으로 분류한다. LLM 호출 없음. CONTRACT.md "# M7 확장" 참고.
-// 오탐(포인트 질문이 global로 잘못 분류되는 경우) 최소화를 우선한다 — 애매하면 point.
+// Intent gate: deterministically classifies whether a question is a global question
+// asking for a "full enumeration/overview", or a point question targeting a specific
+// target. No LLM calls. See CONTRACT.md "# M7 확장".
+// Prioritizes minimizing false positives (a point question misclassified as global) —
+// when ambiguous, default to point.
 
 const GLOBAL_KEYWORDS = [
   "전체",
