@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { gzipSync } from "node:zlib";
 import path from "node:path";
 
-import { extractTarFiles, loadRepos, syncAllRepos, syncRepo, upsertRepo, type RepoEntry } from "./repos.js";
+import { extractTarFiles, loadRepos, syncAllRepos, syncRepo, upsertRepo, upsertSharedRepo, type RepoEntry } from "./repos.js";
 import type { CoreClient, IngestRequest, IngestResponse } from "./core-client.js";
 
 function tarEntry(name: string, content: string, typeflag = "0"): Buffer {
@@ -113,6 +113,27 @@ test("syncRepo는 tarball의 .md만 owner ingest하고 숨김/비md는 거른다
   assert.equal(untitled?.title, "딥");
   assert.equal(entry.last_sha, "abc123");
   assert.equal(entry.branch, "main");
+});
+
+test("공용 레포(shared)는 owner 없이 knowledge://shared/<이름>/ 네임스페이스로 ingest한다", async () => {
+  const dir = await tempDir();
+  const tarGz = gzipSync(makeTar([["knowledge-commons-abc/wiki/교훈.md", "# 교훈\n본문"]]));
+  const { core, ingests } = recordingCore();
+
+  const entry = await upsertSharedRepo({ repo: "ONOFFERDEV/knowledge-commons" }, dir);
+  assert.equal(entry.owner, "@shared/knowledge-commons");
+  assert.equal(entry.shared, true);
+  // 두 번째 공용 레포가 첫 번째를 덮어쓰지 않는다(레포당 1항목).
+  await upsertSharedRepo({ repo: "ONOFFERDEV/knowledge-internal" }, dir);
+  await upsertSharedRepo({ repo: "ONOFFERDEV/knowledge-commons", branch: "main" }, dir);
+  const entries = await loadRepos(dir);
+  assert.equal(entries.filter((e) => e.shared).length, 2, "공용 2레포 공존");
+
+  const result = await syncRepo(entry, { core, fetchImpl: fakeGithub(tarGz) });
+  assert.equal(result.ingested, 1);
+  assert.equal(ingests.length, 1);
+  assert.equal("owner" in ingests[0] && ingests[0].owner !== undefined, false, "owner 미지정(shared 스코프)");
+  assert.deepEqual(ingests[0].docs.map((d) => d.origin), ["knowledge://shared/knowledge-commons/wiki/교훈.md"]);
 });
 
 test("syncRepo는 head sha 무변경이면 tarball 없이 no-op", async () => {

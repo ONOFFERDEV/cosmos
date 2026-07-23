@@ -252,6 +252,17 @@ pub fn append_owner_migrate(store: &Store, source_type: &str, owner: &str, n_doc
         .context("appending owner_migrate event")
 }
 
+/// P4(공용지식 이관): append a `kind=docs_delete` event recording a bulk
+/// delete by origin prefix. No inverse — the deletion is the switchover step
+/// after the same content re-enters under a new origin namespace (knowledge://).
+pub fn append_docs_delete(store: &Store, origin_prefix: &str, n_docs: usize) -> Result<i64> {
+    let ts = Utc::now().to_rfc3339();
+    let payload = json!({ "origin_prefix": origin_prefix, "n_docs": n_docs });
+    store
+        .append_event(&ts, "docs_delete", &payload.to_string(), "{}")
+        .context("appending docs_delete event")
+}
+
 /// M8: append a `kind=branch_discard` event: `payload={branch_id, origins}`,
 /// no inverse — discard actually deletes the branch's docs, so there is
 /// nothing to roll back to; only the list of `origin`s is kept, since doc

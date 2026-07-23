@@ -1586,6 +1586,39 @@ fn graph_neighbors_expand_one_hop_with_scope() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// P4: origin 접두 일괄 삭제 — chunks·entity·나가는 링크 동반 삭제,
+/// 들어오는 링크는 dangling(NULL) 복귀(새 origin 재인제스트 시 역해석 self-heal).
+#[test]
+fn delete_docs_by_origin_prefix_redangles_inbound_links() {
+    let (engine, dir) = temp_engine();
+    engine.store.insert_doc("w1", "session", "C:\\hub\\wiki\\alpha.md", Some("A"), "h1", 10, "2026-01-01T00:00:00Z", None, Some("admin")).unwrap();
+    engine.store.insert_doc("w2", "session", "C:\\hub\\wiki\\beta.md", Some("B"), "h2", 10, "2026-01-01T00:00:00Z", None, Some("admin")).unwrap();
+    engine.store.insert_doc("keep", "manual", "origin://keep.md", Some("K"), "h3", 10, "2026-01-01T00:00:00Z", None, None).unwrap();
+    // keep→alpha (삭제 후 dangling 복귀 대상), w1→beta (동반 삭제 대상)
+    engine.store.replace_doc_links("keep", &[("links".into(), "alpha".into())]).unwrap();
+    engine.store.replace_doc_links("w1", &[("links".into(), "beta".into())]).unwrap();
+
+    let ids = engine.store.docs_ids_by_origin_prefix("C:\\hub\\wiki\\").unwrap();
+    assert_eq!(ids.len(), 2, "접두 매칭 2건: {ids:?}");
+    let n = engine.store.delete_docs_by_ids(&ids).unwrap();
+    assert_eq!(n, 2);
+
+    assert!(engine.store.find_doc_by_origin("C:\\hub\\wiki\\alpha.md").unwrap().is_none(), "삭제 확인");
+    assert!(engine.store.find_doc_by_origin("origin://keep.md").unwrap().is_some(), "비대상 보존");
+
+    // keep→alpha는 dangling으로 복귀했다가, alpha가 새 origin으로 들어오면 역해석.
+    let g = engine.graph_doc("keep", None).unwrap();
+    let link = g.outbound.iter().find(|l| l.target_name == "alpha").expect("링크 유지");
+    assert!(link.doc.is_none(), "dangling 복귀");
+    engine.store.insert_doc("w1b", "session", "knowledge://shared/kc/wiki/alpha.md", Some("A"), "h1", 10, "2026-01-02T00:00:00Z", None, None).unwrap();
+    engine.store.resolve_dangling_links("alpha", "w1b").unwrap();
+    let g2 = engine.graph_doc("keep", None).unwrap();
+    let link2 = g2.outbound.iter().find(|l| l.target_name == "alpha").unwrap();
+    assert_eq!(link2.doc.as_ref().map(|d| d.doc_id.as_str()), Some("w1b"), "새 origin으로 self-heal");
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// M10 관계선: /graph/links는 해석된 쌍만 내고, 한쪽 끝이라도 스코프 밖이면
 /// 쌍째 제외한다(dangling도 정의상 제외 — target 미해석).
 #[test]

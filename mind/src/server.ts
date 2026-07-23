@@ -25,7 +25,7 @@ import { buildUniverse } from "./universe.js";
 import { classifyIntent } from "./intent.js";
 import { runGlobalAsk } from "./global.js";
 import { sendInvite } from "./invite.js";
-import { loadRepos, publicRepoView, syncOwnerRepo, upsertRepo } from "./repos.js";
+import { loadRepos, publicRepoView, syncOwnerRepo, upsertRepo, upsertSharedRepo } from "./repos.js";
 
 export const DEFAULT_MIND_PORT = 8800;
 
@@ -187,6 +187,9 @@ const ROUTES: Route[] = [
   { method: "PUT", path: "/my/repo", auth: "identity", handler: ({ req, res, deps, identity }) => handleMyRepoPut(req, res, deps, identity!) },
   { method: "POST", path: "/my/repo/sync", auth: "identity", handler: ({ res, deps, identity }) => handleMyRepoSync(res, deps, identity!) },
   { method: "GET", path: "/repos", auth: "admin", handler: ({ res, deps }) => handleReposList(res, deps) },
+  // P4: 공용 지식 레포(owner 없이 shared 스코프 ingest) — 등록·강제 동기화는 admin 전용.
+  { method: "PUT", path: "/repos/shared", auth: "admin", handler: ({ req, res, deps }) => handleSharedRepoPut(req, res, deps) },
+  { method: "POST", path: "/repos/shared/sync", auth: "admin", handler: ({ res, deps }) => handleSharedRepoSync(res, deps) },
 
   // public: 읽기 전용 검색 — MCP cosmos_search가 core 응답 shape을 그대로 기대.
   // 핸들러가 옵션 토큰을 해석해 owner_scope를 서버 계산값으로 강제 덮어쓴다(M9 위장 차단).
@@ -320,6 +323,39 @@ async function handleMyRepoSync(res: ServerResponse, deps: ServerDeps, identity:
 async function handleReposList(res: ServerResponse, deps: ServerDeps): Promise<void> {
   const entries = await loadRepos(deps.dataDir);
   sendJson(res, 200, entries.map(publicRepoView));
+}
+
+/** P4: 공용 레포 등록(admin) — owner 없이 shared 스코프로 pull되는 레포. 등록 직후 1회 동기화. */
+async function handleSharedRepoPut(req: IncomingMessage, res: ServerResponse, deps: ServerDeps): Promise<void> {
+  try {
+    const body = (await readJsonBody(req)) as { repo?: unknown; branch?: unknown; token?: unknown };
+    if (typeof body?.repo !== "string" || !body.repo.trim()) {
+      sendJson(res, 400, { message: 'repo("owner/name")가 필요합니다' });
+      return;
+    }
+    const entry = await upsertSharedRepo(
+      {
+        repo: body.repo.trim(),
+        branch: typeof body.branch === "string" && body.branch.trim() ? body.branch.trim() : undefined,
+        token: typeof body.token === "string" && body.token.trim() ? body.token.trim() : undefined,
+      },
+      deps.dataDir
+    );
+    const result = await syncOwnerRepo(entry.owner, { core: deps.core, dataDir: deps.dataDir, fetchImpl: deps.fetchImpl });
+    sendJson(res, 200, { saved: true, sync: result });
+  } catch (err) {
+    sendJson(res, 400, { message: `공용 레포 등록 실패: ${errorMessage(err)}` });
+  }
+}
+
+/** P4: 공용 레포 전체 즉시 동기화(admin). */
+async function handleSharedRepoSync(res: ServerResponse, deps: ServerDeps): Promise<void> {
+  const entries = await loadRepos(deps.dataDir);
+  const results = [];
+  for (const entry of entries.filter((e) => e.shared)) {
+    results.push(await syncOwnerRepo(entry.owner, { core: deps.core, dataDir: deps.dataDir, fetchImpl: deps.fetchImpl }));
+  }
+  sendJson(res, 200, results);
 }
 
 /**

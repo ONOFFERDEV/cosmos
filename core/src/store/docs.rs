@@ -30,6 +30,39 @@ impl Store {
         Ok(())
     }
 
+    /// origin 접두로 문서를 일괄 삭제한다(P4 공용지식 이관 전환용).
+    /// chunks·entity·나가는 링크는 함께 삭제, 들어오는 링크는 dangling(NULL)으로
+    /// 되돌려 같은 이름의 문서가 새 origin으로 들어오면 역해석되게 한다.
+    /// tantivy 잔존 항목은 무해(검색이 scoped_chunk_ids로 SQLite와 교차 검증).
+    /// 반환 = 삭제된 doc_id 목록(dry-run은 호출부에서 이 목록만 쓰고 중단).
+    pub fn docs_ids_by_origin_prefix(&self, prefix: &str) -> Result<Vec<String>> {
+        let conn = self.conn.lock().expect("sqlite mutex poisoned");
+        let like = format!("{}%", prefix.replace('\\', "\\\\").replace('%', "\\%").replace('_', "\\_"));
+        let mut stmt = conn
+            .prepare("SELECT id FROM docs WHERE origin LIKE ?1 ESCAPE '\\'")
+            .context("preparing origin prefix query")?;
+        let rows = stmt
+            .query_map(params![like], |row| row.get::<_, String>(0))
+            .context("querying docs by origin prefix")?
+            .collect::<rusqlite::Result<Vec<_>>>()
+            .context("collecting docs by origin prefix")?;
+        Ok(rows)
+    }
+
+    pub fn delete_docs_by_ids(&self, ids: &[String]) -> Result<usize> {
+        for id in ids {
+            {
+                let conn = self.conn.lock().expect("sqlite mutex poisoned");
+                conn.execute("DELETE FROM doc_links WHERE src_doc_id = ?1", params![id])
+                    .context("deleting outgoing links")?;
+                conn.execute("UPDATE doc_links SET target_doc_id = NULL WHERE target_doc_id = ?1", params![id])
+                    .context("re-dangling incoming links")?;
+            }
+            self.delete_doc(id)?;
+        }
+        Ok(ids.len())
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn insert_doc(
         &self,

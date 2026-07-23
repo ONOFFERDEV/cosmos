@@ -10,8 +10,11 @@ import { defaultDataDir } from "./config.js";
 import type { CoreClient, IngestRequest } from "./core-client.js";
 
 export interface RepoEntry {
-  /** 개인 공간 소유자(users.json의 이름, admin은 "admin") */
+  /** 개인 공간 소유자(users.json의 이름, admin은 "admin").
+   *  P4 공용 레포는 예약 키 "@shared/<레포이름>" — 사용자명에 '/'가 없어 충돌 불가. */
   owner: string;
+  /** P4: true면 공용 레포 — owner 없이 shared 스코프로 ingest된다(admin만 등록). */
+  shared?: boolean;
   /** "owner/name" 형식 */
   repo: string;
   /** 생략 시 GitHub 기본 브랜치 */
@@ -76,6 +79,30 @@ export async function upsertRepo(
     ...(entry.token ? { token: entry.token } : {}),
   };
   const idx = entries.findIndex((e) => e.owner === entry.owner);
+  if (idx >= 0) entries[idx] = next;
+  else entries.push(next);
+  await saveRepos(entries, dataDir);
+  return next;
+}
+
+/** P4: 공용 레포 등록(admin 전용 라우트가 호출). 레포당 1항목 — 키는 "@shared/<이름>". */
+export async function upsertSharedRepo(
+  entry: { repo: string; branch?: string; token?: string },
+  dataDir = defaultDataDir()
+): Promise<RepoEntry> {
+  if (!/^[\w.-]+\/[\w.-]+$/.test(entry.repo)) {
+    throw new Error(`repo는 "owner/name" 형식이어야 합니다: ${entry.repo}`);
+  }
+  const name = entry.repo.split("/")[1]!;
+  const entries = await loadRepos(dataDir);
+  const next: RepoEntry = {
+    owner: `@shared/${name}`,
+    shared: true,
+    repo: entry.repo,
+    ...(entry.branch ? { branch: entry.branch } : {}),
+    ...(entry.token ? { token: entry.token } : {}),
+  };
+  const idx = entries.findIndex((e) => e.owner === next.owner);
   if (idx >= 0) entries[idx] = next;
   else entries.push(next);
   await saveRepos(entries, dataDir);
@@ -164,6 +191,9 @@ export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSy
   const gz = Buffer.from(await tarRes.arrayBuffer());
   const files = extractTarFiles(gunzipSync(gz));
 
+  // P4: 공용 레포는 owner 없이(shared 스코프) "knowledge://shared/<레포이름>/" 네임스페이스로.
+  const originBase = entry.shared ? `knowledge://shared/${entry.repo.split("/")[1]}` : `knowledge://${entry.owner}`;
+
   const docs: IngestRequest["docs"] = [];
   for (const [name, buf] of files) {
     if (!name.toLowerCase().endsWith(".md")) continue;
@@ -174,7 +204,7 @@ export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSy
     if (!text.trim()) continue;
     const titleLine = text.split("\n").find((l) => /^#\s+/.test(l));
     docs.push({
-      origin: `knowledge://${entry.owner}/${rel}`,
+      origin: `${originBase}/${rel}`,
       source_type: "session",
       title: titleLine ? titleLine.replace(/^#\s+/, "").trim() : path.basename(rel, ".md"),
       text,
@@ -183,7 +213,8 @@ export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSy
 
   result.changed = true;
   for (let i = 0; i < docs.length; i += 50) {
-    const resp = await deps.core.ingest({ owner: entry.owner, docs: docs.slice(i, i + 50) });
+    const batch = docs.slice(i, i + 50);
+    const resp = await deps.core.ingest(entry.shared ? { docs: batch } : { owner: entry.owner, docs: batch });
     for (const r of resp.ingested) {
       result.ingested++;
       if (r.duplicate) result.duplicate++;

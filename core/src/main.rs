@@ -76,6 +76,17 @@ enum Commands {
         #[arg(long, default_value_t = false)]
         dry_run: bool,
     },
+    /// P4: bulk-delete docs whose origin starts with a prefix (knowledge
+    /// namespace switchover). Journals `docs_delete`; no models needed.
+    DeleteOrigin {
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long)]
+        prefix: String,
+        /// Report the affected doc count without deleting.
+        #[arg(long, default_value_t = false)]
+        dry_run: bool,
+    },
 }
 
 #[derive(Debug, Deserialize)]
@@ -199,7 +210,23 @@ fn main() -> Result<()> {
         Commands::MigrateOwner { out, source_type, owner, dry_run } => {
             cmd_migrate_owner(out, source_type, owner, dry_run)
         }
+        Commands::DeleteOrigin { out, prefix, dry_run } => cmd_delete_origin(out, prefix, dry_run),
     }
+}
+
+/// P4: origin 접두 일괄 삭제(공용지식 네임스페이스 전환). Store 직접 오픈(모델 불요).
+fn cmd_delete_origin(out: PathBuf, prefix: String, dry_run: bool) -> Result<()> {
+    let db_path = out.join("cosmos.sqlite3");
+    let store = cosmos_core::store::Store::open(&db_path).context("opening store")?;
+    let ids = store.docs_ids_by_origin_prefix(&prefix)?;
+    if dry_run {
+        println!("{}", serde_json::json!({ "dry_run": true, "prefix": prefix, "would_delete": ids.len() }));
+        return Ok(());
+    }
+    let n = store.delete_docs_by_ids(&ids)?;
+    cosmos_core::journal::append_docs_delete(&store, &prefix, n)?;
+    println!("{}", serde_json::json!({ "prefix": prefix, "deleted": n }));
+    Ok(())
 }
 
 /// M9: session→admin ownership migration. Opens the Store directly (no

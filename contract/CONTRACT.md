@@ -51,6 +51,8 @@
 - API(mind): `GET /my/repo`(본인 연결 상태) · `PUT /my/repo {repo, branch?, token?}`(본인 등록/변경 — owner는 identity로 강제) · `POST /my/repo/sync`(본인 즉시 동기화) · admin 전용 `GET /repos`(전체 목록·상태).
 - 웹: 챗 바 [📝 내 지식 연결] = 레포 연결 패널(현재 상태·repo 입력·선택 토큰·지금 동기화).
 - 주의: 관리자 PC의 파일 워처 동기화(파일경로 origin)와 같은 내용을 레포 커넥터로 이중 연결하면 origin이 달라 중복 문서가 된다 — 한 소스는 한 경로로만.
+- **공용 레포(P4)**: `repos.json` 항목에 `shared: true`(키=owner 필드에 예약값 `@shared/<레포이름>` — 사용자명에 '/'가 없어 충돌 불가). 동기화 동일하되 **owner 없이 ingest**(shared 스코프), origin=`knowledge://shared/<레포이름>/<경로>`. API(admin 전용): `PUT /repos/shared {repo, branch?, token?}`(등록+즉시 1회 동기화) · `POST /repos/shared/sync`(공용 전체 즉시). cron이 개인·공용 구분 없이 순회.
+- **네임스페이스 전환 CLI(core)**: `delete-origin --out <dir> --prefix <origin접두> [--dry-run]` — 파일경로 origin으로 남은 구 문서를 일괄 삭제(chunks·entity·나가는 링크 동반, 들어오는 링크는 dangling 복귀→새 origin 인제스트 시 역해석 self-heal, 저널 `docs_delete`, tantivy 잔존은 scoped_chunk_ids 교차검증으로 무해). 전환 순서 강제: **공용 레포 인제스트 성공 확인 → 워처 소스 제거 → delete-origin**(역순이면 지식 공백).
 
 ## 관계 그래프 (M10 v1 — 결정론 문서 링크 온톨로지)
 - **원천은 저자가 쓴 명시적 관계뿐**(LLM 추출 없음 — 환각 0 설계): 본문 `[[이름]]`/`[[이름|표시]]`→`links`, frontmatter `up:`→`up`, `related:`→`related`.
