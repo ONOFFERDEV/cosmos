@@ -3,6 +3,7 @@
 // GitHub 접근은 API 2콜(head sha → tarball)뿐이며 tar.gz는 무의존 파서로 푼다(mind 런타임 의존성 0 유지).
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { request as httpsRequest } from "node:https";
 import { gunzipSync } from "node:zlib";
 import path from "node:path";
 
@@ -109,6 +110,18 @@ export async function upsertSharedRepo(
   return next;
 }
 
+/** undici "fetch failed"는 원인이 cause 체인에 숨는다 — 진단 가능하게 펼친다. */
+export function errorWithCause(err: unknown): string {
+  const parts: string[] = [];
+  let cur: unknown = err;
+  for (let i = 0; i < 4 && cur; i++) {
+    const e = cur as { message?: string; code?: string; cause?: unknown };
+    parts.push(e.code ?? e.message ?? String(cur));
+    cur = e.cause;
+  }
+  return [...new Set(parts)].join(" ← ");
+}
+
 function authHeaders(entry: RepoEntry): Record<string, string> {
   const token = entry.token || process.env.GITHUB_KNOWLEDGE_TOKEN;
   return {
@@ -162,15 +175,67 @@ export function extractTarFiles(tarBuf: Buffer): Map<string, Buffer> {
   return files;
 }
 
-async function githubJson(url: string, entry: RepoEntry, fetchImpl: typeof fetch): Promise<unknown> {
-  const res = await fetchImpl(url, { headers: authHeaders(entry) });
-  if (!res.ok) throw new Error(`GitHub ${res.status}: ${url.replace(/^https:\/\/api\.github\.com/, "")}`);
-  return res.json();
+/**
+ * 프로덕션 GitHub 호출은 node:https 직접(리다이렉트 수동 추적, 60s 타임아웃).
+ * 실측(2026-07-23, Rocky mind 컨테이너): 같은 프로세스에서 Slack fetch는 정상인데
+ * GitHub만 undici가 UND_ERR_SOCKET/ECONNREFUSED/행 — docker exec의 새 node에선
+ * 매번 성공. 원인 미규명이라 M3 전례(장시간 LLM 호출 node:http 직접)대로 우회.
+ * 크로스 호스트 리다이렉트(tarball→codeload)에선 Authorization을 떼고 따라간다
+ * (fetch의 표준 동작과 동일 — codeload URL은 사전 서명이라 무인증 동작).
+ */
+function httpsGet(
+  url: string,
+  headers: Record<string, string>,
+  redirects = 3
+): Promise<{ status: number; body: Buffer }> {
+  return new Promise((resolve, reject) => {
+    const req = httpsRequest(url, { headers }, (res) => {
+      const code = res.statusCode ?? 0;
+      const loc = res.headers.location;
+      if (code >= 300 && code < 400 && loc && redirects > 0) {
+        res.resume();
+        const next = new URL(loc, url).toString();
+        const sameHost = new URL(next).host === new URL(url).host;
+        const nextHeaders = { ...headers };
+        if (!sameHost) delete nextHeaders.Authorization;
+        resolve(httpsGet(next, nextHeaders, redirects - 1));
+        return;
+      }
+      const chunks: Buffer[] = [];
+      res.on("data", (c: Buffer) => chunks.push(c));
+      res.on("end", () => resolve({ status: code, body: Buffer.concat(chunks) }));
+      res.on("error", reject);
+    });
+    req.on("error", reject);
+    req.setTimeout(60_000, () => req.destroy(new Error("GitHub 요청 60s 타임아웃")));
+    req.end();
+  });
+}
+
+/** 테스트는 fetchImpl 주입 경로, 프로덕션(미주입)은 node:https 직접. */
+async function githubGet(
+  url: string,
+  entry: RepoEntry,
+  fetchImpl: typeof fetch | undefined
+): Promise<{ status: number; body: Buffer }> {
+  if (fetchImpl) {
+    const res = await fetchImpl(url, { headers: authHeaders(entry) });
+    return { status: res.status, body: Buffer.from(await res.arrayBuffer()) };
+  }
+  return httpsGet(url, authHeaders(entry));
+}
+
+async function githubJson(url: string, entry: RepoEntry, fetchImpl: typeof fetch | undefined): Promise<unknown> {
+  const res = await githubGet(url, entry, fetchImpl);
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`GitHub ${res.status}: ${url.replace(/^https:\/\/api\.github\.com/, "")}`);
+  }
+  return JSON.parse(res.body.toString("utf8"));
 }
 
 /** head sha가 last_sha와 같으면 no-op. 변경 시 tarball→.md 추출→owner ingest. */
 export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSyncResult> {
-  const fetchImpl = deps.fetchImpl ?? fetch;
+  const fetchImpl = deps.fetchImpl; // 미주입(프로덕션)이면 githubGet이 node:https 직접 경로를 쓴다
   const now = deps.now ?? (() => new Date());
   const base = `https://api.github.com/repos/${entry.repo}`;
   const result: RepoSyncResult = { repo: entry.repo, owner: entry.owner, changed: false, ingested: 0, duplicate: 0 };
@@ -186,10 +251,9 @@ export async function syncRepo(entry: RepoEntry, deps: RepoDeps): Promise<RepoSy
   result.sha = head.sha;
   if (head.sha === entry.last_sha) return result; // 무변경
 
-  const tarRes = await fetchImpl(`${base}/tarball/${encodeURIComponent(branch)}`, { headers: authHeaders(entry) });
-  if (!tarRes.ok) throw new Error(`tarball ${tarRes.status}`);
-  const gz = Buffer.from(await tarRes.arrayBuffer());
-  const files = extractTarFiles(gunzipSync(gz));
+  const tarRes = await githubGet(`${base}/tarball/${encodeURIComponent(branch)}`, entry, fetchImpl);
+  if (tarRes.status < 200 || tarRes.status >= 300) throw new Error(`tarball ${tarRes.status}`);
+  const files = extractTarFiles(gunzipSync(tarRes.body));
 
   // P4: 공용 레포는 owner 없이(shared 스코프) "knowledge://shared/<레포이름>/" 네임스페이스로.
   const originBase = entry.shared ? `knowledge://shared/${entry.repo.split("/")[1]}` : `knowledge://${entry.owner}`;
@@ -238,7 +302,7 @@ export async function syncAllRepos(deps: RepoDeps): Promise<RepoSyncResult[]> {
     try {
       results.push(await syncRepo(entry, deps));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = errorWithCause(err);
       entry.last_error = msg;
       results.push({ repo: entry.repo, owner: entry.owner, changed: false, ingested: 0, duplicate: 0, error: msg });
     }
@@ -258,7 +322,7 @@ export async function syncOwnerRepo(owner: string, deps: RepoDeps): Promise<Repo
     await saveRepos(entries, dataDir);
     return result;
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = errorWithCause(err);
     entry.last_error = msg;
     await saveRepos(entries, dataDir);
     return { repo: entry.repo, owner, changed: false, ingested: 0, duplicate: 0, error: msg };
