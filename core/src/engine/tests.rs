@@ -790,7 +790,8 @@
         seed_branch_doc(&engine, "d1", &branch.id);
         seed_branch_doc(&engine, "d2", &branch.id);
 
-        engine.discard_branch(&branch.id).expect("discard_branch");
+        let discarded = engine.discard_branch(&branch.id).expect("discard_branch");
+        assert_eq!(discarded.status, "discarded");
 
         let branch_docs = engine.branch_docs(&branch.id).expect("branch_docs after discard");
         assert!(branch_docs.is_empty());

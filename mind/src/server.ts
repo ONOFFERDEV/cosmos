@@ -26,6 +26,8 @@ import { classifyIntent } from "./intent.js";
 import { runGlobalAsk } from "./global.js";
 import { sendInvite } from "./invite.js";
 import { loadRepos, publicRepoView, syncOwnerRepo, upsertRepo, upsertSharedRepo } from "./repos.js";
+import { appendAskLog, readAskStats } from "./asklog.js";
+import { defaultDataDir } from "./config.js";
 
 export const DEFAULT_MIND_PORT = 8800;
 
@@ -163,6 +165,8 @@ const ROUTES: Route[] = [
   { method: "POST", path: "/ask", auth: "identity", handler: ({ req, res, deps, identity }) => handleAsk(req, res, deps, identity!) },
   { method: "POST", path: "/ask/stream", auth: "identity", handler: ({ req, res, deps, identity }) => handleAskStream(req, res, deps, identity!) },
   { method: "GET", path: "/me", auth: "identity", handler: ({ res, identity }) => sendJson(res, 200, { name: identity!.name, role: identity!.role }) },
+  // Ask usage metrics (per-day mode/client/user counts + recent records) — admin only (exposes per-user counts).
+  { method: "GET", path: "/stats", auth: "admin", handler: ({ res, deps }) => handleStats(res, deps) },
 
   // M8: /inbox routes were unified into branch review — 410 notice only (public: just a notice message, no data).
   { method: "GET", path: "/inbox", auth: "public", handler: ({ res }) => sendJson(res, 410, { message: INBOX_GONE_MESSAGE }) },
@@ -659,10 +663,10 @@ async function handleHealth(res: ServerResponse, deps: ServerDeps): Promise<void
   }
 }
 
-type AskMode = "fast" | "deep" | "global";
+export type AskMode = "fast" | "deep" | "global";
 
 /** Decides the final pipeline from the mode body field plus the classifyIntent gate. See CONTRACT.md "# M7 확장". */
-function resolveAskMode(rawMode: string, question: string): AskMode {
+export function resolveAskMode(rawMode: string, question: string): AskMode {
   if (rawMode === "deep") return "deep";
   if (rawMode === "global") return "global";
   if (rawMode === "point" || rawMode === "fast") return "fast";
@@ -675,7 +679,7 @@ function resolveAskMode(rawMode: string, question: string): AskMode {
  * injected from the SSE stream (/ask/stream); when it's not provided, each pipeline treats it as a
  * no-op, so /ask's behavior is unchanged. See CONTRACT.md "# M7.5 확장".
  */
-async function runAskPipeline(
+export async function runAskPipeline(
   question: string,
   mode: AskMode,
   deps: ServerDeps,
@@ -689,6 +693,42 @@ async function runAskPipeline(
     return runGlobalAsk(question, { core: deps.core, llm: deps.llm, dataDir: deps.dataDir, onProgress, ownerScope });
   }
   return runAsk(question, { core: deps.core, llm: deps.llm, dataDir: deps.dataDir, onProgress, ownerScope });
+}
+
+const ASK_CLIENT_RE = /^[a-z0-9_-]{1,20}$/;
+
+/** Resolves the caller's client tag from the X-Cosmos-Client header (web/mcp/slack/...), defaulting to "api" when missing or malformed. */
+function resolveAskClient(req: IncomingMessage): string {
+  const raw = req.headers["x-cosmos-client"];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value && ASK_CLIENT_RE.test(value) ? value : "api";
+}
+
+interface AskLogInfo {
+  mode: AskMode;
+  user: string;
+  client: string;
+  ms: number;
+  insufficient: boolean;
+  error?: true;
+  q: string;
+}
+
+/**
+ * Fire-and-forget usage logging for one ask call: one console line plus one ask-log.jsonl record.
+ * Never awaited by callers — a slow or failing disk write must never delay the /ask response
+ * (appendAskLog itself never throws, see asklog.ts).
+ */
+function logAsk(deps: ServerDeps, info: AskLogInfo): void {
+  const secs = (info.ms / 1000).toFixed(1);
+  console.log(`[ask] mode=${info.mode} user=${info.user} client=${info.client} ${secs}s`);
+  void appendAskLog(deps.dataDir ?? defaultDataDir(), { ts: new Date().toISOString(), ...info });
+}
+
+/** GET /stats: aggregated ask usage metrics. Admin-only (exposes per-user ask counts). */
+async function handleStats(res: ServerResponse, deps: ServerDeps): Promise<void> {
+  const stats = await readAskStats(deps.dataDir ?? defaultDataDir());
+  sendJson(res, 200, stats);
 }
 
 async function handleAsk(req: IncomingMessage, res: ServerResponse, deps: ServerDeps, identity: Identity): Promise<void> {
@@ -705,15 +745,20 @@ async function handleAsk(req: IncomingMessage, res: ServerResponse, deps: Server
     }
 
     mode = resolveAskMode(rawMode, question);
+    const client = resolveAskClient(req);
+    const startedAt = Date.now();
 
     try {
       const envelope = await runAskPipeline(question, mode, deps, undefined, ownerScopeFor(identity));
       sendJson(res, 200, envelope);
+      logAsk(deps, { mode, user: identity.name, client, ms: Date.now() - startedAt, insufficient: envelope.insufficient, q: question });
     } catch (err) {
       if (err instanceof Error && err.message === DEEP_BUSY_MESSAGE) {
         sendJson(res, 429, { message: DEEP_BUSY_MESSAGE });
+        logAsk(deps, { mode, user: identity.name, client, ms: Date.now() - startedAt, insufficient: false, error: true, q: question });
         return;
       }
+      logAsk(deps, { mode, user: identity.name, client, ms: Date.now() - startedAt, insufficient: false, error: true, q: question });
       throw err;
     }
   } catch (err) {
@@ -768,6 +813,8 @@ async function handleAskStream(req: IncomingMessage, res: ServerResponse, deps: 
     }
 
     mode = resolveAskMode(rawMode, question);
+    const client = resolveAskClient(req);
+    const startedAt = Date.now();
 
     const onProgress = (stage: string, detail?: string): void => {
       writeEvent("status", detail === undefined ? { stage } : { stage, detail });
@@ -776,10 +823,13 @@ async function handleAskStream(req: IncomingMessage, res: ServerResponse, deps: 
     try {
       const envelope = await runAskPipeline(question, mode, deps, onProgress, ownerScopeFor(identity));
       writeEvent("envelope", envelope);
+      logAsk(deps, { mode, user: identity.name, client, ms: Date.now() - startedAt, insufficient: envelope.insufficient, q: question });
     } catch (err) {
       if (err instanceof Error && err.message === DEEP_BUSY_MESSAGE) {
         writeEvent("error", { message: DEEP_BUSY_MESSAGE });
+        logAsk(deps, { mode, user: identity.name, client, ms: Date.now() - startedAt, insufficient: false, error: true, q: question });
       } else {
+        logAsk(deps, { mode, user: identity.name, client, ms: Date.now() - startedAt, insufficient: false, error: true, q: question });
         throw err;
       }
     }

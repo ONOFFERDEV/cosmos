@@ -63,4 +63,4 @@ curl -fsS <공개주소>/health   # COSMOS_BIND를 LAN IP로 제한한 배포는
 | core | `cargo test` 전량 + ignored, 스코프/브랜치 격리 테스트 무회귀 |
 | mind | `npm test` 180 전량 |
 | web | fixture 헤드리스(문법+DOM+`__cosmosSceneApi` 어서션)+스크린샷 육안 1장 |
-| 배포 | /health 카운트 확인(문서 340·클러스터 19 기준선, 2026-07-23) + 무인증/admin 스코프 각 1프로브 |
+| 배포 | /health 카운트 확인(문서 302·클러스터 19 기준선, 2026-07-24 — 07-23 수집 검토함 정리 342→295 반영) + 무인증/admin 스코프 각 1프로브 |

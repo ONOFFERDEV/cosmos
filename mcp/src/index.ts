@@ -12,7 +12,7 @@ import {
   type SearchResponse,
   type HealthResponse,
   type UniverseResponse,
-  type InboxItem,
+  type BranchSummary,
 } from "./mind-client.js";
 
 const baseUrl = process.env.COSMOS_MIND_URL || DEFAULT_MIND_BASE_URL;
@@ -117,13 +117,13 @@ function formatUniverse(res: UniverseResponse): string {
   return lines.join("\n");
 }
 
-function formatInbox(items: InboxItem[]): string {
-  if (!items?.length) return "받은편지함이 비어 있습니다.";
-  const lines = [`받은편지함 ${items.length}건:`];
-  for (const it of items) {
-    const title = it.title ? `${it.title} — ` : "";
-    const score = typeof it.score === "number" ? ` (score ${it.score.toFixed(3)})` : "";
-    lines.push(`  - [${it.id}] ${title}${it.origin} (${it.source_type})${score}`);
+function formatBranches(branches: BranchSummary[]): string {
+  if (!branches?.length) return "브랜치가 없습니다.";
+  const lines = [`브랜치 ${branches.length}개:`];
+  for (const b of branches) {
+    const creator = b.created_by ? ` by ${b.created_by}` : "";
+    const merged = b.merged_at ? `, 병합 ${b.merged_at}` : "";
+    lines.push(`  - [${b.id}] ${b.name} (${b.status})${creator} — 생성 ${b.created_at}${merged}`);
   }
   return lines.join("\n");
 }
@@ -229,72 +229,18 @@ server.registerTool(
 );
 
 server.registerTool(
-  "cosmos_inbox_list",
+  "cosmos_branches",
   {
-    title: "Cosmos 받은편지함 목록",
-    description: "승인 대기 중인 받은편지함 항목 목록을 조회한다.",
-    inputSchema: {},
-  },
-  async () => {
-    try {
-      const items = await mind.inboxList();
-      return ok(formatInbox(items));
-    } catch (err) {
-      return errorResult(err);
-    }
-  },
-);
-
-server.registerTool(
-  "cosmos_inbox_approve",
-  {
-    title: "Cosmos 받은편지함 승인",
-    description: "받은편지함 항목들을 id 목록으로 승인 처리한다.",
+    title: "Cosmos 브랜치 목록",
+    description: "지식 브랜치(격리된 변경 집합) 목록을 조회한다. status로 open/merged/discarded 필터링 가능.",
     inputSchema: {
-      ids: z.array(z.string()).min(1).describe("승인할 받은편지함 항목 id 목록"),
+      status: z.enum(["open", "merged", "discarded"]).optional().describe("상태 필터 (생략 시 전체 브랜치)"),
     },
   },
-  async ({ ids }) => {
+  async ({ status }) => {
     try {
-      const results = await Promise.allSettled(ids.map((id) => mind.inboxApprove(id)));
-      const ok_ = results.filter((r) => r.status === "fulfilled").length;
-      const failed = results
-        .map((r, i) => (r.status === "rejected" ? { id: ids[i], reason: r.reason } : null))
-        .filter((x): x is { id: string; reason: unknown } => x !== null);
-      const lines = [`승인 완료: ${ok_}/${ids.length}건`];
-      for (const f of failed) {
-        const msg = f.reason instanceof Error ? f.reason.message : String(f.reason);
-        lines.push(`  - 실패 [${f.id}]: ${msg}`);
-      }
-      return ok(lines.join("\n"));
-    } catch (err) {
-      return errorResult(err);
-    }
-  },
-);
-
-server.registerTool(
-  "cosmos_inbox_reject",
-  {
-    title: "Cosmos 받은편지함 거절",
-    description: "받은편지함 항목들을 id 목록으로 거절 처리한다.",
-    inputSchema: {
-      ids: z.array(z.string()).min(1).describe("거절할 받은편지함 항목 id 목록"),
-    },
-  },
-  async ({ ids }) => {
-    try {
-      const results = await Promise.allSettled(ids.map((id) => mind.inboxReject(id)));
-      const ok_ = results.filter((r) => r.status === "fulfilled").length;
-      const failed = results
-        .map((r, i) => (r.status === "rejected" ? { id: ids[i], reason: r.reason } : null))
-        .filter((x): x is { id: string; reason: unknown } => x !== null);
-      const lines = [`거절 완료: ${ok_}/${ids.length}건`];
-      for (const f of failed) {
-        const msg = f.reason instanceof Error ? f.reason.message : String(f.reason);
-        lines.push(`  - 실패 [${f.id}]: ${msg}`);
-      }
-      return ok(lines.join("\n"));
+      const branches = await mind.branches(status);
+      return ok(formatBranches(branches));
     } catch (err) {
       return errorResult(err);
     }

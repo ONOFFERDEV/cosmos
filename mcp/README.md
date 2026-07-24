@@ -31,17 +31,17 @@ npm run build   # tsc -p tsconfig.json → dist/index.js 생성
 - `COSMOS_MIND_URL`: mind 서버 base URL (기본값 `http://localhost:8800`, 미설정 시 이 기본값 사용).
 - `COSMOS_TOKEN`: 설정 시 모든 요청에 `Authorization: Bearer <COSMOS_TOKEN>` 헤더를 붙인다. 인증이 필요 없으면 비워두거나 생략.
 
-## 제공 도구 (7종)
+## 제공 도구 (5종)
 
 | 도구 | 설명 |
 |---|---|
 | `cosmos_ask` | `{question, mode?: "fast"\|"deep"}` — Cosmos에 질문. fast는 약 1분, deep은 여러 클러스터를 순회하며 수 분(최대 20분)까지 걸릴 수 있다. 답변 + 출처 목록 + 경유/건너뜀 궤적 + 비용을 함께 반환. |
 | `cosmos_search` | `{query, k?}` — 질의어와 관련된 상위 청크 미리보기. `POST {COSMOS_MIND_URL}/search`를 호출한다(아래 주의 참고). |
 | `cosmos_ingest` | `{text?, url?, title?}` — 텍스트 또는 URL을 `manual` 문서로 편입. `url` 지정 시 fetch 후 HTML 태그를 제거해 편입. `text`/`url` 중 하나는 필수. |
-| `cosmos_inbox_list` | `{}` — 승인 대기 중인 받은편지함 목록. |
-| `cosmos_inbox_approve` | `{ids: string[]}` — 받은편지함 항목들을 id 목록으로 승인. |
-| `cosmos_inbox_reject` | `{ids: string[]}` — 받은편지함 항목들을 id 목록으로 거절. |
+| `cosmos_branches` | `{status?: "open"\|"merged"\|"discarded"}` — 지식 PR 브랜치 목록(검토 대기 확인용). |
 | `cosmos_status` | `{}` — mind/core 헬스체크 + 클러스터 요약. |
+
+> 구 `cosmos_inbox_*` 3종은 제거됨 — M8에서 인박스가 브랜치 검토로 일원화(`/inbox`=410). 브리지의 모든 요청에는 `X-Cosmos-Client: mcp` 헤더가 붙어 `/stats` 이용 집계에 반영된다.
 
 ## 사용 예
 
@@ -50,8 +50,7 @@ cosmos_ask({ "question": "이번 주 라이선스 서버 작업은 어디까지 
 cosmos_ask({ "question": "Cosmos 아키텍처를 core/mind/mcp로 나눈 이유는?", "mode": "deep" })
 cosmos_search({ "query": "hybrid search", "k": 5 })
 cosmos_ingest({ "url": "https://example.com/article", "title": "예시 기사" })
-cosmos_inbox_list({})
-cosmos_inbox_approve({ "ids": ["abc123"] })
+cosmos_branches({ "status": "open" })
 cosmos_status({})
 ```
 

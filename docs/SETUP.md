@@ -42,6 +42,17 @@ curl http://localhost:8800/health
    - 또는 자기 AI에게: "`<COSMOS_PUBLIC_URL>/web/kit/AI-SETUP.md` 읽고 세팅해줘"
 3. 개인 지식은 **본인에게만** 보입니다(무인증·타인 0건 노출). 공유는 지식 PR(브랜치→검토→병합)로.
 
+## 슬랙 연동 (선택)
+
+`.env`에 `SLACK_BOT_TOKEN`(스코프: `users:read`, `chat:write`, `im:read`, `im:history`)을 넣으면 두 기능이 켜집니다:
+
+- **초대 DM**: 관리 패널에서 이름 검색→초대 링크가 봇 DM으로 자동 발송(자기소멸)
+- **슬랙에서 질문**: 봇에게 `?질문` DM(`??`는 deep 모드) → 스레드로 답+출처. 계정(초대 이력) 있는 팀원만 답변, 없으면 안내 DM. 끄기: `COSMOS_SLACK_ASK=0`
+
+## 이용 현황
+
+- `GET /stats`(admin 토큰) — 일별 질문 수(모드·클라이언트·사용자별)+최근 20건. 도입 정착 여부는 여기 주간 추이로 판단하세요.
+
 ## 운영 메모
 
 - 재배포: `docker compose ... up -d --build` (데이터는 볼륨에 있어 무손실: cosmos-data/cosmos-mind-data)

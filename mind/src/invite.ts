@@ -39,18 +39,19 @@ export interface SendInviteResult {
   delivered: boolean;
 }
 
-interface SlackApiResponse {
+export interface SlackApiResponse {
   ok: boolean;
   error?: string;
   channel?: { id: string };
   ts?: string;
+  [key: string]: unknown;
 }
 
 function invitesPath(dataDir: string): string {
   return path.join(dataDir, "invites.json");
 }
 
-async function loadInvites(dataDir: string): Promise<InviteRecord[]> {
+export async function loadInvites(dataDir: string): Promise<InviteRecord[]> {
   try {
     const raw = await readFile(invitesPath(dataDir), "utf8");
     return JSON.parse(raw) as InviteRecord[];
@@ -64,7 +65,21 @@ async function saveInvites(dataDir: string, invites: InviteRecord[]): Promise<vo
   await writeFile(invitesPath(dataDir), JSON.stringify(invites, null, 2), "utf8");
 }
 
-async function callSlack(
+// Slack Web API methods like conversations.list/conversations.history don't parse JSON request
+// bodies — params silently fall back to defaults instead of erroring, which previously caused
+// conversations.list to ignore {types:"im"} and fail with missing_scope. Sending
+// application/x-www-form-urlencoded (Slack's standard encoding) fixes list/history/open/postMessage
+// uniformly since they all go through this one function.
+function encodeSlackForm(body: Record<string, unknown>): string {
+  const form = new URLSearchParams();
+  for (const [key, value] of Object.entries(body)) {
+    if (value === null || value === undefined) continue;
+    form.set(key, typeof value === "string" ? value : JSON.stringify(value));
+  }
+  return form.toString();
+}
+
+export async function callSlack(
   method: string,
   body: Record<string, unknown>,
   token: string,
@@ -74,9 +89,9 @@ async function callSlack(
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json; charset=utf-8",
+      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
     },
-    body: JSON.stringify(body),
+    body: encodeSlackForm(body),
   });
   const json = (await res.json()) as SlackApiResponse;
   if (!res.ok || !json.ok) {

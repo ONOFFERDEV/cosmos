@@ -233,7 +233,7 @@ async function openStreamResponse(question, modeField) {
   const doFetch = () =>
     fetch('/ask/stream', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json', 'X-Cosmos-Client': 'web', ...authHeaders() },
       body: JSON.stringify(body),
     });
 
@@ -320,7 +320,7 @@ async function postAskPlain(question, modeField) {
   const doFetch = () =>
     fetch('/ask', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json', 'X-Cosmos-Client': 'web', ...authHeaders() },
       body: JSON.stringify(body),
     });
 

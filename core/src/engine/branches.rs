@@ -116,9 +116,9 @@ impl Engine {
     /// every doc still tagged into the branch (chunks + bm25 + docs row),
     /// then marks the branch `status="discarded"`. Only the list of
     /// `origin`s (not doc content) is journaled, since deleted docs can't be
-    /// reconstructed. `EngineError::BranchNotFound` (404) if missing,
-    /// `EngineError::BranchNotOpen` (409) if already merged/discarded.
-    pub fn discard_branch(&self, branch_id: &str) -> Result<(), EngineError> {
+    /// reconstructed. Returns the updated branch summary. `EngineError::BranchNotFound`
+    /// (404) if missing, `EngineError::BranchNotOpen` (409) if already merged/discarded.
+    pub fn discard_branch(&self, branch_id: &str) -> Result<Branch, EngineError> {
         let branch = self.store.get_branch_row(branch_id)?.ok_or(EngineError::BranchNotFound)?;
         if branch.status != "open" {
             return Err(EngineError::BranchNotOpen);
@@ -134,6 +134,8 @@ impl Engine {
 
         self.store.set_branch_status(branch_id, "discarded", None)?;
         journal::append_branch_discard(&self.store, branch_id, &origins)?;
-        Ok(())
+
+        let updated = self.store.get_branch_row(branch_id)?.ok_or(EngineError::BranchNotFound)?;
+        Ok(Branch::from(updated))
     }
 }

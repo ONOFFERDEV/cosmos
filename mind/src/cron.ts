@@ -11,6 +11,7 @@ import { type CosmosConfig, defaultDataDir } from "./config.js";
 import { runCollect } from "./collect.js";
 import { runLifecycle } from "./lifecycle.js";
 import { syncAllRepos } from "./repos.js";
+import { startSlackAsk } from "./slack-ask.js";
 
 export interface CronJobOptions {
   name: string;
@@ -105,5 +106,11 @@ export function startCronJobs(config: CosmosConfig, core: CoreClient, llm: LlmCl
     });
     job.start();
     console.log(`cron 시작: repo-sync ${repoHours}시간 간격.`);
+  }
+
+  if (process.env.SLACK_BOT_TOKEN && process.env.COSMOS_SLACK_ASK !== "0") {
+    const intervalS = Number(process.env.COSMOS_SLACK_ASK_INTERVAL_S) || 20;
+    startSlackAsk(core, llm);
+    console.log(`cron 시작: slack-ask ${intervalS}초 간격.`);
   }
 }

@@ -8,7 +8,9 @@ A **self-hosted knowledge system** where your team's knowledge lives in clusters
 - **Personal knowledge = your own GitHub repo** — push .md files and the server pulls them (nothing installed on your PC); an AI-executable setup runbook is included
 - **Knowledge PRs** — external collections (arXiv/RSS) are quarantined in branches → admin review, cherry-pick merge, lossless journal rollback
 - **Relation graph** — `[[wikilinks]]` and frontmatter in your documents become a deterministic relation graph (no LLM extraction), used for search expansion and 3D relation lines
-- **3D cosmos view** + a chat with live progress (fast/deep/global modes) + an MCP bridge
+- **3D cosmos view** + a chat with live progress (fast/deep/global modes)
+- **Ask from anywhere** — web chat, an MCP bridge (`cosmos_ask`/`cosmos_search` in any Claude session), or a Slack DM bridge (message the bot with a leading `?`, `??` forces deep mode; answers arrive in-thread with sources)
+- **Usage instrumentation** — every ask is logged (mode/user/client/duration) and aggregated at `GET /stats` (admin): daily counts by mode, client, and user
 - Stack: `core/` (Rust — indexing, hybrid search, clusters, journal) + `mind/` (TypeScript — LLM pipeline, auth, collectors, web) — LLM via the Anthropic API
 
 ## License

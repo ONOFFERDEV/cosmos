@@ -4,7 +4,7 @@
 > 충돌 시 우선순위: CONTRACT.md ≥ openapi.yaml > 각 구현. 구현이 계약을 못 지키면 계약을 몰래 바꾸지 말고 RESULTS.md에 편차를 기록할 것.
 > **문서 구조**: 바로 아래 "현재 계약 스냅샷"이 지금 유효한 규격의 통합본이다. 그 뒤의 `# M0`~`# M9 확장` 절들은 결정 이유·게이트 기록이 담긴 히스토리 — 규격이 충돌하면 스냅샷(=최신 마일스톤)이 이긴다.
 
-# 현재 계약 스냅샷 (M9까지 반영, 2026-07-22)
+# 현재 계약 스냅샷 (M10+이용 계기판 반영, 2026-07-24)
 
 ## 구성
 - **core**(Rust, :8801, 컨테이너 내부망 전용) = 결정론 전부: 파싱·청킹·임베딩·하이브리드 검색·클러스터·저널·브랜치. LLM 코드 0.
@@ -32,11 +32,14 @@
 - **manual**: 직행. member 업로드는 branch_id 또는 owner=본인 중 하나 필수(403).
 - **ingest 배정**: argmax centroid(owner 문서는 owner 일치 클러스터만), fit<0.5→low_fit. owner+branch_id 동시 지정=400. 첫 개인 문서는 `personal-<name>` 클러스터 자동 탄생.
 - **승격(개인→공통)**: `POST /branches/{id}/docs {doc_ids}`(owner≠NULL만, all-or-nothing) → merge 시 branch_id=NULL+owner=NULL, inverse에 doc별 이전 owner → rollback이 소유권까지 복원. discard는 비가역(origins만 저널).
+- **branch 변이 응답은 전부 JSON 바디 필수**: merge=MergeBranchResponse, discard=갱신된 브랜치 요약(2026-07-24 — 빈 200 바디는 mind postJson 파싱 실패로 가짜 500을 만든 실사고 계약화).
 
 ## 질의 (mind)
 - 모드: **fast**(라우팅 K=3→스코프 검색→LLM 1콜→결정적 봉투 조립) / **deep**(플래너 Opus→클러스터 에이전트 Sonnet 동시 2→모순 1라운드→종합) / **global**(엔티티 전수+다이제스트 전수+search k=6 병합 — 열거형 질문 전용) / auto=인텐트 게이트 결정론 분류.
 - 봉투 = answer+sources+trace(consulted/skipped+이유)+insufficient(근거 부족 시 정직 차단). `/ask/stream`=SSE(실단계 status→envelope 1회, res.on("close") 규격).
 - 다이제스트: lifecycle이 자동 재생성(부재|n_docs 변화|--all), 기본 스코프 순회 ["shared","shared+admin"].
+- **이용 계기판(2026-07-24)**: 모든 `/ask`·`/ask/stream` 완료(에러 포함)는 `<dataDir>/ask-log.jsonl`에 1줄 append — `{ts, mode, user, client, ms, insufficient, error?, q(≤120자)}`. `client`=요청 헤더 `X-Cosmos-Client`(`^[a-z0-9_-]{1,20}$` 통과분, 기본 "api"; 웹=web·MCP=mcp·슬랙=slack). 로깅은 응답 경로를 절대 막지 않는다(never-throw). `GET /stats`(admin)=총계+최근 30일 일별(모드·클라이언트·사용자별)+최근 20건.
+- **슬랙 ask 브리지(2026-07-24)**: SLACK_BOT_TOKEN 존재+`COSMOS_SLACK_ASK≠0`이면 mind가 봇 DM을 폴링(기본 20s) — `?` 접두 메시지만 처리(`??`=deep 강제, 그 외 auto), 발신자 매핑=invites.json slack_user→users.json(무계정=안내 답장), 답변은 원 메시지 스레드로(답+출처≤5, ~3500자 절단), insufficient는 그대로 전달. 상태=`<dataDir>/slack-ask.state.json`(채널별 last_ts, 처리 완료 후 전진). HTTP 핸들러와 동일 dispatch 재사용.
 
 ## 인증·역할 (mind)
 - users.json `[{name, role admin|member, token_sha256, created_at, first_used_at(write-once), revoked_at?}]` — 평문 무저장. 부트스트랩 admin=env COSMOS_TOKEN.
@@ -68,6 +71,7 @@
 - 운영 서버 compose 2서비스(온오퍼 배포분은 LAN 전용 바인딩): core(cosmos-data:/data/out, cosmos-models:/models) + mind(cosmos-mind-data:/data, cosmos-claude:/root/.claude, LLM=컨테이너 claude CLI).
 - **이미지는 로컬 빌드 → `docker save | gzip | ssh docker load`** (서버 빌드는 -j32 하드행 금지). `up -d --no-build`. 배포 파이프의 exit는 PIPESTATUS로 확인.
 - 마이그레이션 CLI: `cosmos-core migrate-owner --out <dir> [--source-type session] [--owner admin] [--dry-run]`, 스코프 부트스트랩: `bootstrap --owner <name>`(mind CLI `bootstrap --owner`는 LLM 라벨 포함, 슬러그 `p-<owner>-` 접두 유지).
+- MCP 브리지 도구(2026-07-24 현행화): `cosmos_ask`·`cosmos_search`·`cosmos_ingest`·`cosmos_branches`·`cosmos_status` — inbox 3종은 제거(/inbox=410, M8). 브리지의 모든 요청에 `X-Cosmos-Client: mcp`.
 
 ---
 

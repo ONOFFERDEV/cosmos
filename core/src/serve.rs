@@ -330,9 +330,8 @@ async fn merge_branch_handler(
 async fn discard_branch_handler(
     State(engine): State<Arc<Engine>>,
     Path(branch_id): Path<String>,
-) -> Result<StatusCode, AppError> {
-    engine.discard_branch(&branch_id).map_err(engine_error_to_app_error)?;
-    Ok(StatusCode::OK)
+) -> Result<Json<Branch>, AppError> {
+    engine.discard_branch(&branch_id).map(Json).map_err(engine_error_to_app_error)
 }
 
 fn build_router(engine: Arc<Engine>) -> Router {

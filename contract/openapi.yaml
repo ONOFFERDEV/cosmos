@@ -425,7 +425,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        "200": { description: 폐기 완료 }
+        "200":
+          description: 폐기 완료 후 갱신된 브랜치
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Branch" }
         "404": { description: 없는 브랜치 }
         "409": { description: open 상태가 아님 }
   /route:

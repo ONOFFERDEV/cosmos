@@ -64,13 +64,14 @@ export interface UniverseResponse {
   [key: string]: unknown;
 }
 
-export interface InboxItem {
+// M8 branch (isolated change set) summary — mirrors mind's core-client.ts BranchSummary.
+export interface BranchSummary {
   id: string;
-  source_type: string;
-  title?: string;
-  score?: number;
-  origin: string;
-  [key: string]: unknown;
+  name: string;
+  status: "open" | "merged" | "discarded";
+  created_by?: string;
+  created_at: string;
+  merged_at?: string;
 }
 
 export interface IngestDoc {
@@ -135,16 +136,9 @@ export class MindClient {
     return this.request<UniverseResponse>("GET", "/universe", undefined, DEFAULT_TIMEOUT_MS);
   }
 
-  async inboxList(): Promise<InboxItem[]> {
-    return this.request<InboxItem[]>("GET", "/inbox", undefined, DEFAULT_TIMEOUT_MS);
-  }
-
-  async inboxApprove(id: string): Promise<unknown> {
-    return this.request("POST", `/inbox/${encodeURIComponent(id)}/approve`, undefined, DEFAULT_TIMEOUT_MS);
-  }
-
-  async inboxReject(id: string): Promise<unknown> {
-    return this.request("POST", `/inbox/${encodeURIComponent(id)}/reject`, undefined, DEFAULT_TIMEOUT_MS);
+  async branches(status?: string): Promise<BranchSummary[]> {
+    const query = status ? `?status=${encodeURIComponent(status)}` : "";
+    return this.request<BranchSummary[]>("GET", `/branches${query}`, undefined, DEFAULT_TIMEOUT_MS);
   }
 
   async ingest(docs: IngestDoc[]): Promise<IngestResponse> {
@@ -163,7 +157,7 @@ export class MindClient {
 
       const transport = url.protocol === "https:" ? https : http;
       const payload = body === undefined ? undefined : JSON.stringify(body);
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = { "X-Cosmos-Client": "mcp" };
       if (payload !== undefined) {
         headers["Content-Type"] = "application/json";
         headers["Content-Length"] = Buffer.byteLength(payload).toString();

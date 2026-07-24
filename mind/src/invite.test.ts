@@ -15,7 +15,9 @@ interface SlackCall {
 function makeSlackFetch(responses: Record<string, Record<string, unknown>>, calls: SlackCall[]): typeof fetch {
   return (async (url: string | URL, init?: RequestInit) => {
     const method = url.toString().replace("https://slack.com/api/", "");
-    const body = init?.body ? (JSON.parse(init.body as string) as Record<string, unknown>) : {};
+    const body = init?.body
+      ? (Object.fromEntries(new URLSearchParams(init.body as string)) as Record<string, unknown>)
+      : {};
     calls.push({ method, body });
     const payload = responses[method] ?? { ok: false, error: "not_mocked" };
     return { ok: true, json: async () => payload } as unknown as Response;
