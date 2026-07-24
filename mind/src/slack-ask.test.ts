@@ -6,6 +6,7 @@ import path from "node:path";
 
 import { SlackAskBridge, parseAskMessage, formatSlackReply, type SlackAskDeps, type AskDispatch } from "./slack-ask.js";
 import { addUser } from "./users.js";
+import { DEEP_BUSY_MESSAGE } from "./deep.js";
 import type { CoreClient } from "./core-client.js";
 import type { LlmClient } from "./llm.js";
 import type { AskEnvelope } from "./envelope.js";
@@ -38,13 +39,19 @@ function makeFetch(
   }) as unknown as typeof fetch;
 }
 
-function makeBridge(fetchImpl: typeof fetch, dataDir: string, askDispatch: AskDispatch): SlackAskBridge {
+function makeBridge(
+  fetchImpl: typeof fetch,
+  dataDir: string,
+  askDispatch: AskDispatch,
+  sleepImpl: (ms: number) => Promise<void> = async () => {}
+): SlackAskBridge {
   const deps: SlackAskDeps = {
     core: {} as CoreClient,
     llm: {} as LlmClient,
     token: "xoxb-test",
     dataDir,
     fetchImpl,
+    sleepImpl,
   };
   return new SlackAskBridge(deps, askDispatch);
 }
@@ -392,6 +399,179 @@ test("정상 처리 시 질문 스레드에 답장하고 출처 목록을 포함
     assert.equal(logLine.user, "carol");
     assert.equal(logLine.mode, "deep");
     assert.equal(logLine.insufficient, false);
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+// ---- deep-busy soft handling (bounded retry, non-blocking) ----
+
+test("deep 처리 중 오류는 즉시 부드러운 안내로 답장하고 워터마크도 재시도 완료를 기다리지 않고 진행되며, 재시도가 성공하면 실제 답변으로 다시 답장한다", async () => {
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cosmos-slackask-"));
+  try {
+    await writeInvite(dataDir, "dave", "U-dave");
+    await addUser("dave", "member", dataDir);
+    await writeState(dataDir, { C4: "4.0" });
+
+    const calls: SlackCall[] = [];
+    const fetchImpl = makeFetch(
+      {
+        "conversations.list": () => ({ ok: true, channels: [{ id: "C4", user: "U-dave" }] }),
+        "auth.test": () => ({ ok: true, user_id: "UBOT" }),
+        "conversations.history": () => ({ ok: true, messages: [{ ts: "4.1", text: "??바쁜 심층 질문", user: "U-dave" }] }),
+        "chat.postMessage": () => ({ ok: true, ts: "999.5" }),
+      },
+      calls
+    );
+
+    let dispatchAttempt = 0;
+    const envelope = makeEnvelope({ answer: "심층 답변 완성" });
+    const askDispatch: AskDispatch = async () => {
+      dispatchAttempt += 1;
+      if (dispatchAttempt === 1) {
+        throw new Error(DEEP_BUSY_MESSAGE);
+      }
+      return envelope;
+    };
+
+    // sleepImpl is a manually-released deferred promise (not an instant resolve): this makes the
+    // "poll() finishes before the retry chain does" proof deterministic instead of a timing race
+    // against the real watermark disk write.
+    const sleepCalls: number[] = [];
+    let releaseSleep: (() => void) | null = null;
+    const sleepImpl = (ms: number) =>
+      new Promise<void>((resolve) => {
+        sleepCalls.push(ms);
+        releaseSleep = resolve;
+      });
+
+    const bridge = makeBridge(fetchImpl, dataDir, askDispatch, sleepImpl);
+    await bridge.poll();
+
+    // poll() resolved while the retry chain is still parked inside sleepImpl -- proves the soft
+    // reply and the watermark advance don't wait for the retry to finish.
+    let postCalls = calls.filter((c) => c.method === "chat.postMessage");
+    assert.equal(postCalls.length, 1, "재시도를 기다리지 않고 부드러운 안내를 먼저 1건 보낸다");
+    assert.match(String(postCalls[0].body.text), /처리 중이에요/);
+    const stateAfterPoll = JSON.parse(await readFile(path.join(dataDir, "slack-ask.state.json"), "utf8"));
+    assert.equal(stateAfterPoll["C4"], "4.1", "재시도 완료를 기다리지 않고 워터마크가 즉시 진행되어야 한다");
+    assert.deepEqual(sleepCalls, [20000], "부드러운 안내 직후 20초 대기 재시도가 이미 시작되어 있어야 한다");
+
+    releaseSleep!();
+    await bridge.waitForBackgroundWork();
+    // logAsk() fires appendAskLog() without awaiting it (pre-existing pattern), so give that
+    // detached write a moment to land before the temp dir gets removed below (Windows locks the
+    // file while it's open, so an immediate rmdir can otherwise race it).
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    postCalls = calls.filter((c) => c.method === "chat.postMessage");
+    assert.equal(postCalls.length, 2, "재시도 성공 후 실제 답변으로 다시 답장해야 한다");
+    assert.equal(postCalls[1].body.text, formatSlackReply(envelope));
+    assert.equal(dispatchAttempt, 2);
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("deep 처리 중 오류가 재시도 한도까지 계속되면 대기를 3회(20초 간격) 반복한 뒤 최종 포기 안내로 마무리하고 오류로 기록한다", async () => {
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cosmos-slackask-"));
+  try {
+    await writeInvite(dataDir, "erin", "U-erin");
+    await addUser("erin", "member", dataDir);
+    await writeState(dataDir, { C5: "5.0" });
+
+    const calls: SlackCall[] = [];
+    const fetchImpl = makeFetch(
+      {
+        "conversations.list": () => ({ ok: true, channels: [{ id: "C5", user: "U-erin" }] }),
+        "auth.test": () => ({ ok: true, user_id: "UBOT" }),
+        "conversations.history": () => ({ ok: true, messages: [{ ts: "5.1", text: "??계속 바쁜 질문", user: "U-erin" }] }),
+        "chat.postMessage": () => ({ ok: true, ts: "999.6" }),
+      },
+      calls
+    );
+
+    const askDispatch: AskDispatch = async () => {
+      throw new Error(DEEP_BUSY_MESSAGE);
+    };
+
+    const sleepCalls: number[] = [];
+    const sleepImpl = async (ms: number) => {
+      sleepCalls.push(ms);
+    };
+
+    const bridge = makeBridge(fetchImpl, dataDir, askDispatch, sleepImpl);
+    await bridge.poll();
+    await bridge.waitForBackgroundWork();
+
+    const postCalls = calls.filter((c) => c.method === "chat.postMessage");
+    assert.equal(postCalls.length, 2, "최초 부드러운 안내 + 최종 포기 안내, 총 2건이어야 한다");
+    assert.match(String(postCalls[0].body.text), /처리 중이에요/);
+    assert.match(String(postCalls[1].body.text), /다시 물어봐 주세요/);
+    assert.deepEqual(sleepCalls, [20000, 20000, 20000], "재시도 한도(3회)까지 20초 간격으로 시도해야 한다");
+
+    const askLog = (await readFile(path.join(dataDir, "ask-log.jsonl"), "utf8")).trim();
+    const logLine = JSON.parse(askLog.split("\n").pop()!);
+    assert.equal(logLine.error, true, "재시도 소진 후 포기도 오류로 기록되어야 한다");
+    assert.equal(logLine.user, "erin");
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("한 채널이 deep-busy로 재시도 대기 중이어도 같은 poll() 사이클 안에서 다른 채널의 질문은 즉시 처리된다", async () => {
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cosmos-slackask-"));
+  try {
+    await mkdir(dataDir, { recursive: true });
+    const invites = [
+      { name: "frank", slack_user: "U-frank", channel: "C-setup", ts: "1.1", sent_at: "2026-07-01T00:00:00.000Z", status: "done" },
+      { name: "grace", slack_user: "U-grace", channel: "C-setup", ts: "1.1", sent_at: "2026-07-01T00:00:00.000Z", status: "done" },
+    ];
+    await writeFile(path.join(dataDir, "invites.json"), JSON.stringify(invites, null, 2), "utf8");
+    await addUser("frank", "member", dataDir);
+    await addUser("grace", "member", dataDir);
+    await writeState(dataDir, { "C-deep": "6.0", "C-fast": "7.0" });
+
+    const calls: SlackCall[] = [];
+    const fetchImpl = makeFetch(
+      {
+        "conversations.list": () => ({
+          ok: true,
+          channels: [
+            { id: "C-deep", user: "U-frank" },
+            { id: "C-fast", user: "U-grace" },
+          ],
+        }),
+        "auth.test": () => ({ ok: true, user_id: "UBOT" }),
+        "conversations.history": (body) => {
+          if (body.channel === "C-deep") return { ok: true, messages: [{ ts: "6.1", text: "??바쁜 심층 질문", user: "U-frank" }] };
+          return { ok: true, messages: [{ ts: "7.1", text: "?빠른 질문", user: "U-grace" }] };
+        },
+        "chat.postMessage": () => ({ ok: true, ts: "999.7" }),
+      },
+      calls
+    );
+
+    const fastEnvelope = makeEnvelope({ answer: "빠른 답변" });
+    const askDispatch: AskDispatch = async (question) => {
+      if (question === "바쁜 심층 질문") {
+        throw new Error(DEEP_BUSY_MESSAGE);
+      }
+      return fastEnvelope;
+    };
+
+    // Never resolves within this test -- proves C-fast's reply below doesn't wait on C-deep's retry chain.
+    const sleepImpl = () => new Promise<void>(() => {});
+    const bridge = makeBridge(fetchImpl, dataDir, askDispatch, sleepImpl);
+    await bridge.poll();
+
+    const fastReply = calls.find((c) => c.method === "chat.postMessage" && c.body.channel === "C-fast");
+    assert.ok(fastReply, "C-deep의 재시도 대기와 무관하게 C-fast는 같은 poll() 안에서 처리되어야 한다");
+    assert.equal(fastReply!.body.text, "빠른 답변");
+
+    const deepSoftReply = calls.find((c) => c.method === "chat.postMessage" && c.body.channel === "C-deep");
+    assert.ok(deepSoftReply, "C-deep에는 부드러운 안내가 먼저 나가야 한다");
+    assert.match(String(deepSoftReply!.body.text), /처리 중이에요/);
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }

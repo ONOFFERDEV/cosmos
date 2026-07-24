@@ -1,7 +1,9 @@
 // Server-level /ask mode override test. Confirms mode:"global"/"point" overrides
 // the classifyIntent guess. Both cases leave the core response empty so the request
-// short-circuits without an LLM call, letting us verify the mode branch alone without
-// actually mocking the LLM.
+// short-circuits without an answer LLM call, letting us verify the mode branch alone
+// without actually mocking the LLM. Note: the fast (point) pipeline now attempts one
+// query-expansion LLM call before giving up (see ask.ts's recall fallback), so that
+// case uses a callable stub instead of NEVER_CALL_LLM.
 // See CONTRACT.md "# M7 확장" section.
 
 import { test } from "node:test";
@@ -149,7 +151,17 @@ test("mode:global은 point 형태 질문에도 global 파이프라인을 강제�
 
 test("mode:point는 global 형태 질문에도 fast 파이프라인을 강제한다", async () => {
   const core = makeFakeCore({ scores: [] });
-  const deps: ServerDeps = { core, llm: NEVER_CALL_LLM };
+  // The empty search result triggers ask.ts's recall fallback (one query-expansion LLM
+  // call). The fake core returns EMPTY_SEARCH for any query, so expansion can't rescue
+  // this either — the request still ends up insufficient, just after one attempted
+  // expansion call instead of zero.
+  const expandOnlyLlm: LlmClient = {
+    model: "mock",
+    async complete(): Promise<string> {
+      return JSON.stringify({ keywords: ["프로젝트", "project"] });
+    },
+  };
+  const deps: ServerDeps = { core, llm: expandOnlyLlm };
 
   await withServer(deps, async (port) => {
     const res = await fetch(`http://127.0.0.1:${port}/ask`, {
@@ -161,7 +173,7 @@ test("mode:point는 global 형태 질문에도 fast 파이프라인을 강제한
     const body = await res.json() as { mode: string; insufficient: boolean; cost: { llm_calls: number } };
     assert.equal(body.mode, "fast");
     assert.equal(body.insufficient, true);
-    assert.equal(body.cost.llm_calls, 0);
+    assert.equal(body.cost.llm_calls, 1);
   });
 });
 

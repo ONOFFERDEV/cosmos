@@ -12,6 +12,7 @@ import path from "node:path";
 import type { CoreClient } from "./core-client.js";
 import type { LlmClient } from "./llm.js";
 import { defaultDataDir } from "./config.js";
+import { DEEP_BUSY_MESSAGE } from "./deep.js";
 import { loadInvites, callSlack } from "./invite.js";
 import { loadUsers, type Identity } from "./users.js";
 import { resolveAskMode, runAskPipeline, ownerScopeFor, type AskMode, type ServerDeps } from "./server.js";
@@ -23,6 +24,10 @@ const CHANNEL_LIST_TTL_MS = 10 * 60 * 1000;
 const MAX_SOURCES = 5;
 const MAX_REPLY_CHARS = 3500;
 const UNKNOWN_USER_REPLY = "코스모스 계정이 없습니다. 관리자에게 초대를 요청해 주세요.";
+const DEEP_BUSY_SOFT_REPLY = "앞선 심층 질문을 처리 중이에요. 잠시 후 이어서 답해드릴게요.";
+const DEEP_BUSY_GIVE_UP_REPLY = "지금은 다른 심층 질문 처리 중이라 잠시 후 다시 물어봐 주세요.";
+const DEEP_BUSY_MAX_RETRIES = 3;
+const DEEP_BUSY_RETRY_INTERVAL_S = 20;
 
 export interface SlackAskDeps {
   core: CoreClient;
@@ -31,6 +36,8 @@ export interface SlackAskDeps {
   dataDir?: string;
   fetchImpl?: typeof fetch;
   now?: () => number;
+  /** Delay function for the deep-busy retry backoff. Defaults to a real setTimeout; tests inject a fake. */
+  sleepImpl?: (ms: number) => Promise<void>;
 }
 
 interface SlackMessage {
@@ -112,6 +119,8 @@ export class SlackAskBridge {
   private timer: NodeJS.Timeout | null = null;
   private channelCache: { channels: SlackChannel[]; fetchedAt: number } | null = null;
   private botUserId: string | null = null;
+  /** In-flight deep-busy retry chains, kept so tests (and graceful shutdown) can wait for them. */
+  private pendingBackgroundWork: Promise<void>[] = [];
 
   constructor(
     private readonly deps: SlackAskDeps,
@@ -225,10 +234,65 @@ export class SlackAskBridge {
       await this.reply(channel.id, msg.ts, formatSlackReply(envelope));
       this.logAsk(dataDir, { mode: parsed.mode, user: identity.name, ms: this.now() - startedAt, insufficient: envelope.insufficient, q: parsed.question });
     } catch (err) {
+      if (err instanceof Error && err.message === DEEP_BUSY_MESSAGE) {
+        await this.reply(channel.id, msg.ts, DEEP_BUSY_SOFT_REPLY);
+        // Runs detached: pollChannel/pollUnsafe move on to the next message/channel right after
+        // this returns (the watermark below still advances immediately), so a busy deep-mode
+        // slot never stalls other channels' polling.
+        const retryPromise: Promise<void> = this.retryAfterDeepBusy(channel, msg, dataDir, identity, parsed, startedAt)
+          .catch((retryErr) => {
+            console.warn(`slack-ask deep-busy 재시도 실패: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`);
+          })
+          // Drop the settled entry so pendingBackgroundWork can't grow for the process lifetime.
+          .finally(() => {
+            this.pendingBackgroundWork = this.pendingBackgroundWork.filter((p) => p !== retryPromise);
+          });
+        this.pendingBackgroundWork.push(retryPromise);
+        return;
+      }
       const message = err instanceof Error ? err.message : String(err);
       await this.reply(channel.id, msg.ts, `질문 처리 중 오류가 발생했습니다: ${message}`);
       this.logAsk(dataDir, { mode: parsed.mode, user: identity.name, ms: this.now() - startedAt, insufficient: false, error: true, q: parsed.question });
     }
+  }
+
+  /**
+   * Retries a deep-busy dispatch up to DEEP_BUSY_MAX_RETRIES times, DEEP_BUSY_RETRY_INTERVAL_S
+   * apart. Replies with the real answer on eventual success, falls through to the normal
+   * error reply if a different error shows up mid-retry, or sends a final give-up reply once
+   * retries are exhausted.
+   */
+  private async retryAfterDeepBusy(
+    channel: SlackChannel,
+    msg: SlackMessage,
+    dataDir: string,
+    identity: Identity,
+    parsed: { question: string; mode: AskMode },
+    startedAt: number
+  ): Promise<void> {
+    for (let attempt = 1; attempt <= DEEP_BUSY_MAX_RETRIES; attempt++) {
+      await this.sleep(DEEP_BUSY_RETRY_INTERVAL_S * 1000);
+      try {
+        const envelope = await this.askDispatch(parsed.question, parsed.mode, this.deps, identity);
+        await this.reply(channel.id, msg.ts, formatSlackReply(envelope));
+        this.logAsk(dataDir, { mode: parsed.mode, user: identity.name, ms: this.now() - startedAt, insufficient: envelope.insufficient, q: parsed.question });
+        return;
+      } catch (err) {
+        if (!(err instanceof Error) || err.message !== DEEP_BUSY_MESSAGE) {
+          const message = err instanceof Error ? err.message : String(err);
+          await this.reply(channel.id, msg.ts, `질문 처리 중 오류가 발생했습니다: ${message}`);
+          this.logAsk(dataDir, { mode: parsed.mode, user: identity.name, ms: this.now() - startedAt, insufficient: false, error: true, q: parsed.question });
+          return;
+        }
+        // Still busy -- fall through and try again after the next interval.
+      }
+    }
+    await this.reply(channel.id, msg.ts, DEEP_BUSY_GIVE_UP_REPLY);
+    this.logAsk(dataDir, { mode: parsed.mode, user: identity.name, ms: this.now() - startedAt, insufficient: false, error: true, q: parsed.question });
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return (this.deps.sleepImpl ?? ((delay) => new Promise((resolve) => setTimeout(resolve, delay))))(ms);
   }
 
   private async reply(channelId: string, threadTs: string, text: string): Promise<void> {
@@ -239,6 +303,11 @@ export class SlackAskBridge {
     const secs = (info.ms / 1000).toFixed(1);
     console.log(`[ask] mode=${info.mode} user=${info.user} client=slack ${secs}s`);
     void appendAskLog(dataDir, { ts: new Date().toISOString(), client: "slack", ...info });
+  }
+
+  /** Waits for any in-flight deep-busy retry chains to finish. For tests and graceful shutdown. */
+  async waitForBackgroundWork(): Promise<void> {
+    await Promise.allSettled(this.pendingBackgroundWork);
   }
 }
 
