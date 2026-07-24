@@ -17,6 +17,11 @@ impl Engine {
     /// assignment to `owner`'s own clusters (auto-birthing `personal-<name>`
     /// on first ingest). Mutually exclusive with `branch_id` —
     /// `EngineError::OwnerBranchConflict` if both are set.
+    /// No-demote guard: if the doc already exists with `owner = NULL`
+    /// (promoted to shared, e.g. via branch merge), re-ingesting it with
+    /// `Some(name)` does NOT re-personalize it — promotion is durable
+    /// against routine re-ingest (daily watcher self-heal). See the guard
+    /// below for the exact transition table.
     pub fn ingest_doc(
         &self,
         origin: &str,
@@ -48,7 +53,30 @@ impl Engine {
             doc_links.into_iter().map(|l| (l.rel_type, l.target_name)).collect();
 
         let mut replaced = false;
+        // No-demote guard: shadow `owner` with the value that should
+        // actually be persisted for this ingest. Defaults to the incoming
+        // `owner` (new-doc case, unaffected) and is only overridden below
+        // when the existing doc must stay shared.
+        let mut owner = owner;
         if let Some((existing_id, existing_hash)) = self.store.find_doc_by_origin(origin)? {
+            // M9 fix (promotion durability): a doc already promoted to
+            // shared (owner NULL, e.g. via branch merge) must not be
+            // demoted back to a personal owner by a routine re-ingest (the
+            // daily watcher re-syncing memory files under owner=Some(admin)
+            // would otherwise revert the promotion). Only the
+            // NULL -> Some(personal) transition is blocked here:
+            //   - new doc                              -> owner as given (unaffected, no existing doc)
+            //   - existing owner=admin, incoming=admin  -> stays admin (self-heal, unchanged)
+            //   - existing owner=NULL,  incoming=Some   -> stays NULL (the fix)
+            //   - existing owner=admin, incoming=NULL   -> becomes NULL (promotion-by-source, unchanged)
+            // Applies to both the duplicate (below) and replace (further
+            // down) paths, since both ultimately persist `owner`.
+            let (existing_owner, _existing_branch) =
+                self.store.doc_owner_and_branch(&existing_id)?.unwrap_or((None, None));
+            if existing_owner.is_none() && owner.is_some() {
+                owner = None;
+            }
+
             if existing_hash == hash {
                 let n_chunks = self.store.list_chunk_ids_for_doc(&existing_id)?.len() as i64;
                 if let Some(fields) = &entity_fields {
@@ -56,7 +84,8 @@ impl Engine {
                 }
                 self.store.replace_doc_links(&existing_id, &link_pairs)?;
                 // M9: self-heal ownership — re-ingesting an existing (e.g.
-                // common) doc under a personal request claims it.
+                // common) doc under a personal request claims it, unless
+                // the no-demote guard above kept it shared.
                 self.store.update_doc_owner(&existing_id, owner)?;
                 return Ok(IngestOutcome {
                     doc_id: existing_id,

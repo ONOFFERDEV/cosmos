@@ -455,6 +455,132 @@
         let _ = std::fs::remove_dir_all(&dir);
     }
 
+    /// M9 fix (promotion durability), duplicate path: a doc already
+    /// promoted to shared (owner NULL, e.g. via branch merge) must not be
+    /// demoted back to a personal owner by a routine re-ingest with
+    /// unchanged content (the daily watcher re-syncing memory files under
+    /// owner=Some(admin)). The doc is seeded directly via `store.insert_doc`
+    /// with a hash matching the ingested text so `ingest_doc` takes the
+    /// duplicate (hash-match) path and returns before ever reaching the
+    /// Embedder — no `#[ignore]` needed.
+    #[test]
+    fn ingest_duplicate_path_does_not_demote_shared_doc() {
+        let (engine, dir) = temp_engine();
+
+        let text = "Promoted onboarding doc that now belongs to the whole team.";
+        let hash = crate::parse::sha256_hex(crate::parse::normalize(text).as_bytes());
+        engine
+            .store
+            .insert_doc("d1", "session", "origin://promoted-doc", None, &hash, text.len() as i64, "2026-01-01T00:00:00Z", None, None)
+            .unwrap();
+
+        let out = engine.ingest_doc("origin://promoted-doc", "session", None, text, None, Some("admin")).unwrap();
+        assert!(out.duplicate);
+        assert_eq!(out.doc_id, "d1");
+
+        let (owner, _) = engine.store.doc_owner_and_branch("d1").unwrap().expect("doc exists");
+        assert_eq!(owner, None, "promoted (shared) doc must stay shared across a re-ingest, not get re-personalized");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// M9 fix, replace path: same no-demote invariant as
+    /// `ingest_duplicate_path_does_not_demote_shared_doc`, but the re-ingest
+    /// changes the content, so `ingest_doc` deletes and re-inserts the doc
+    /// under a new id. Requires the real Embedder (chunk/embed always runs
+    /// on the replace path), so `#[ignore]`.
+    #[test]
+    #[ignore]
+    fn ingest_replace_path_does_not_demote_shared_doc() {
+        let (engine, dir) = temp_engine();
+
+        let old_text = "Promoted onboarding doc, original wording.";
+        let old_hash = crate::parse::sha256_hex(crate::parse::normalize(old_text).as_bytes());
+        engine
+            .store
+            .insert_doc("d1", "session", "origin://promoted-doc-2", None, &old_hash, old_text.len() as i64, "2026-01-01T00:00:00Z", None, None)
+            .unwrap();
+
+        let new_text = "Promoted onboarding doc, reworded during the daily rescan.";
+        let out = engine.ingest_doc("origin://promoted-doc-2", "session", None, new_text, None, Some("admin")).unwrap();
+        assert!(out.replaced);
+        assert_ne!(out.doc_id, "d1", "replace path re-inserts under a new doc id");
+
+        let (owner, _) = engine.store.doc_owner_and_branch(&out.doc_id).unwrap().expect("doc exists");
+        assert_eq!(owner, None, "promoted (shared) doc must stay shared even when re-ingest changes its content");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// M9 fix regression, duplicate path: re-ingesting an already-admin doc
+    /// under owner=admin again is a no-op self-heal — must stay admin. No
+    /// Embedder call on the duplicate (hash-match) path, so no `#[ignore]`.
+    #[test]
+    fn ingest_duplicate_path_admin_reingest_admin_stays_admin() {
+        let (engine, dir) = temp_engine();
+
+        let text = "Admin-owned personal note about internal process.";
+        let hash = crate::parse::sha256_hex(crate::parse::normalize(text).as_bytes());
+        engine
+            .store
+            .insert_doc("d1", "session", "origin://admin-doc", None, &hash, text.len() as i64, "2026-01-01T00:00:00Z", None, Some("admin"))
+            .unwrap();
+
+        let out = engine.ingest_doc("origin://admin-doc", "session", None, text, None, Some("admin")).unwrap();
+        assert!(out.duplicate);
+
+        let (owner, _) = engine.store.doc_owner_and_branch("d1").unwrap().expect("doc exists");
+        assert_eq!(owner.as_deref(), Some("admin"), "admin re-ingesting their own doc must keep it admin-owned");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// M9 fix regression, duplicate path: re-ingesting a personal doc from a
+    /// shared source (owner=None) is a legitimate promotion-by-source and
+    /// must still clear the owner. Only the NULL -> Some(personal)
+    /// transition is blocked by the no-demote guard; this is the opposite
+    /// direction and must keep working. No Embedder call on the duplicate
+    /// path, so no `#[ignore]`.
+    #[test]
+    fn ingest_duplicate_path_promotion_by_source_still_works() {
+        let (engine, dir) = temp_engine();
+
+        let text = "Doc that a shared-source re-ingest promotes to common.";
+        let hash = crate::parse::sha256_hex(crate::parse::normalize(text).as_bytes());
+        engine
+            .store
+            .insert_doc("d1", "session", "origin://to-be-promoted", None, &hash, text.len() as i64, "2026-01-01T00:00:00Z", None, Some("admin"))
+            .unwrap();
+
+        let out = engine.ingest_doc("origin://to-be-promoted", "session", None, text, None, None).unwrap();
+        assert!(out.duplicate);
+
+        let (owner, _) = engine.store.doc_owner_and_branch("d1").unwrap().expect("doc exists");
+        assert_eq!(owner, None, "a shared-source (owner=None) re-ingest must still promote an admin-owned doc");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// M9 fix regression, new-doc path: a brand new doc (no existing row at
+    /// this origin) is untouched by the no-demote guard — it's ingested
+    /// with exactly the owner given. Requires the real Embedder (a new doc
+    /// always chunks/embeds), so `#[ignore]`.
+    #[test]
+    #[ignore]
+    fn ingest_new_doc_keeps_given_owner() {
+        let (engine, dir) = temp_engine();
+
+        let text = "Brand new admin-owned doc, never ingested before.";
+        let out = engine.ingest_doc("origin://new-admin-doc", "session", None, text, None, Some("admin")).unwrap();
+        assert!(!out.duplicate);
+        assert!(!out.replaced);
+
+        let (owner, _) = engine.store.doc_owner_and_branch(&out.doc_id).unwrap().expect("doc exists");
+        assert_eq!(owner.as_deref(), Some("admin"), "a brand new doc must be ingested with the given owner, unaffected by the no-demote guard");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     fn doc_state(engine: &Engine, doc_id: &str) -> (String, String) {
         let cluster_ids_json = engine
             .store

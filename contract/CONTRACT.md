@@ -32,6 +32,7 @@
 - **manual**: 직행. member 업로드는 branch_id 또는 owner=본인 중 하나 필수(403).
 - **ingest 배정**: argmax centroid(owner 문서는 owner 일치 클러스터만), fit<0.5→low_fit. owner+branch_id 동시 지정=400. 첫 개인 문서는 `personal-<name>` 클러스터 자동 탄생.
 - **승격(개인→공통)**: `POST /branches/{id}/docs {doc_ids}`(owner≠NULL만, all-or-nothing) → merge 시 branch_id=NULL+owner=NULL, inverse에 doc별 이전 owner → rollback이 소유권까지 복원. discard는 비가역(origins만 저널).
+- **승격 지속(no-demote 불변식, 2026-07-24)**: ingest_doc의 owner self-heal은 **강등(shared NULL → 개인 owner)만 금지**한다 — 이미 shared로 승격된 문서를 session/watcher 재sync(owner=admin)가 다시 개인화하지 못하게(안 하면 일일 재sync가 승격을 되돌림). 다른 전이는 유지: 신규→지정 owner, admin 재sync→admin, admin→NULL(공용 소스發 승격)은 허용. 즉 재ingest는 owner를 설정·유지할 수 있으나 절대 내리지 않는다. 강등이 필요하면 rollback/discard 같은 명시적 연산으로.
 - **branch 변이 응답은 전부 JSON 바디 필수**: merge=MergeBranchResponse, discard=갱신된 브랜치 요약(2026-07-24 — 빈 200 바디는 mind postJson 파싱 실패로 가짜 500을 만든 실사고 계약화).
 
 ## 질의 (mind)
